@@ -17,7 +17,7 @@ class Token:
     self.content = c
   
   def __str__(self):
-    return "Token: type: " + self.type + ", content: " + self.content
+    return "Token  type: " + self.type + ", content: " + self.content
   
   def __repr__(self):
     return "Token: type: " + self.type + ", content: " + self.content
@@ -49,9 +49,12 @@ def lexer(lines):
     tk_char = line.split(" ")
     tks = []
     
-    for ch in tk_char:
+    for i, ch in enumerate(tk_char):
+      # verify if there's an equals sign before the current char
+      if token_types["assign"] in tk_char[:i]:
+        tks.append(Token("value", ch))
       # verify if 'ch' is a equals sign
-      if ch == token_types["assign"]:
+      elif ch == token_types["assign"]:
         tks.append(Token("assign", ch))
       # verify if is a variable (if it contains an equals sign in the line)
       elif line.__contains__(token_types["assign"]):
