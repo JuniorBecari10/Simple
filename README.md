@@ -8,6 +8,7 @@ It's very easy to use.
 `print` - Prints text to the screen. <br>
 `printl` - Prints text to the screen, but doesn't break the line. <br>
 `input` - For use when declaring a variable. _See variables_. <br>
+`goto` - Go to a specified line.
 
 ## Print
 

@@ -81,8 +81,8 @@ def lexer(lines):
 def run(tokens):
   line_count = 1
   
-  while line_count < len(tokens):
-    line = tokens[line_count]
+  while line_count - 1 < len(tokens):
+    line = tokens[line_count - 1]
     
     if len(line) == 0:
       continue
@@ -125,7 +125,7 @@ def run(tokens):
           
           line_count = line_go
         except Exception:
-          throw_error("Couldn't parse the line number to go.", i)
+          throw_error("Couldn't parse the line number to go. Value: " + line[1].content, line_count)
         
 def is_var_decl(tokens):
   return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")

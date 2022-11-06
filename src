@@ -1,2 +1,4 @@
+print Ola
+
 print oi
-goto 1
+goto 3
