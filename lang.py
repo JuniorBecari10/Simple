@@ -4,7 +4,7 @@ variables = {}
 
 token_types = {          # Examples: (that's the one with brackets)
   "var": "",             # [a] = 10
-  "keyword": ["print"],  # [print]
+  "keyword": ["print", "printl", "input"],  # [print]
   "assign": "=",         # a [=] 10
   "value": "",           # a = [10]
   "var_ref": "$",        # print [$a]
@@ -39,8 +39,7 @@ def main():
       
       run(tokens)
   except FileNotFoundError:
-    print(f"The file '{sys.argv[1]}' doesn't exist.")
-    sys.exit(1)
+    throw_error_noline(f"The source file '{sys.argv[1]}' doesn't exist.")
 
 # ---
 
@@ -85,23 +84,31 @@ def run(tokens):
       continue
     
     if is_var_decl(line):
-      add_variable(line[0].content, line[2].content)
+      value = line[2].content
+      
+      if line[2].type == "keyword" and line[2].content == "input":
+        value = input("")
+      
+      add_variable(line[0].content, value)
     
-    if line[0].type == "keyword" and line[0].content == "print":
-      for i, t in enumerate(line):
-        if i == 0:
-          continue
+    if line[0].type == "keyword":
+      if line[0].content.startswith("print"):
+        for i, t in enumerate(line):
+          if i == 0:
+            continue
+          
+          if t.type == "var_ref" and t.content.startswith("$"):
+            try:
+              print(variables[t.content[1:]], end=" ")
+            except Exception:
+              throw_error(f"Variable '{t.content[1:]}' doesn't exist!", i)
+          else:
+            print(t.content, end=" ")
         
-        if t.type == "var_ref":
-          try:
-            print(variables[t.content[1:]])
-          except Exception:
-            throw_error(f"Variable '{t.content[1:]}' doesn't exist!", i)
-        else:
-          print(t.content, end=" ")
-
+        if line[0].content != "printl":
+          print()
 def is_var_decl(tokens):
-  return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and tokens[2].type == "value"
+  return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")
 
 def add_variable(name, value):
   variables[name] = value
@@ -112,6 +119,14 @@ def throw_error(message, line_number):
   print("----")
   print("ERROR")
   print("On line " + line_number + "\n")
+  print(message)
+  print("----")
+  
+  sys.exit(1)
+
+def throw_error_noline(message):
+  print("----")
+  print("ERROR\n")
   print(message)
   print("----")
   
