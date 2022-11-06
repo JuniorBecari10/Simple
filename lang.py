@@ -19,10 +19,10 @@ class Token:
     self.content = c
   
   def __str__(self):
-    return "Token  type: " + self.type + ", content: " + self.content
+    return "Token | type: " + self.type + ", content: " + self.content
   
   def __repr__(self):
-    return "Token: type: " + self.type + ", content: " + self.content
+    return "Token | type: " + self.type + ", content: " + self.content
 
 # ---
 
