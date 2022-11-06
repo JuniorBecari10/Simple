@@ -38,9 +38,6 @@ def main():
       tokens = lexer(lines)
       
       run(tokens)
-      
-      print(tokens)
-      print(variables)
   except FileNotFoundError:
     print(f"The file '{sys.argv[1]}' doesn't exist.")
     sys.exit(1)
@@ -72,7 +69,7 @@ def lexer(lines):
       elif line.__contains__(token_types["assign"]):
         tks.append(Token("var", ch))
       # if starts with '$'
-      elif ch[0] == "$":
+      elif ch.startswith("$"):
         tks.append(Token("var_ref", ch))
       # else it's text
       else:
@@ -83,15 +80,42 @@ def lexer(lines):
   return tokens
 
 def run(tokens):
-  for line in tokens:
+  for i, line in enumerate(tokens, start=1):
+    if len(line) == 0:
+      continue
+    
     if is_var_decl(line):
       add_variable(line[0].content, line[2].content)
+    
+    if line[0].type == "keyword" and line[0].content == "print":
+      for i, t in enumerate(line):
+        if i == 0:
+          continue
+        
+        if t.type == "var_ref":
+          try:
+            print(variables[t.content[1:]])
+          except Exception:
+            throw_error(f"Variable '{t.content[1:]}' doesn't exist!", i)
+        else:
+          print(t.content, end=" ")
 
 def is_var_decl(tokens):
   return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and tokens[2].type == "value"
 
 def add_variable(name, value):
   variables[name] = value
+
+def throw_error(message, line_number):
+  line_number = str(line_number)
+  
+  print("----")
+  print("ERROR")
+  print("On line " + line_number + "\n")
+  print(message)
+  print("----")
+  
+  sys.exit(1)
 
 # ---
 
