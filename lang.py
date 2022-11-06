@@ -1,5 +1,7 @@
 import sys
 
+variables = {}
+
 token_types = {          # Examples: (that's the one with brackets)
   "var": "",             # [a] = 10
   "keyword": ["print"],  # [print]
@@ -34,7 +36,10 @@ def main():
       lines = f.readlines()
       tokens = lexer(lines)
       
+      run(tokens)
+      
       print(tokens)
+      print(variables)
   except FileNotFoundError:
     print(f"The file '{sys.argv[1]}' doesn't exist.")
     sys.exit(1)
@@ -59,11 +64,21 @@ def lexer(lines):
       # verify if is a variable (if it contains an equals sign in the line)
       elif line.__contains__(token_types["assign"]):
         tks.append(Token("var", ch))
-      
     
     tokens.append(tks)
   
   return tokens
+
+def run(tokens):
+  for line in tokens:
+    if is_var_decl(line):
+      add_variable(line[0].content, line[2].content)
+
+def is_var_decl(tokens):
+  return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and tokens[2].type == "value"
+
+def add_variable(name, value):
+  variables[name] = value
 
 # ---
 
