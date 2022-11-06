@@ -8,6 +8,7 @@ token_types = {          # Examples: (that's the one with brackets)
   "assign": "=",         # a [=] 10
   "value": "",           # a = [10]
   "var_ref": "$",        # print [$a]
+  "text": ""             # print [olá]
 }
 
 class Token:
@@ -55,8 +56,11 @@ def lexer(lines):
     tks = []
     
     for i, ch in enumerate(tk_char):
+      # skip if is nothing
+      if ch == "":
+        continue
       # verify if there's an equals sign before the current char
-      if token_types["assign"] in tk_char[:i]:
+      elif token_types["assign"] in tk_char[:i]:
         tks.append(Token("value", ch))
       # verify if 'ch' is a equals sign
       elif ch == token_types["assign"]:
@@ -64,6 +68,15 @@ def lexer(lines):
       # verify if is a variable (if it contains an equals sign in the line)
       elif line.__contains__(token_types["assign"]):
         tks.append(Token("var", ch))
+      # if it's a keyword
+      elif ch in token_types["keyword"]:
+        tks.append(Token("keyword", ch))
+      # if starts with '$'
+      elif ch[0] == "$":
+        tks.append(Token("var_ref", ch))
+      # else it's text
+      else:
+        tks.append(Token("text", ch))
     
     tokens.append(tks)
   
