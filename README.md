@@ -1,6 +1,7 @@
-# Lang
+# Simple
 
-A simple programming language made in Python.
+A simple, interpreted programming language. <br>
+It's very easy to use.
 
 ## Keywords
 
@@ -25,6 +26,13 @@ print Hello World
 ```
 printl Hello
 print World
+```
+
+You can also print a variable.
+
+```
+a = 10
+print a is $a
 ```
 
 ## Variables
@@ -84,3 +92,5 @@ age = input
 
 print Your name is $name and your age is $age
 ```
+
+## 

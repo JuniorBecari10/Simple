@@ -1,10 +1,2 @@
-print Ola Mundo!
-print
-
-printl Digite seu nome:
-nome = input
-
-printl Digite sua idade:
-idade = input
-
-print seu nome e $nome e sua idade e $idade
+print oi
+goto 1

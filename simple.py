@@ -4,7 +4,7 @@ variables = {}
 
 token_types = {          # Examples: (that's the one with brackets)
   "var": "",             # [a] = 10
-  "keyword": ["print", "printl", "input"],  # [print]
+  "keyword": ["print", "printl", "input", "goto"],
   "assign": "=",         # a [=] 10
   "value": "",           # a = [10]
   "var_ref": "$",        # print [$a]
@@ -47,7 +47,7 @@ def main():
 def lexer(lines):
   tokens = []
   
-  for line in lines:
+  for i, line in enumerate(lines):
     tk_char = line.split(" ")
     tks = []
     
@@ -79,7 +79,11 @@ def lexer(lines):
   return tokens
 
 def run(tokens):
-  for i, line in enumerate(tokens, start=1):
+  line_count = 1
+  
+  while line_count < len(tokens):
+    line = tokens[line_count]
+    
     if len(line) == 0:
       continue
     
@@ -90,6 +94,8 @@ def run(tokens):
         value = input("")
       
       add_variable(line[0].content, value)
+    elif line[0].type == "var":
+      throw_error("Syntax error while declaring a variable.", i)
     
     if line[0].type == "keyword":
       if line[0].content.startswith("print"):
@@ -107,6 +113,20 @@ def run(tokens):
         
         if line[0].content != "printl":
           print()
+      if line[0].content == "goto":
+        try:
+          if len(line) != 2:
+            throw_error("Syntax error on a goto statement.", i)
+          
+          line_go = int(line[1].content)
+          
+          if line_go < 0 or line_go > len(tokens):
+            throw_error("Line out of bounds.", i)
+          
+          line_count = line_go
+        except Exception:
+          throw_error("Couldn't parse the line number to go.", i)
+        
 def is_var_decl(tokens):
   return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")
 
