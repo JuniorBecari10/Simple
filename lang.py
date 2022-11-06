@@ -34,7 +34,7 @@ def main():
   
   try:
     with open(sys.argv[1], "r") as f:
-      lines = f.readlines()
+      lines = f.read().splitlines()
       tokens = lexer(lines)
       
       run(tokens)
@@ -59,6 +59,9 @@ def lexer(lines):
       # skip if is nothing
       if ch == "":
         continue
+      # if it's a keyword
+      elif ch in token_types["keyword"]:
+        tks.append(Token("keyword", ch))
       # verify if there's an equals sign before the current char
       elif token_types["assign"] in tk_char[:i]:
         tks.append(Token("value", ch))
@@ -68,9 +71,6 @@ def lexer(lines):
       # verify if is a variable (if it contains an equals sign in the line)
       elif line.__contains__(token_types["assign"]):
         tks.append(Token("var", ch))
-      # if it's a keyword
-      elif ch in token_types["keyword"]:
-        tks.append(Token("keyword", ch))
       # if starts with '$'
       elif ch[0] == "$":
         tks.append(Token("var_ref", ch))
