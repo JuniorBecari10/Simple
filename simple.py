@@ -5,8 +5,10 @@ variables = {}
 
 token_types = {          # Examples: (that's the one with brackets)
   "var": "",             # [a] = 10
-  "keyword": ["print", "printl", "input", "goto", "exec", "exit"],
+  "keyword": ["print", "printl", "input", "goto", "exec", "exit", "if"],
   "assign": "=",         # a [=] 10
+  "equals": "==",        # if $a [==] a goto 1
+  "math": ["+=", "-=", "*=", "/="],
   "value": "",           # a = [10]
   "var_ref": "$",        # print [$a]
   "text": ""             # print [hi]
@@ -28,6 +30,7 @@ class Token:
   def __repr__(self):
     return "Token | type: " + self.type + ", content: " + self.content
 
+# Source: StackOverflow (Modified)
 class Iterator:
   def __init__(self, start, end):
     self.end = end
@@ -79,18 +82,27 @@ def lexer(lines):
       # if it's a keyword
       elif ch in token_types["keyword"]:
         tks.append(Token("keyword", ch))
-      # verify if there's an equals sign before the current char
-      elif token_types["assign"] in tk_char[:i]:
-        tks.append(Token("value", ch))
+      # verify if there's a double equals sign before the current char
+      elif ch == token_types["equals"]:
+        tks.append(Token("equals", ch))
       # verify if 'ch' is a equals sign
       elif ch == token_types["assign"]:
         tks.append(Token("assign", ch))
-      # verify if is a variable (if it contains an equals sign in the line)
-      elif line.__contains__(token_types["assign"]):
-        tks.append(Token("var", ch))
+      # verify if there's any math sign
+      elif ch in token_types["math"]:
+        tks.append(Token("math", ch))
       # if starts with '$'
       elif ch.startswith("$"):
         tks.append(Token("var_ref", ch))
+      # verify if there's an equals sign before the current char
+      elif token_types["assign"] in tk_char[:i]:
+        tks.append(Token("value", ch))
+      # verify if is a variable (if it contains an equals sign in the line)
+      elif line.__contains__(token_types["assign"]):
+        if line.__contains__(token_types["equals"]):
+          tks.append(Token("value", ch))
+        else:
+          tks.append(Token("var", ch))
       # else it's text
       else:
         tks.append(Token("text", ch))
