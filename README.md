@@ -1,3 +1,5 @@
+<img src="logo.png">
+
 # Simple
 
 A simple, interpreted programming language. <br>
@@ -5,10 +7,12 @@ It's very easy to use.
 
 ## Keywords
 
-`print` - Prints text to the screen. <br>
-`printl` - Prints text to the screen, but doesn't break the line. <br>
-`input` - For use when declaring a variable. _See variables_. <br>
-`goto` - Go to a specified line.
+`print` - Prints text to the screen; <br>
+`printl` - Prints text to the screen, but doesn't break the linen <br>
+`input` - For use when declaring a variable. _See variables_; <br>
+`goto` - Go to a specified line; <br>
+`exec` - Run a system command; <br>
+`exit` - Exit the program.
 
 ## Print
 

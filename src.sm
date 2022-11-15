@@ -1,0 +1,8 @@
+printl Name: 
+name = input
+print Your name is $name
+
+c = input
+exec cls
+
+goto 1

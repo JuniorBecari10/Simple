@@ -1,7 +1,0 @@
-printl Type your name: 
-a = input
-print a is $a
-
-goto 1
-
-.

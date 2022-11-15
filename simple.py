@@ -1,14 +1,15 @@
 import sys
+import os
 
 variables = {}
 
 token_types = {          # Examples: (that's the one with brackets)
   "var": "",             # [a] = 10
-  "keyword": ["print", "printl", "input", "goto"],
+  "keyword": ["print", "printl", "input", "goto", "exec", "exit"],
   "assign": "=",         # a [=] 10
   "value": "",           # a = [10]
   "var_ref": "$",        # print [$a]
-  "text": ""             # print [olá]
+  "text": ""             # print [hi]
 }
 
 class Token:
@@ -125,7 +126,7 @@ def run(tokens):
             try:
               print(variables[t.content[1:]], end=" ")
             except Exception:
-              throw_error(f"Variable '{t.content[1:]}' doesn't exist!", i)
+              throw_error(f"Variable '{t.content[1:]}' doesn't exist.", i)
           else:
             print(t.content, end=" ")
         
@@ -144,6 +145,27 @@ def run(tokens):
           it.revert(line_go - 1)
         except Exception:
           throw_error("Couldn't parse the line number to go. Value: " + line[1].content, line_count + 1)
+      elif line[0].content == "exec":
+        if len(line) == 1:
+          throw_error("No commands to run.", line_count + 1)
+        
+        os.system(" ".join(token_to_str(line[1:])))
+      elif line[0].content == "exit":
+        if len(line) == 2:
+          try:
+            status = int(line[1].content)
+          except Exception:
+            throw_error("Invalid status code.", line_count + 1)
+          
+          sys.exit(status)
+
+def token_to_str(tokens):
+  strs = []
+  
+  for i, n in enumerate(tokens):
+    strs.append(n.content)
+  
+  return strs
 
 def is_var_decl(tokens):
   return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")
