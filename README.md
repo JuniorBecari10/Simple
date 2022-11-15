@@ -1,4 +1,4 @@
-<img src="logo.png">
+<img src="logo-big.png">
 
 # Simple
 

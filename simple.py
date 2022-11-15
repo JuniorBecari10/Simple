@@ -12,6 +12,8 @@ token_types = {          # Examples: (that's the one with brackets)
   "text": ""             # print [hi]
 }
 
+# Extension: .sm
+
 class Token:
   type = ""
   content = ""
