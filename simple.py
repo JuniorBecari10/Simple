@@ -25,6 +25,24 @@ class Token:
   def __repr__(self):
     return "Token | type: " + self.type + ", content: " + self.content
 
+class Iterator:
+  def __init__(self, start, end):
+    self.end = end
+    self.position = start
+  
+  def __next__(self):
+    if self.position >= self.end:
+      raise StopIteration
+    else:
+      self.position += 1
+      return self.position - 1
+  
+  def __iter__(self):
+    return self
+  
+  def revert(self, n=1):
+    self.position = n
+
 # ---
 
 def main():
@@ -79,10 +97,10 @@ def lexer(lines):
   return tokens
 
 def run(tokens):
-  line_count = 1
+  it = Iterator(0, len(tokens))
   
-  while line_count - 1 < len(tokens):
-    line = tokens[line_count - 1]
+  for line_count in it:
+    line = tokens[line_count]
     
     if len(line) == 0:
       continue
@@ -95,9 +113,9 @@ def run(tokens):
       
       add_variable(line[0].content, value)
     elif line[0].type == "var":
-      throw_error("Syntax error while declaring a variable.", i)
+      throw_error("Syntax error while declaring a variable.", line_count + 1)
     
-    if line[0].type == "keyword":
+    elif line[0].type == "keyword":
       if line[0].content.startswith("print"):
         for i, t in enumerate(line):
           if i == 0:
@@ -113,20 +131,20 @@ def run(tokens):
         
         if line[0].content != "printl":
           print()
-      if line[0].content == "goto":
+      elif line[0].content == "goto":
         try:
           if len(line) != 2:
-            throw_error("Syntax error on a goto statement.", i)
+            throw_error("Syntax error on a goto statement.", line_count + 1)
           
           line_go = int(line[1].content)
           
           if line_go < 0 or line_go > len(tokens):
-            throw_error("Line out of bounds.", i)
+            throw_error("Line out of bounds.", line_count + 1)
           
-          line_count = line_go
+          it.revert(line_go - 1)
         except Exception:
-          throw_error("Couldn't parse the line number to go. Value: " + line[1].content, line_count)
-        
+          throw_error("Couldn't parse the line number to go. Value: " + line[1].content, line_count + 1)
+
 def is_var_decl(tokens):
   return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")
 
