@@ -1,5 +1,6 @@
-a = 10
-b = 20
-a += $b
+a = 0
 
+a += 1
 print $a
+
+goto 3

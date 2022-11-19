@@ -153,9 +153,21 @@ def run(tokens):
       if type(var1) != type(var2):
         throw_error("Variable types don't match.", line_count + 1)
       
+      is_int = type(var1) is int
+      
       try:
         if line[1].content.startswith("+"):
           variables[line[0].content] = var1 + var2
+        elif line[1].content.startswith("-") and is_int:
+          variables[line[0].content] = var1 - var2
+        elif line[1].content.startswith("*") and is_int:
+          variables[line[0].content] = var1 * var2
+        elif line[1].content.startswith("/") and is_int:
+          if var2 == 0:
+            throw_error("Cannot divide by zero.", line_count + 1)
+          
+          variables[line[0].content] = var1 / var2
+        
       except Exception as e:
         print(e)
         throw_error(f"Variable '{line[0].content}' doesn't exist.", line_count + 1)
