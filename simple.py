@@ -168,10 +168,9 @@ def run(tokens):
           
           variables[line[0].content] = var1 / var2
         
-      except Exception as e:
-        print(e)
+      except Exception:
         throw_error(f"Variable '{line[0].content}' doesn't exist.", line_count + 1)
-    elif line[1].type == "math":
+    elif len(line) > 1 and line[1].type == "math":
       throw_error("Syntax error while doing a math operation.", line_count + 1)
     
     if line[0].type == "keyword":
@@ -180,13 +179,13 @@ def run(tokens):
           if i == 0:
             continue
           
-          if t.type == "var_ref" and t.content.startswith("$"):
+          if t.type == "var_ref" and t.content.startswith(token_types["var_ref"]):
             try:
               print(variables[t.content[1:]], end=" ")
             except Exception:
               throw_error(f"Variable '{t.content[1:]}' doesn't exist.", i)
           else:
-            print(t.content, end="")
+            print(t.content, end=" ")
         
         if line[0].content != "printl":
           print()
@@ -251,19 +250,19 @@ def add_variable(name, value):
 def throw_error(message, line_number):
   line_number = str(line_number)
   
-  print("----")
+  print("-----")
   print("ERROR")
   print("On line " + line_number + "\n")
   print(message)
-  print("----")
+  print("-----")
   
   sys.exit(1)
 
 def throw_error_noline(message):
-  print("----")
+  print("-----")
   print("ERROR\n")
   print(message)
-  print("----")
+  print("-----")
   
   sys.exit(1)
 
