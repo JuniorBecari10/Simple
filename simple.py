@@ -99,7 +99,7 @@ def lexer(lines):
         tks.append(Token("value", ch))
       # verify if is a variable (if it contains an equals sign in the line)
       elif line.__contains__(token_types["assign"]):
-        if line.__contains__(token_types["equals"]):
+        if line.__contains__(token_types["equals"]) or (contains_arr(line, token_types["math"]) and i > 0):
           tks.append(Token("value", ch))
         else:
           tks.append(Token("var", ch))
@@ -127,10 +127,46 @@ def run(tokens):
         value = input("")
       
       add_variable(line[0].content, value)
-    elif line[0].type == "var":
+    elif line[0].type == "var" and line[1].type != "math":
       throw_error("Syntax error while declaring a variable.", line_count + 1)
     
-    elif line[0].type == "keyword":
+    if is_var_math(line):
+      var1 = variables[line[0].content]
+      var2 = line[2].content
+      
+      if var2.startswith(tokens["var_ref"]):
+        try:
+          var2 = variables[line[2].content[1:]]
+        except Exception:
+          throw_error(f"Variable '{line[2].content[1:]}' doesn't exist.", line_count + 1)
+      
+      print(var2)
+      
+      try:
+        var1 = int(var1)
+      except Exception:
+        var1 = variables[line[0].content]
+      
+      try:
+        var2 = int(var2)
+      except Exception:
+        var2 = line[2].content
+      
+      if type(var1) != type(var2):
+        throw_error("Variable types don't match.", line_count + 1)
+      
+      
+      
+      try:
+        if line[1].content.startswith("+"):
+          variables[line[0].content] = var1 + var2
+      except Exception as e:
+        print(e)
+        throw_error(f"Variable '{line[0].content}' doesn't exist.", line_count + 1)
+    elif line[1].type == "math":
+      throw_error("Syntax error while doing a math operation.", line_count + 1)
+    
+    if line[0].type == "keyword":
       if line[0].content.startswith("print"):
         for i, t in enumerate(line):
           if i == 0:
@@ -142,7 +178,7 @@ def run(tokens):
             except Exception:
               throw_error(f"Variable '{t.content[1:]}' doesn't exist.", i)
           else:
-            print(t.content, end=" ")
+            print(t.content, end="")
         
         if line[0].content != "printl":
           print()
@@ -173,6 +209,13 @@ def run(tokens):
           
           sys.exit(status)
 
+def is_int(var):
+  try:
+    _ = int(variables[var])
+    return True
+  except Exception:
+    return False
+
 def token_to_str(tokens):
   strs = []
   
@@ -180,6 +223,16 @@ def token_to_str(tokens):
     strs.append(n.content)
   
   return strs
+
+def contains_arr(line, arr):
+  for n in arr:
+    if line.__contains__(n):
+      return True
+  
+  return False
+
+def is_var_math(tokens):
+  return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "math" and (tokens[2].type == "value" or tokens[2].type == "var_ref")
 
 def is_var_decl(tokens):
   return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")
