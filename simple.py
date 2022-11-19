@@ -134,13 +134,11 @@ def run(tokens):
       var1 = variables[line[0].content]
       var2 = line[2].content
       
-      if var2.startswith(tokens["var_ref"]):
+      if var2.startswith(token_types["var_ref"]):
         try:
           var2 = variables[line[2].content[1:]]
         except Exception:
           throw_error(f"Variable '{line[2].content[1:]}' doesn't exist.", line_count + 1)
-      
-      print(var2)
       
       try:
         var1 = int(var1)
@@ -154,8 +152,6 @@ def run(tokens):
       
       if type(var1) != type(var2):
         throw_error("Variable types don't match.", line_count + 1)
-      
-      
       
       try:
         if line[1].content.startswith("+"):
