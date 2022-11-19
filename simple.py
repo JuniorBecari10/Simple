@@ -198,7 +198,7 @@ def run(tokens):
           line_go = int(line[1].content)
           
           if line_go < 0 or line_go > len(tokens):
-            throw_error("Line out of bounds.", line_count + 1)
+            throw_error(f"Line out of bounds: {line_go}", line_count + 1)
           
           it.revert(line_go - 1)
         except Exception:

@@ -1,6 +1,0 @@
-a = 0
-
-a += 1
-print $a
-
-goto 3
