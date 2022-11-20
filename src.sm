@@ -1,12 +1,4 @@
-print Sum Calculator
-print
+printl Enter your name:
+name = input arr
 
-printl Enter a value:
-n1 = input
-
-printl Enter another value: 
-n2 = input
-
-n1 += $n2
-
-print Result: $n1
+print your name is $name

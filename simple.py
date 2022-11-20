@@ -3,12 +3,13 @@ import os
 
 variables = {}
 
-token_types = {          # Examples: (that's the one with brackets)
+token_types = {          # Examples: (it's the one with brackets)
   "var": "",             # [a] = 10
   "keyword": ["print", "printl", "input", "goto", "exec", "exit", "if"],
   "assign": "=",         # a [=] 10
-  "equals": "==",        # if $a [==] a goto 1
+  "logic": ["==", "!=", ">", ">=", "<", "<="], # if $a [==] a goto 1
   "math": ["+=", "-=", "*=", "/="],
+  "types": ["num", "str", "arr"],
   "value": "",           # a = [10]
   "var_ref": "$",        # print [$a]
   "text": ""             # print [hi]
@@ -83,14 +84,17 @@ def lexer(lines):
       elif ch in token_types["keyword"]:
         tks.append(Token("keyword", ch))
       # verify if there's a double equals sign before the current char
-      elif ch == token_types["equals"]:
-        tks.append(Token("equals", ch))
+      elif ch in token_types["logic"]:
+        tks.append(Token("logic", ch))
       # verify if 'ch' is a equals sign
       elif ch == token_types["assign"]:
         tks.append(Token("assign", ch))
       # verify if there's any math sign
       elif ch in token_types["math"]:
         tks.append(Token("math", ch))
+       # verify if there's any type keyword
+      elif ch in token_types["types"]:
+        tks.append(Token("type", ch))
       # if starts with '$'
       elif ch.startswith("$"):
         tks.append(Token("var_ref", ch))
@@ -99,7 +103,7 @@ def lexer(lines):
         tks.append(Token("value", ch))
       # verify if is a variable (if it contains an equals sign in the line)
       elif line.__contains__(token_types["assign"]):
-        if line.__contains__(token_types["equals"]) or (contains_arr(line, token_types["math"]) and i > 0):
+        if contains_arr(line, token_types["logic"]) or (contains_arr(line, token_types["math"]) and i > 0):
           tks.append(Token("value", ch))
         else:
           tks.append(Token("var", ch))
@@ -124,7 +128,26 @@ def run(tokens):
       value = line[2].content
       
       if line[2].type == "keyword" and line[2].content == "input":
-        value = input("")
+        while True:
+            value = input("")
+            
+            if len(line) == 4:
+                if line[3].content == "num":
+                    try:
+                        _ = int(value)
+                        
+                        break
+                    except Exception:
+                        continue
+                elif line[3].content == "str":
+                    try:
+                        _ = int(value)
+                        
+                        continue
+                    except Exception:
+                        break
+                else:
+                    throw_error("Type 'arr' is not allowed for input.", line_count + 1)
       
       add_variable(line[0].content, value)
     elif line[0].type == "var" and line[1].type != "math":
@@ -242,7 +265,7 @@ def is_var_math(tokens):
   return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "math" and (tokens[2].type == "value" or tokens[2].type == "var_ref")
 
 def is_var_decl(tokens):
-  return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")
+  return (len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
 
 def add_variable(name, value):
   variables[name] = value
