@@ -135,6 +135,9 @@ def run(tokens):
         while True:
             value = input("")
             
+            if len(line) == 3:
+              break
+            
             if len(line) == 4:
                 if line[3].content == "num":
                     try:
@@ -177,19 +180,23 @@ def run(tokens):
       except Exception:
         var2 = line[2].content
       
-      if type(var1) != type(var2):
+      if type(var1) != type(var2) and not line[1].content.startswith("+"):
         throw_error("Variable types don't match.", line_count + 1)
       
-      is_int = type(var1) is int
+      is_num = type(var1) is int
       
       try:
         if line[1].content.startswith("+"):
+          if type(var1) != type(var2):
+            var1 = str(var1)
+            var2 = str(var2)
+          
           variables[line[0].content] = var1 + var2
-        elif line[1].content.startswith("-") and is_int:
+        elif line[1].content.startswith("-") and is_num:
           variables[line[0].content] = var1 - var2
-        elif line[1].content.startswith("*") and is_int:
+        elif line[1].content.startswith("*") and is_num:
           variables[line[0].content] = var1 * var2
-        elif line[1].content.startswith("/") and is_int:
+        elif line[1].content.startswith("/") and is_num:
           if var2 == 0:
             throw_error("Cannot divide by zero.", line_count + 1)
           

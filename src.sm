@@ -1,9 +1,6 @@
-printl Enter your name:
-name = input arr
+a = 10
+b = dd
 
-print your name is $name
+a -= $b
 
-if name == joao goto 9
-exit 0
-
-print hmm joããão??
+print $a
