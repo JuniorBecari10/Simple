@@ -9,9 +9,10 @@ token_types = {          # Examples: (it's the one with brackets)
   "assign": "=",         # a [=] 10
   "logic": ["==", "!=", ">", ">=", "<", "<="], # if $a [==] a goto 1
   "math": ["+=", "-=", "*=", "/="],
-  "types": ["num", "str", "arr"],
+  "types": ["num", "str"], # "arr" not yet
   "value": "",           # a = [10]
   "var_ref": "$",        # print [$a]
+  "comment": "#",        # [#] comment
   "text": ""             # print [hi]
 }
 
@@ -80,6 +81,9 @@ def lexer(lines):
       # skip if is nothing
       if ch == "":
         continue
+      # verify if is a comment
+      #elif ch == token_types["comment"] and i == 0:
+      #  continue
       # if it's a keyword
       elif ch in token_types["keyword"]:
         tks.append(Token("keyword", ch))
@@ -147,7 +151,7 @@ def run(tokens):
                     except Exception:
                         break
                 else:
-                    throw_error("Type 'arr' is not allowed for input.", line_count + 1)
+                    throw_error("Type '" + line[3].content + "' is not allowed for input.", line_count + 1)
       
       add_variable(line[0].content, value)
     elif line[0].type == "var" and line[1].type != "math":
@@ -224,7 +228,7 @@ def run(tokens):
           
           it.revert(line_go - 1)
         except Exception:
-          throw_error("Couldn't parse the line number to go. Value: " + line[1].content, line_count + 1)
+          throw_error("Couldn't parse the line number to go. Value read: " + line[1].content, line_count + 1)
       elif line[0].content == "exec":
         if len(line) == 1:
           throw_error("No commands to run.", line_count + 1)
@@ -238,6 +242,8 @@ def run(tokens):
             throw_error("Invalid status code.", line_count + 1)
           
           sys.exit(status)
+      elif line[0].content == "if":
+        pass
 
 def is_int(var):
   try:

@@ -2,3 +2,8 @@ printl Enter your name:
 name = input arr
 
 print your name is $name
+
+if name == joao goto 9
+exit 0
+
+print hmm joããão??
