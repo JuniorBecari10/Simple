@@ -62,8 +62,8 @@ def main():
     with open(sys.argv[1], "r") as f:
       lines = f.read().splitlines()
       tokens = lexer(lines)
-      
-      run(tokens)
+      print(tokens)
+      #run(tokens)
   except FileNotFoundError:
     throw_error_noline(f"The source file '{sys.argv[1]}' doesn't exist.")
 
@@ -249,7 +249,7 @@ def run(tokens):
             throw_error("Invalid status code.", line_count + 1)
           
           sys.exit(status)
-      elif line[0].content == "if":
+      elif is_condition(tokens):
         pass
 
 def is_int(var):
@@ -279,6 +279,9 @@ def is_var_math(tokens):
 
 def is_var_decl(tokens):
   return (len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
+
+def is_condition(tokens):
+  return len(tokens) == 6 and tokens[0].type == "keyword" and tokens[1].type == "var" and tokens[2].type == "logic" and (tokens[3].type == "value" or tokens[3].type == "var_ref") and tokens[4].type == "keyword" and tokens[5].type == "value"
 
 def add_variable(name, value):
   variables[name] = value

@@ -1,6 +1,1 @@
-a = 10
-b = dd
-
-a -= $b
-
-print $a
+if a == $b goto 4
