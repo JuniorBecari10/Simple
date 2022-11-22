@@ -62,8 +62,8 @@ def main():
     with open(sys.argv[1], "r") as f:
       lines = f.read().splitlines()
       tokens = lexer(lines)
-      print(tokens)
-      #run(tokens)
+      
+      run(tokens)
   except FileNotFoundError:
     throw_error_noline(f"The source file '{sys.argv[1]}' doesn't exist.")
 
@@ -133,7 +133,7 @@ def run(tokens):
       continue
     
     if is_var_decl(line):
-      value = line[2].content
+      value = " ".join(token_to_str(line[2:]))
       
       if line[2].type == "keyword" and line[2].content == "input":
         while True:
@@ -143,22 +143,22 @@ def run(tokens):
               break
             
             if len(line) == 4:
-                if line[3].content == "num":
-                    try:
-                        _ = int(value)
-                        
-                        break
-                    except Exception:
-                        continue
-                elif line[3].content == "str":
-                    try:
-                        _ = int(value)
-                        
-                        continue
-                    except Exception:
-                        break
-                else:
-                    throw_error("Type '" + line[3].content + "' is not allowed for input.", line_count + 1)
+              if line[3].content == "num":
+                try:
+                  _ = int(value)
+                  
+                  break
+                except Exception:
+                  continue
+              elif line[3].content == "str":
+                try:
+                  _ = int(value)
+              
+                  continue
+                except Exception:
+                  break
+              else:
+                throw_error("Type '" + line[3].content + "' is not allowed for input.", line_count + 1)
       
       add_variable(line[0].content, value)
     elif line[0].type == "var" and line[1].type != "math":
@@ -244,7 +244,19 @@ def run(tokens):
         if len(line) == 1:
           throw_error("No commands to run.", line_count + 1)
         
-        os.system(" ".join(token_to_str(line[1:])))
+        com = []
+        
+        for i, t in enumerate(line):
+          if i == 0:
+            continue
+          
+          if t.type == "var_ref":
+            com.append(variables[t.content[1:]])
+            continue
+          
+          com.append(t.content)
+        
+        os.system(" ".join(com))
       elif line[0].content == "exit":
         if len(line) == 2:
           try:
@@ -282,7 +294,7 @@ def is_var_math(tokens):
   return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "math" and (tokens[2].type == "value" or tokens[2].type == "var_ref")
 
 def is_var_decl(tokens):
-  return (len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
+  return (len(tokens) >= 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
 
 def is_condition(tokens):
   return len(tokens) == 6 and tokens[0].type == "keyword" and tokens[1].type == "var" and tokens[2].type == "logic" and (tokens[3].type == "value" or tokens[3].type == "var_ref") and tokens[4].type == "keyword" and tokens[5].type == "value"

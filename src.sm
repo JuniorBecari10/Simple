@@ -1,1 +1,3 @@
-if a == $b goto 4
+com = echo abelha
+
+print $com
