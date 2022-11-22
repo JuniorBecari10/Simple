@@ -104,10 +104,14 @@ def lexer(lines):
         tks.append(Token("var_ref", ch))
       # verify if there's an equals sign before the current char
       elif token_types["assign"] in tk_char[:i]:
-        tks.append(Token("value", ch))
+          tks.append(Token("value", ch))
       # verify if is a variable (if it contains an equals sign in the line)
       elif line.__contains__(token_types["assign"]):
-        if contains_arr(line, token_types["logic"]) or (contains_arr(line, token_types["math"]) and i > 0):
+        if contains_arr(line, token_types["logic"]) or (contains_arr(line, token_types["math"]) and i > 1):
+          if line.__contains__("if") and i == 1:
+            tks.append(Token("var", ch))
+            continue
+          
           tks.append(Token("value", ch))
         else:
           tks.append(Token("var", ch))
