@@ -1,3 +1,6 @@
-com = echo abelha
+a = 10
 
-print $com
+if a == 10 goto 6
+exit 0
+
+print a é 10!

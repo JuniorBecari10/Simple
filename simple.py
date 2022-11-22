@@ -8,6 +8,7 @@ token_types = {          # Examples: (it's the one with brackets)
   "keyword": ["print", "printl", "input", "goto", "exec", "exit", "if"],
   "assign": "=",         # a [=] 10
   "logic": ["==", "!=", ">", ">=", "<", "<="], # if $a [==] a goto 1
+  "mathlogic": [">", ">=", "<", "<="],
   "math": ["+=", "-=", "*=", "/="],
   "types": ["num", "str"], # "arr" not yet
   "value": "",           # a = [10]
@@ -179,10 +180,11 @@ def run(tokens):
       except Exception:
         var1 = variables[line[0].content]
       
-      try:
-        var2 = int(var2)
-      except Exception:
-        var2 = line[2].content
+      if not var2.startswith(token_types["var_ref"]):
+        try:
+          var2 = int(var2)
+        except Exception:
+          var2 = line[2].content
       
       if type(var1) != type(var2) and not line[1].content.startswith("+"):
         throw_error("Variable types don't match.", line_count + 1)
@@ -266,7 +268,66 @@ def run(tokens):
           
           sys.exit(status)
       elif is_condition(tokens):
-        pass
+        try:
+          var = variables[tokens[1].content]
+          value = tokens[3].content
+          oper = tokens[2].content
+          line_go = tokens[5].content
+          
+          try:
+            line_go = int(line_go)
+          except Exception:
+            throw_error("Couldn't parse the line number to go. Value read: " + line_go, line_count + 1)
+          
+          go = False
+          
+          if tokens[3].type == "var_ref":
+            try:
+              value = variables[value[1:]]
+            except Exception:
+              throw_error(f"Variable '{value[1:]}' doesn't exist.", i)
+          
+          var_int = True
+          value_int = True
+          
+          try:
+            var = int(var)
+          except Exception:
+            var_int = False
+          
+          try:
+            value = int(var)
+          except Exception:
+            value_int = False
+          
+          is_int = var_int and value_int
+          
+          if oper == "==":
+            go = str(var) == str(value)
+          elif oper == "!=":
+            go = str(var) != str(value)
+          
+          if is_int and oper in token_types["mathlogic"]:
+            throw_error(f"Cannot perform math logical operations on strings.", i)
+          
+          if is_int:
+            if oper == ">":
+              go = var > value
+            elif oper == ">=":
+              go = var >= value
+            elif oper == "<":
+              go = var < value
+            elif oper == "<=":
+              go = var <= value
+          
+          if go:
+            if line_go < 0 or line_go > len(tokens):
+              throw_error(f"Line out of bounds: {line_go}", line_count + 1)
+            
+            it.revert(line_go - 1)
+          
+        except Exception:
+          throw_error(f"Variable '{var}' doesn't exist.", i)
 
 def is_int(var):
   try:
