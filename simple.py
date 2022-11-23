@@ -134,7 +134,7 @@ def run(tokens):
       continue
     
     if is_var_decl(line):
-      value = " ".join(token_to_str(line[2:]))
+      value = line[2].content
       
       if line[2].type == "keyword" and line[2].content == "input":
         while True:
@@ -146,14 +146,14 @@ def run(tokens):
             if len(line) == 4:
               if line[3].content == "num":
                 try:
-                  _ = int(value)
+                  _ = float(value)
                   
                   break
                 except Exception:
                   continue
               elif line[3].content == "str":
                 try:
-                  _ = int(value)
+                  _ = float(value)
               
                   continue
                 except Exception:
@@ -176,20 +176,20 @@ def run(tokens):
           throw_error(f"Variable '{line[2].content[1:]}' doesn't exist.", line_count + 1)
       
       try:
-        var1 = int(var1)
+        var1 = float(var1)
       except Exception:
         var1 = variables[line[0].content]
       
       if not var2.startswith(token_types["var_ref"]):
         try:
-          var2 = int(var2)
+          var2 = float(var2)
         except Exception:
           var2 = line[2].content
       
       if type(var1) != type(var2) and not line[1].content.startswith("+"):
         throw_error("Variable types don't match.", line_count + 1)
       
-      is_num = type(var1) is int
+      is_num = type(var1) is float
       
       try:
         if line[1].content.startswith("+"):
@@ -234,6 +234,7 @@ def run(tokens):
           if len(line) != 2:
             throw_error("Syntax error on a goto statement.", line_count + 1)
           
+          # must be int
           line_go = int(line[1].content)
           
           if line_go < 0 or line_go > len(tokens):
@@ -262,6 +263,7 @@ def run(tokens):
       elif line[0].content == "exit":
         if len(line) == 2:
           try:
+            # must be int
             status = int(line[1].content)
           except Exception:
             throw_error("Invalid status code.", line_count + 1)
@@ -275,6 +277,7 @@ def run(tokens):
           line_go = line[5].content
           
           try:
+            # must be int
             line_go = int(line_go)
           except Exception:
             throw_error("Couldn't parse the line number to go. Value read: " + line_go, line_count + 1)
@@ -285,32 +288,32 @@ def run(tokens):
             try:
               value = variables[value[1:]]
             except Exception:
-              throw_error(f"Variable '{value[1:]}' doesn't exist.", i)
+              throw_error(f"Variable '{value[1:]}' doesn't exist.", line_count + 1)
           
-          var_int = True
-          value_int = True
-          
-          try:
-            var = int(var)
-          except Exception:
-            var_int = False
+          var_num = True
+          value_num = True
           
           try:
-            value = int(value)
+            var = float(var)
           except Exception:
-            value_int = False
+            var_num = False
           
-          is_int = var_int and value_int
+          try:
+            value = float(value)
+          except Exception:
+            value_num = False
+          
+          is_num = var_num and value_num
           
           if oper == "==":
             go = str(var) == str(value)
           elif oper == "!=":
             go = str(var) != str(value)
           
-          if is_int and oper in token_types["mathlogic"]:
-            throw_error(f"Cannot perform math logical operations on strings.", i)
+          if not is_num and oper in token_types["mathlogic"]:
+            throw_error(f"Cannot perform math logical operations on strings.", line_count + 1)
           
-          if is_int:
+          if is_num:
             if oper == ">":
               go = var > value
             elif oper == ">=":
@@ -327,11 +330,11 @@ def run(tokens):
             it.revert(line_go - 1)
           
         except Exception:
-          throw_error(f"Variable '{var}' doesn't exist.", i)
+          throw_error(f"Variable '{line[1].content}' doesn't exist.", line_count + 1)
 
-def is_int(var):
+def is_num(var):
   try:
-    _ = int(variables[var])
+    _ = float(variables[var])
     return True
   except Exception:
     return False
@@ -355,7 +358,7 @@ def is_var_math(tokens):
   return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "math" and (tokens[2].type == "value" or tokens[2].type == "var_ref")
 
 def is_var_decl(tokens):
-  return (len(tokens) >= 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
+  return (len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
 
 def is_condition(tokens):
   return len(tokens) == 6 and tokens[0].type == "keyword" and tokens[1].type == "var" and tokens[2].type == "logic" and (tokens[3].type == "value" or tokens[3].type == "var_ref") and tokens[4].type == "keyword" and tokens[5].type == "value"
