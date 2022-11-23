@@ -1,6 +1,10 @@
-a = 10
+a = input
 
-if a == 10 goto 6
+if a == 10 goto 7
+if a != 10 goto 10
 exit 0
 
-print a é 10!
+print a is 10!
+exit 0
+
+print a is not 10.

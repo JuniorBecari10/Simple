@@ -267,12 +267,12 @@ def run(tokens):
             throw_error("Invalid status code.", line_count + 1)
           
           sys.exit(status)
-      elif is_condition(tokens):
+      elif is_condition(line):
         try:
-          var = variables[tokens[1].content]
-          value = tokens[3].content
-          oper = tokens[2].content
-          line_go = tokens[5].content
+          var = variables[line[1].content]
+          value = line[3].content
+          oper = line[2].content
+          line_go = line[5].content
           
           try:
             line_go = int(line_go)
@@ -281,7 +281,7 @@ def run(tokens):
           
           go = False
           
-          if tokens[3].type == "var_ref":
+          if line[3].type == "var_ref":
             try:
               value = variables[value[1:]]
             except Exception:
@@ -296,7 +296,7 @@ def run(tokens):
             var_int = False
           
           try:
-            value = int(var)
+            value = int(value)
           except Exception:
             value_int = False
           
