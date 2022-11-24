@@ -118,6 +118,13 @@ def lexer(lines):
           tks.append(Token("var", ch))
       # else it's text
       else:
+        if "if" in line:
+          if i == 1:
+            tks.append(Token("var", ch))
+          else:
+            tks.append(Token("value", ch))
+          continue
+        
         tks.append(Token("text", ch))
     
     tokens.append(tks)
@@ -313,15 +320,14 @@ def run(tokens):
           if not is_num and oper in token_types["mathlogic"]:
             throw_error(f"Cannot perform math logical operations on strings.", line_count + 1)
           
-          if is_num:
-            if oper == ">":
-              go = var > value
-            elif oper == ">=":
-              go = var >= value
-            elif oper == "<":
-              go = var < value
-            elif oper == "<=":
-              go = var <= value
+          if oper == ">":
+            go = var > value
+          elif oper == ">=":
+            go = var >= value
+          elif oper == "<":
+            go = var < value
+          elif oper == "<=":
+            go = var <= value
           
           if go:
             if line_go < 0 or line_go > len(tokens):
