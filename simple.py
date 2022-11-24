@@ -63,8 +63,8 @@ def main():
     with open(sys.argv[1], "r") as f:
       lines = f.read().splitlines()
       tokens = lexer(lines)
-      
-      run(tokens)
+      print(tokens)
+      #run(tokens)
   except FileNotFoundError:
     throw_error_noline(f"The source file '{sys.argv[1]}' doesn't exist.")
 
@@ -79,13 +79,12 @@ def lexer(lines):
     tks = []
     
     for i, ch in enumerate(tk_char):
+      if ch == token_types["comment"]:
+        break
+      
       # skip if is nothing
       if ch == "":
         continue
-      # verify if is a comment
-      #elif ch == token_types["comment"] and i == 0:
-      #  continue
-      # if it's a keyword
       elif ch in token_types["keyword"]:
         tks.append(Token("keyword", ch))
       # verify if there's a double equals sign before the current char
