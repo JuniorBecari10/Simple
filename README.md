@@ -93,6 +93,20 @@ A condition is done with the `if` keyword.
 if variable <logic> <value | $var> goto <line>
 ```
 
+You can see some examples in _Examples_.
+
+## Comments
+
+You can comment using `#`.
+
+```
+# Get user's name
+name = input str
+
+# Print user's name
+print Your name is $name
+```
+
 ## Examples
 
 Print Hello World:

@@ -63,7 +63,7 @@ def main():
     with open(sys.argv[1], "r") as f:
       lines = f.read().splitlines()
       tokens = lexer(lines)
-      #print(tokens)
+      
       run(tokens)
   except FileNotFoundError:
     throw_error_noline(f"The source file '{sys.argv[1]}' doesn't exist.")
