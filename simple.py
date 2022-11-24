@@ -56,7 +56,7 @@ class Iterator:
 
 def main():
   if len(sys.argv) != 2:
-    print("Usage: python lang.py <file>")
+    print("Usage: simple <file>")
     sys.exit(1)
   
   try:
