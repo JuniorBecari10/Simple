@@ -9,11 +9,11 @@ It's very easy to use.
 
 `print` - Prints text to the screen; <br>
 `printl` - Prints text to the screen, but doesn't break the line; <br>
-`input` - For use when declaring a variable _See Variables_; <br>
+`input` - For use when declaring a variable | _See Variables_; <br>
 `goto` - Go to a specified line; <br>
 `exec` - Run a system command; <br>
-`exit` - Exit the program;
-`if` - Checks a condition and go to a line if it's true _See Conditions_.
+`exit` - Exit the program; <br>
+`if` - Checks a condition and go to a line if it's true | _See Conditions_.
 
 ## Print
 
@@ -151,5 +151,3 @@ age = input
 
 print Your name is $name and your age is $age
 ```
-
-## 
