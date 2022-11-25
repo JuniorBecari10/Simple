@@ -1,0 +1,5 @@
+goto :menu
+exit 0
+
+:menu
+print menu!

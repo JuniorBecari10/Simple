@@ -2,6 +2,7 @@ import sys
 import os
 
 variables = {}
+labels = {}
 
 token_types = {          # Examples: (it's the one with brackets)
   "var": "",             # [a] = 10
@@ -14,6 +15,7 @@ token_types = {          # Examples: (it's the one with brackets)
   "value": "",           # a = [10]
   "var_ref": "$",        # print [$a]
   "comment": "#",        # [#] comment
+  "label": ":",
   "text": ""             # print [hi]
 }
 
@@ -64,7 +66,9 @@ def main():
       lines = f.read().splitlines()
       tokens = lexer(lines)
       
-      run(tokens)
+      add_labels(tokens)
+      print(labels)
+      #run(tokens)
   except FileNotFoundError:
     throw_error_noline(f"The source file '{sys.argv[1]}' doesn't exist.")
 
@@ -100,8 +104,11 @@ def lexer(lines):
       elif ch in token_types["types"]:
         tks.append(Token("type", ch))
       # if starts with '$'
-      elif ch.startswith("$"):
+      elif ch.startswith(token_types["var_ref"]):
         tks.append(Token("var_ref", ch))
+      # if starts with ':'
+      elif ch.startswith(token_types["label"]): # atentar se n é o index 1
+        tks.append(Token("label", ch))
       # verify if there's an equals sign before the current char
       elif token_types["assign"] in tk_char[:i]:
           tks.append(Token("value", ch))
@@ -129,6 +136,18 @@ def lexer(lines):
     tokens.append(tks)
   
   return tokens
+
+def add_labels(tokens):
+  for lc, line in enumerate(tokens):
+    for i, t in enumerate(line):
+        if t.type == "label":
+          if i == 0:
+            labels[t.content[1:]] = lc + 1
+          else:
+            line_str = " ".join(token_to_str(line))
+            
+            if not line_str.__contains__("goto"):
+              throw_error("A label must be the first token in line!", lc + 1)
 
 def run(tokens):
   it = Iterator(0, len(tokens))
@@ -366,7 +385,7 @@ def is_var_decl(tokens):
   return (len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
 
 def is_condition(tokens):
-  return len(tokens) == 6 and tokens[0].type == "keyword" and tokens[1].type == "var" and tokens[2].type == "logic" and (tokens[3].type == "value" or tokens[3].type == "var_ref") and tokens[4].type == "keyword" and tokens[5].type == "value"
+  return len(tokens) == 6 and tokens[0].type == "keyword" and tokens[1].type == "var" and tokens[2].type == "logic" and (tokens[3].type == "value" or tokens[3].type == "var_ref") and tokens[4].type == "keyword" and (tokens[5].type == "value" or tokens[5].type == "label")
 
 def add_variable(name, value):
   variables[name] = value
