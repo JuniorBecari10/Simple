@@ -67,8 +67,8 @@ def main():
       tokens = lexer(lines)
       
       add_labels(tokens)
-      print(labels)
-      #run(tokens)
+      #print(tokens)
+      run(tokens)
   except FileNotFoundError:
     throw_error_noline(f"The source file '{sys.argv[1]}' doesn't exist.")
 
@@ -259,15 +259,20 @@ def run(tokens):
           if len(line) != 2:
             throw_error("Syntax error on a goto statement.", line_count + 1)
           
-          # must be int
-          line_go = int(line[1].content)
+          if line[1].type == "value":
+            # must be int
+            line_go = int(line[1].content)
+          elif line[1].type == "label":
+            line_go = labels[line[1].content[1:]]
+          else:
+            raise Exception()
           
           if line_go < 0 or line_go > len(tokens):
             throw_error(f"Line out of bounds: {line_go}", line_count + 1)
           
           it.revert(line_go - 1)
         except Exception:
-          throw_error("Couldn't parse the line number to go. Value read: " + line[1].content, line_count + 1)
+          throw_error("Couldn't parse the line number or label to go. Value read: " + line[1].content, line_count + 1)
       elif line[0].content == "exec":
         if len(line) == 1:
           throw_error("No commands to run.", line_count + 1)
@@ -302,10 +307,15 @@ def run(tokens):
           line_go = line[5].content
           
           try:
-            # must be int
-            line_go = int(line_go)
+            if line[5].type == "value":
+              # must be int
+              line_go = int(line[5].content)
+            elif line[5].type == "label":
+              line_go = labels[line[5].content[1:]]
+            else:
+              raise Exception()
           except Exception:
-            throw_error("Couldn't parse the line number to go. Value read: " + line_go, line_count + 1)
+            throw_error("Couldn't parse the line number or label to go. Value read: " + line_go, line_count + 1)
           
           go = False
           
