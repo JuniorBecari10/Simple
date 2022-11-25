@@ -10,7 +10,7 @@ It's very easy to use.
 `print` - Prints text to the screen; <br>
 `printl` - Prints text to the screen, but doesn't break the line; <br>
 `input` - For use when declaring a variable | _See Variables_; <br>
-`goto` - Go to a specified line; <br>
+`goto` - Go to a specified line or label | _See labels_; <br>
 `exec` - Run a system command; <br>
 `exit` - Exit the program; <br>
 `if` - Checks a condition and go to a line if it's true | _See Conditions_.
@@ -61,6 +61,23 @@ var = input
 
 The user will be prompted for a value, and the value that'll be typed in will be the value of the variable.
 
+## Labels
+
+Labels are used to identify a part of the code. <br>
+They are used exclusively with the _goto_ keyword.
+
+Example:
+
+```
+goto :menu
+exit 0
+
+:menu
+# menu...
+```
+
+As you can see, the `exit 0` command won't be executed.
+
 ## User Input
 
 You can request user's input with the `input` keyword.
@@ -83,14 +100,14 @@ You can do the same with `str`.
 var = input str
 ```
 
-In this case, the language will not accept numbers, but strings.
+In this case, the language won't accept numbers, but strings.
 
 ## Conditions
 
 A condition is done with the `if` keyword.
 
 ```
-if variable <logic> <value | $var> goto <line>
+if variable <logic> <value | $var> goto <line | label>
 ```
 
 You can see some examples in _Examples_.
