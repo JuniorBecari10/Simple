@@ -1,9 +1,9 @@
-print Calculadora de IMC
+print "Calculadora de IMC"
 print
-printl Digite sua altura (em cm):
+printl "Digite sua altura (em metros):"
 altura = input num
 
-printl Digite seu peso:
+printl "Digite seu peso:"
 peso = input num
 
 altura *= $altura

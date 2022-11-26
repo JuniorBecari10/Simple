@@ -1,9 +1,11 @@
 import sys
 import os
 
+# Declare the dictionaries for variables and labels
 variables = {}
 labels = {}
 
+# Dictionary for all types of tokens
 token_types = {          # Examples: (it's the one with brackets)
   "var": "",             # [a] = 10
   "keyword": ["print", "printl", "input", "goto", "exec", "exit", "if"],
@@ -21,6 +23,9 @@ token_types = {          # Examples: (it's the one with brackets)
 
 # Extension: .sm
 
+# Create the class Token, with two values: type and content.
+# type: The type of the token, one among token_types.
+# content: the literal text the token carries
 class Token:
   type = ""
   content = ""
@@ -33,6 +38,7 @@ class Token:
     return "Token | type: " + str(self.type) + ", content: " + str(self.content)
 
 # Source: StackOverflow (Modified)
+# A custom iterator that allows the modification of its count (for goto statements)
 class Iterator:
   def __init__(self, start, end):
     self.end = end
@@ -53,29 +59,42 @@ class Iterator:
 
 # ---
 
+# The main function. The program starts here.
 def main():
+  # Verify the CLI args
   if len(sys.argv) != 2:
     print("Usage: simple <file>")
     sys.exit(1)
   
+  # Run the program
   try:
+    # Open the source file
     with open(sys.argv[1], "r") as f:
+      # Read all the file and split into lines
       lines = f.read().splitlines()
+      
+      # Run the Lexer
       tokens = lexer(lines)
       
+      # Add labels for goto statemente
       add_labels(tokens)
-      #print(tokens)
+      
+      # Run the code with the tokens.
       run(tokens)
   except FileNotFoundError:
     throw_error_noline(f"The source file '{sys.argv[1]}' doesn't exist.")
 
 # ---
 
+# The lexer. It will split the file into tokens.
 # Return: a list of list of tokens (bidimensional array)
 def lexer(lines):
+  # Define the 2d array
   tokens = []
   
+  # Read the file, line by line.
   for i, line in enumerate(lines):
+    # Split the line by spaces, because the tokens will be separated by spaces.
     tk_char = line.split(" ")
     tks = []
     
@@ -155,6 +174,11 @@ def run(tokens):
     if len(line) == 0:
       continue
     
+    # replace all var_ref's by the values
+    #
+    # Ex:
+    # a = 10
+    # b = $a -> b = 10
     for i, t in enumerate(line):
       if t.type == "var_ref":
         try:
@@ -167,8 +191,6 @@ def run(tokens):
         line[i].type = "value"
       except Exception:
         pass
-    
-    print(line)
     
     if is_var_decl(line):
       value = line[2].content
