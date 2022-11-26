@@ -29,11 +29,8 @@ class Token:
     self.type = t
     self.content = c
   
-  def __str__(self):
-    return "Token | type: " + self.type + ", content: " + self.content
-  
   def __repr__(self):
-    return "Token | type: " + self.type + ", content: " + self.content
+    return "Token | type: " + str(self.type) + ", content: " + str(self.content)
 
 # Source: StackOverflow (Modified)
 class Iterator:
@@ -158,24 +155,23 @@ def run(tokens):
     if len(line) == 0:
       continue
     
+    for i, t in enumerate(line):
+      if t.type == "var_ref":
+        try:
+          line[i].content = variables[t.content[1:]]
+        except Exception:
+          throw_error(f"Variable '{line[i].content[1:]}' doesn't exist.", i + 1)
+      
+      try:
+        line[i].content = float(line[i].content)
+        line[i].type = "value"
+      except Exception:
+        pass
+    
+    print(line)
+    
     if is_var_decl(line):
       value = line[2].content
-      
-      if line[2].type == "var_ref":
-        try:
-          value = variables[line[2].content[1:]]
-          
-          try:
-            value = float(var2)
-          except Exception:
-            value = variables[line[2].content[1:]]
-        except Exception:
-          throw_error(f"Variable '{line[2].content[1:]}' doesn't exist.", line_count + 1)
-      else:
-        try:
-          value = float(value)
-        except Exception:
-          value = line[2].content
       
       if line[2].type == "keyword" and line[2].content == "input":
         while True:
@@ -215,22 +211,6 @@ def run(tokens):
       except Exception:
         var1 = variables[line[0].content]
       
-      if line[2].type == "var_ref":
-        try:
-          var2 = variables[line[2].content[1:]]
-          
-          try:
-            var2 = float(var2)
-          except Exception:
-            var2 = variables[line[2].content[1:]]
-        except Exception:
-          throw_error(f"Variable '{line[2].content[1:]}' doesn't exist.", line_count + 1)
-      else:
-        try:
-          var2 = float(var2)
-        except Exception:
-          var2 = line[2].content
-      
       if type(var1) != type(var2) and not line[1].content.startswith("+"):
         throw_error("Variable types don't match.", line_count + 1)
       
@@ -252,6 +232,11 @@ def run(tokens):
             throw_error("Cannot divide by zero.", line_count + 1)
           
           variables[line[0].content] = var1 / var2
+        elif line[1].content.startswith("%") and is_num:
+          if var2 == 0:
+            throw_error("Cannot divide by zero.", line_count + 1)
+          
+          variables[line[0].content] = var1 % var2
         
       except Exception:
         throw_error(f"Variable '{line[0].content}' doesn't exist.", line_count + 1)
@@ -264,13 +249,7 @@ def run(tokens):
           if i == 0:
             continue
           
-          if t.type == "var_ref" and t.content.startswith(token_types["var_ref"]):
-            try:
-              print(variables[t.content[1:]], end=" ")
-            except Exception:
-              throw_error(f"Variable '{t.content[1:]}' doesn't exist.", i)
-          else:
-            print(t.content, end=" ")
+          print(t.content, end=" ")
         
         if line[0].content != "printl":
           print()
@@ -301,10 +280,6 @@ def run(tokens):
         
         for i, t in enumerate(line):
           if i == 0:
-            continue
-          
-          if t.type == "var_ref":
-            com.append(variables[t.content[1:]])
             continue
           
           com.append(t.content)
@@ -338,12 +313,6 @@ def run(tokens):
             throw_error("Couldn't parse the line number or label to go. Value read: " + line_go, line_count + 1)
           
           go = False
-          
-          if line[3].type == "var_ref":
-            try:
-              value = variables[value[1:]]
-            except Exception:
-              throw_error(f"Variable '{value[1:]}' doesn't exist.", line_count + 1)
           
           var_num = True
           value_num = True
