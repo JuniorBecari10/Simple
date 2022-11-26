@@ -13,7 +13,7 @@ It's very easy to use.
 `goto` - Go to a specified line or label | _See labels_; <br>
 `exec` - Run a system command; <br>
 `exit` - Exit the program; <br>
-`if` - Checks a condition and go to a line if it's true | _See Conditions_.
+`if` - Checks a condition and go to a line if it's true | _See Conditions_; <br>
 `emptystr` - Represents a empty `str`.
 
 ## Print
