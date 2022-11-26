@@ -8,7 +8,7 @@ labels = {}
 # Dictionary for all types of tokens
 token_types = {          # Examples: (it's the one with brackets)
   "var": "",             # [a] = 10
-  "keyword": ["print", "printl", "input", "goto", "exec", "exit", "if"],
+  "keyword": ["print", "printl", "input", "goto", "exec", "exit", "if", "emptystr"],
   "assign": "=",         # a [=] 10
   "logic": ["==", "!=", ">", ">=", "<", "<="], # if $a [==] a goto 1
   "mathlogic": [">", ">=", "<", "<="],
@@ -94,6 +94,10 @@ def lexer(lines):
   
   # Read the file, line by line.
   for i, line in enumerate(lines):
+    # --REMOVED-- IN TEST: remove all the quotes
+    # Definite solution: put together all things between quotes in a single token
+    #line = line.replace("\"", "")
+    
     # Split the line by spaces, because the tokens will be separated by spaces.
     tk_char = line.split(" ")
     tks = []
@@ -215,35 +219,40 @@ def run(tokens):
       #  0  1    2
       value = line[2].content
       
-      # Verify if the 'value' is the keyword 'input'
-      if line[2].type == "keyword" and line[2].content == "input":
-        # Loop until the user types the desired type
-        while True:
-          value = input("")
-          
-          # If the programmer only types 'input', break, because the type doesn't matter
-          if len(line) == 3:
-            break
-          
-          # if not, proceed.
-          if len(line) == 4:
-            # Verify each one of the types
-            if line[3].content == "num":
-              try:
-                _ = float(value)
-                
-                break
-              except Exception:
-                continue
-            elif line[3].content == "str":
-              try:
-                _ = float(value)
+      # Verify if the 'value' is a keyword
+      if line[2].type == "keyword":
+        # If it's 'input'
+        if line[2].content == "input":
+          # Loop until the user types the desired type
+          while True:
+            value = input("")
             
-                continue
-              except Exception:
-                break
-            else:
-                throw_error("Type '" + line[3].content + "' is not allowed for input.", line_count + 1)
+            # If the programmer only types 'input', break, because the type doesn't matter
+            if len(line) == 3:
+              break
+            
+            # if not, proceed.
+            if len(line) == 4:
+              # Verify each one of the types
+              if line[3].content == "num":
+                try:
+                  _ = float(value)
+                  
+                  break
+                except Exception:
+                  continue
+              elif line[3].content == "str":
+                try:
+                  _ = float(value)
+              
+                  continue
+                except Exception:
+                  break
+              else:
+                  throw_error("Type '" + line[3].content + "' is not allowed for input.", line_count + 1)
+        # If it's 'emptystr'
+        elif line[2].content == "emptystr":
+          value = ""
       
       # Add the variable.
       add_variable(line[0].content, value)

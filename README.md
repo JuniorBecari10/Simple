@@ -14,6 +14,7 @@ It's very easy to use.
 `exec` - Run a system command; <br>
 `exit` - Exit the program; <br>
 `if` - Checks a condition and go to a line if it's true | _See Conditions_.
+`emptystr` - Represents a empty `str`.
 
 ## Print
 
