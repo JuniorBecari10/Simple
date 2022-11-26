@@ -10,7 +10,7 @@ token_types = {          # Examples: (it's the one with brackets)
   "assign": "=",         # a [=] 10
   "logic": ["==", "!=", ">", ">=", "<", "<="], # if $a [==] a goto 1
   "mathlogic": [">", ">=", "<", "<="],
-  "math": ["+=", "-=", "*=", "/="],
+  "math": ["+=", "-=", "*=", "/=", "%="],
   "types": ["num", "str"], # "arr" not yet
   "value": "",           # a = [10]
   "var_ref": "$",        # print [$a]
@@ -161,6 +161,22 @@ def run(tokens):
     if is_var_decl(line):
       value = line[2].content
       
+      if line[2].type == "var_ref":
+        try:
+          value = variables[line[2].content[1:]]
+          
+          try:
+            value = float(var2)
+          except Exception:
+            value = variables[line[2].content[1:]]
+        except Exception:
+          throw_error(f"Variable '{line[2].content[1:]}' doesn't exist.", line_count + 1)
+      else:
+        try:
+          value = float(value)
+        except Exception:
+          value = line[2].content
+      
       if line[2].type == "keyword" and line[2].content == "input":
         while True:
             value = input("")
@@ -194,18 +210,22 @@ def run(tokens):
       var1 = variables[line[0].content]
       var2 = line[2].content
       
-      if var2.startswith(token_types["var_ref"]):
-        try:
-          var2 = variables[line[2].content[1:]]
-        except Exception:
-          throw_error(f"Variable '{line[2].content[1:]}' doesn't exist.", line_count + 1)
-      
       try:
         var1 = float(var1)
       except Exception:
         var1 = variables[line[0].content]
       
-      if not var2.startswith(token_types["var_ref"]):
+      if line[2].type == "var_ref":
+        try:
+          var2 = variables[line[2].content[1:]]
+          
+          try:
+            var2 = float(var2)
+          except Exception:
+            var2 = variables[line[2].content[1:]]
+        except Exception:
+          throw_error(f"Variable '{line[2].content[1:]}' doesn't exist.", line_count + 1)
+      else:
         try:
           var2 = float(var2)
         except Exception:
@@ -214,7 +234,7 @@ def run(tokens):
       if type(var1) != type(var2) and not line[1].content.startswith("+"):
         throw_error("Variable types don't match.", line_count + 1)
       
-      is_num = type(var1) is float
+      is_num = type(var1) is float and type(var2) is float
       
       try:
         if line[1].content.startswith("+"):
@@ -392,7 +412,7 @@ def is_var_math(tokens):
   return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "math" and (tokens[2].type == "value" or tokens[2].type == "var_ref")
 
 def is_var_decl(tokens):
-  return (len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
+  return (len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword" or tokens[2].type == "var_ref")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
 
 def is_condition(tokens):
   return len(tokens) == 6 and tokens[0].type == "keyword" and tokens[1].type == "var" and tokens[2].type == "logic" and (tokens[3].type == "value" or tokens[3].type == "var_ref") and tokens[4].type == "keyword" and (tokens[5].type == "value" or tokens[5].type == "label")

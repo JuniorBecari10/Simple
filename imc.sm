@@ -1,0 +1,14 @@
+print Calculadora de IMC
+print
+printl Digite sua altura (em cm):
+altura = input num
+
+printl Digite seu peso:
+peso = input num
+
+altura *= $altura
+peso /= $altura
+
+imc = $peso
+
+print $imc
