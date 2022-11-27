@@ -1,5 +1,6 @@
 import sys
 import os
+import shlex
 
 # Declare the dictionaries for variables and labels
 variables = {}
@@ -94,16 +95,18 @@ def lexer(lines):
   
   # Read the file, line by line.
   for i, line in enumerate(lines):
-    # --REMOVED-- IN TEST: remove all the quotes
-    # Definite solution: put together all things between quotes in a single token
-    #line = line.replace("\"", "")
-    
     # Split the line by spaces, because the tokens will be separated by spaces.
-    tk_char = line.split(" ")
+    # Code snippet to join quoted strings (Source: StackOverflow)
+    tk_char = shlex.split(line, posix=False)
+    
+    # Declare list
     tks = []
     
     # Read word by word
     for i, ch in enumerate(tk_char):
+      # Remove quotes from final text
+      ch = ch.replace("\"", "")
+      
       # Don't add the comments to the token list
       if ch == token_types["comment"]:
         break
@@ -257,7 +260,7 @@ def run(tokens):
       # Add the variable.
       add_variable(line[0].content, value)
     # Verify if the programmer typed something wrong
-    elif line[0].type == "var" and line[1].type != "math":
+    elif line[0].type == "var" and not any_has_type(line, "math"):
       throw_error("Syntax error while declaring a variable.", line_count + 1)
     
     # Verify if it's a mathematical operation
@@ -305,7 +308,7 @@ def run(tokens):
         
       except Exception:
         throw_error(f"Variable '{line[0].content}' doesn't exist.", line_count + 1)
-    elif len(line) > 1 and line[1].type == "math":
+    elif len(line) > 1 and any_has_type(line, "math"):
       throw_error("Syntax error while doing a math operation.", line_count + 1)
     
     # Operations with keywords
@@ -440,6 +443,10 @@ def run(tokens):
           
         except Exception:
           throw_error(f"Variable '{line[1].content}' doesn't exist.", line_count + 1)
+      elif any_has_type(line, "logic"):
+        throw_error("Syntax error on a if statement.", line_count + 1)
+
+# ---
 
 # Function to check if a value is a num or not
 def is_num(var):
@@ -466,15 +473,24 @@ def contains_arr(line, arr):
   
   return False
 
+def any_has_type(tokens, type):
+  for t in tokens:
+    if t.type == type:
+      return True
+  
+  return False
+
+# ---
+
 # Functions to check certain situations
 def is_var_math(tokens):
-  return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "math" and (tokens[2].type == "value" or tokens[2].type == "var_ref")
+  return len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "math" and (tokens[2].type == "value")
 
 def is_var_decl(tokens):
-  return (len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword" or tokens[2].type == "var_ref")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
+  return (len(tokens) == 3 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword")) or (len(tokens) == 4 and tokens[0].type == "var" and tokens[1].type == "assign" and (tokens[2].type == "value" or tokens[2].type == "keyword") and tokens[3].type == "type")
 
 def is_condition(tokens):
-  return len(tokens) == 6 and tokens[0].type == "keyword" and tokens[1].type == "var" and tokens[2].type == "logic" and (tokens[3].type == "value" or tokens[3].type == "var_ref") and tokens[4].type == "keyword" and (tokens[5].type == "value" or tokens[5].type == "label")
+  return len(tokens) == 6 and (tokens[0].type == "keyword" and tokens[0].content == "if") and tokens[1].type == "var" and tokens[2].type == "logic" and tokens[3].type == "value" and (tokens[4].type == "keyword" and tokens[4].content == "goto") and (tokens[5].type == "value" or tokens[5].type == "label")
 
 # ---
 

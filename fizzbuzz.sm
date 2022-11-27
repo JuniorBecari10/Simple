@@ -1,0 +1,26 @@
+printl "Enter a number:"
+n = input num
+
+p3 = $n
+p5 = $n
+
+p3 %= 3
+p5 %= 5
+
+s = emptystr
+
+if p3 == 0 goto :addfizz
+:second
+if p5 == 0 goto :addbuzz
+goto :end
+
+:addfizz
+s += "fizz"
+goto :second
+
+:addbuzz
+s += "buzz"
+goto :end
+
+:end
+print $s
