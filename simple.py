@@ -331,7 +331,7 @@ def run(tokens):
           except Exception:
             pass
           
-          print(ch, end=" ")
+          print(ch, end="")
         
         # If the keyword is printl, don't break the line
         if line[0].content != "printl":
