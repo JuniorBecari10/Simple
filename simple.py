@@ -320,7 +320,17 @@ def run(tokens):
           if i == 0:
             continue
           
-          print(t.content, end=" ")
+          ch = t.content
+          
+          try:
+            ch = float(ch)
+            
+            if round(ch) == ch:
+              ch = int(ch)
+          except Exception:
+            pass
+          
+          print(ch, end=" ")
         
         # If the keyword is printl, don't break the line
         if line[0].content != "printl":
