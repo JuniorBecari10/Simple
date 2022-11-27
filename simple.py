@@ -197,6 +197,7 @@ def run(tokens):
       continue
     
     # replace all var_ref's by the values
+    # And also 'emptystr' by ""
     #
     # Ex:
     # a = 10
@@ -214,6 +215,9 @@ def run(tokens):
         line[i].type = "value"
       except Exception:
         pass
+      
+      if t.content == "emptystr":
+        t.content = ""
     
     # Verify if the current line is a variable declaration
     if is_var_decl(line):
@@ -253,9 +257,6 @@ def run(tokens):
                   break
               else:
                   throw_error("Type '" + line[3].content + "' is not allowed for input.", line_count + 1)
-        # If it's 'emptystr'
-        elif line[2].content == "emptystr":
-          value = ""
       
       # Add the variable.
       add_variable(line[0].content, value)
