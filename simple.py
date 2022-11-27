@@ -96,7 +96,7 @@ def lexer(lines):
   # Read the file, line by line.
   for i, line in enumerate(lines):
     # Split the line by spaces, because the tokens will be separated by spaces.
-    # Code snippet to join quoted strings (Source: StackOverflow)
+    # Code snippet to join quoted strings and split by spaces (Source: StackOverflow)
     tk_char = shlex.split(line, posix=False)
     
     # Declare list
