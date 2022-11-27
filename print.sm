@@ -1,2 +1,0 @@
-printl "Enter a number: "
-n = input num

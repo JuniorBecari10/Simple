@@ -27,19 +27,19 @@ The difference between them is: <br>
 ### Printing Examples:
 
 ```
-print Hello World
+print "Hello World"
 ```
 
 ```
-printl Hello
-print World
+printl "Hello "
+print "World"
 ```
 
 You can also print a variable.
 
 ```
 a = 10
-print a is $a
+print "a is " $a
 ```
 
 ## Variables
@@ -111,7 +111,15 @@ A condition is done with the `if` keyword.
 if variable <logic> <value | $var> goto <line | label>
 ```
 
-You can see some examples in _Examples_.
+```
+x = 10
+
+if x == 10 goto :end
+exit 0
+
+:end
+print "x is 10!"
+```
 
 ## Comments
 
@@ -122,7 +130,7 @@ You can comment using `#`.
 name = input str
 
 # Print user's name
-print Your name is $name
+print "Your name is " $name
 ```
 
 ## Examples
@@ -130,13 +138,13 @@ print Your name is $name
 Print Hello World:
 
 ```
-print Hello World
+print "Hello World"
 ```
 
 Set a variable:
 
 ```
-var = value
+var = "value"
 ```
 
 Get user input and store it in a variable:
@@ -149,11 +157,15 @@ var = input
 var = input num
 ```
 
+```
+var = input str
+```
+
 Print a variable:
 
 ```
 var = 10
-print var is $var
+print "var is " $var
 ```
 
 ------
@@ -161,11 +173,11 @@ print var is $var
 Program to get user's name and age:
 
 ```
-printl Type your name:
-name = input
+printl "Type your name: "
+name = input str
 
-printl Type your age:
-age = input
+printl "Type your age: "
+age = input num
 
-print Your name is $name and your age is $age
+print "Your name is " $name " and your age is " $age "."
 ```
