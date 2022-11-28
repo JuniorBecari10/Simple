@@ -2,6 +2,9 @@ import sys
 import os
 import shlex
 
+# Version number
+version = "v1.1"
+
 # Declare the dictionaries for variables and labels
 variables = {}
 labels = {}
@@ -64,8 +67,13 @@ class Iterator:
 def main():
   # Verify the CLI args
   if len(sys.argv) != 2:
-    print("Usage: simple <file>")
+    print("Usage: simple <file> | [-v | --version]")
     sys.exit(1)
+  
+  if sys.argv[1] == "-v" or sys.argv[1] == "--version":
+    print(f"Simple {version}")
+    print("Made by Antonio Carlos (JuniorBecari10).")
+    sys.exit(0)
   
   # Run the program
   try:
