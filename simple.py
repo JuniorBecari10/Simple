@@ -206,13 +206,13 @@ def run(tokens):
       if t.type == "var_ref":
         try:
           line[i].content = variables[t.content[1:]]
+          line[i].type = "value"
         except Exception:
           throw_error(f"Variable '{line[i].content[1:]}' doesn't exist.", i + 1)
       
       # Try to convert to number. If not, pass.
       try:
         line[i].content = float(line[i].content)
-        line[i].type = "value"
       except Exception:
         pass
       
