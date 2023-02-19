@@ -7,12 +7,13 @@ import (
 )
 
 func TestNumber(t *testing.T) {
-  inp := "10 20.2"
+  inp := "10 20.2 ola_"
   tks := Lex(inp)
   
   res := []token.Token {
-    {token.Number, "10", 1},
-    {token.Number, "20.2", 1},
+    {token.Number, "10", 0},
+    {token.Number, "20.2", 0},
+    {token.Identifier, "ola_", 0},
   }
   
   for i, tk := range tks {

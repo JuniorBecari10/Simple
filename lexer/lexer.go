@@ -52,6 +52,16 @@ func (this *Lexer) NextToken() token.Token {
     return token.Token { token.Number, nb, pos }
   }
   
+  if IsLetter(this.char()) {
+    pos := this.cursor
+    
+    for IsLetter(this.char()) {
+      this.advance()
+    }
+    
+    return token.Token { token.Identifier, this.chars[pos:this.cursor], pos }
+  }
+  
   return token.Token { token.End, "", this.cursor }
 }
 
