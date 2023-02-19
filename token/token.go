@@ -9,6 +9,8 @@ const (
   Divide     = "Divide"
   LParen     = "LParen"
   RParen     = "RParen"
+  End        = "End"
+  Error      = "Error"
 )
 
 type TokenType string
