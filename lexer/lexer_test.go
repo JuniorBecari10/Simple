@@ -6,8 +6,8 @@ import (
   "simple/token"
 )
 
-func TestNumber(t *testing.T) {
-  inp := "10 20.2 ola_+-*/()"
+func TestLexer(t *testing.T) {
+  inp := "10 20.2 ola_+-*/()print"
   tks := Lex(inp)
   
   res := []token.Token {
@@ -20,6 +20,7 @@ func TestNumber(t *testing.T) {
     {token.Divide, "/", 0},
     {token.LParen, "(", 0},
     {token.RParen, ")", 0},
+    {token.Keyword, "print", 0},
   }
   
   for i, tk := range tks {

@@ -21,3 +21,7 @@ type Token struct {
   Content string
   Pos     int
 }
+
+var Keywords = []string {
+  "print",
+}

@@ -59,7 +59,13 @@ func (this *Lexer) NextToken() token.Token {
       this.advance()
     }
     
-    return token.Token { token.Identifier, this.chars[pos:this.cursor], pos }
+    txt := this.chars[pos:this.cursor]
+    
+    if IsKeyword(txt) {
+      return token.Token { token.Keyword, txt, pos }
+    }
+    
+    return token.Token { token.Identifier, txt, pos }
   }
   
   if this.char() == '+' {
@@ -125,6 +131,16 @@ func IsDigit(b byte) bool {
 
 func IsLetter(b byte) bool {
   return (b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z') || b == '_'
+}
+
+func IsKeyword(s string) bool {
+  for _, k := range token.Keywords {
+    if s == k {
+      return true
+    }
+  }
+  
+  return false
 }
 
 // ---
