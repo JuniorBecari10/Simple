@@ -3,6 +3,7 @@ package token
 const (
   Number     = "Number"
   Identifier = "Identifier"
+  Keyword    = "Keyword"
   Plus       = "Plus"
   Minus      = "Minus"
   Times      = "Times"

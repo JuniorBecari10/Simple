@@ -7,13 +7,19 @@ import (
 )
 
 func TestNumber(t *testing.T) {
-  inp := "10 20.2 ola_"
+  inp := "10 20.2 ola_+-*/()"
   tks := Lex(inp)
   
   res := []token.Token {
     {token.Number, "10", 0},
     {token.Number, "20.2", 0},
     {token.Identifier, "ola_", 0},
+    {token.Plus, "+", 0},
+    {token.Minus, "-", 0},
+    {token.Times, "*", 0},
+    {token.Divide, "/", 0},
+    {token.LParen, "(", 0},
+    {token.RParen, ")", 0},
   }
   
   for i, tk := range tks {
@@ -26,7 +32,7 @@ func TestNumber(t *testing.T) {
     }
     
     if tk.Content != res[i].Content {
-      t.Fatalf("content wrong. expected %s, got %s.", res[i].Content, tk.Content)
+      t.Fatalf("content wrong. expected %s, got %s. pos: %d", res[i].Content, tk.Content, tk.Pos)
     }
   }
 }
