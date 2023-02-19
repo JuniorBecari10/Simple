@@ -14,7 +14,6 @@ It's very easy to use.
 `exec` - Run a system command; <br>
 `exit` - Exit the program; <br>
 `if` - Checks a condition and go to a line if it's true | _See Conditions_; <br>
-`emptystr` - Represents a empty `str`.
 
 ## Print
 
@@ -39,7 +38,7 @@ You can also print a variable.
 
 ```py
 a = 10
-print "a is " $a
+print "a is " a
 ```
 
 ## Variables
@@ -179,5 +178,5 @@ name = input str
 printl "Type your age: "
 age = input num
 
-print "Your name is " $name " and your age is " $age "."
+print "Your name is " name " and your age is " age "."
 ```
