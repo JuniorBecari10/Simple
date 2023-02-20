@@ -145,14 +145,22 @@ func IsKeyword(s string) bool {
 
 // ---
 
-func Lex(chars string) []token.Token {
-  l := New(chars)
-  tks := []token.Token {}
+func Lex(chars string) [][]token.Token {
+  lines := strings.Split(chars, "\n")
+  tks := [][]token.Token {}
+  lineTks := []token.Token {}
   
-  tk := l.NextToken()
-  for tk.Type != token.End {
-    tks = append(tks, tk)
-    tk = l.NextToken()
+  for _, line := range lines {
+    l := New(line)
+    lineTks := []token.Token {}
+    
+    tk := l.NextToken() 
+    for tk.Type != token.End {
+      lineTks = append(lineTks, tk)
+      tk = l.NextToken()
+    }
+    
+    tks = append(tks, lineTks)
   }
   
   return tks
