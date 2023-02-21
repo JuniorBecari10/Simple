@@ -2,6 +2,7 @@ package lexer
 
 import (
   "strings"
+  "fmt"
   
   "simple/token"
 )
@@ -28,6 +29,8 @@ func (this *Lexer) char() byte {
 }
 
 func (this *Lexer) NextToken() token.Token {
+  fmt.Println(this.cursor, len(this.chars))
+  
   if this.cursor >= len(this.chars) {
     return token.Token { token.End, "", this.cursor }
   }
@@ -120,7 +123,7 @@ func (this *Lexer) NextToken() token.Token {
   ch := this.char()
   this.advance()
   
-  return token.Token { token.Error, "Unknown token: '" + string(ch) + "'.", pos }
+  return token.Token { token.Error, "Unknown token: '" + string(ch) + "' char " + fmt.Sprintf("%v", ch) + ", pos " + fmt.Sprintf("%d", pos) + ".", pos }
 }
 
 // -- Helper -- //
@@ -145,23 +148,27 @@ func IsKeyword(s string) bool {
 
 // ---
 
-func Lex(chars string) [][]token.Token {
+func Lex(chars string) []token.Token {
   lines := strings.Split(chars, "\n")
-  tks := [][]token.Token {}
-  lineTks := []token.Token {}
+  tks := []token.Token {}
   
-  for _, line := range lines {
+  for i, line := range lines {
     l := New(line)
-    lineTks := []token.Token {}
     
-    tk := l.NextToken() 
+    tk := l.NextToken()
     for tk.Type != token.End {
-      lineTks = append(lineTks, tk)
+      tks = append(tks, tk)
       tk = l.NextToken()
     }
     
-    tks = append(tks, lineTks)
+    if i == len(lines) - 1 {
+      break
+    }
+    
+    tks = append(tks, token.Token { token.NewLine, "", len(line) })
   }
+  
+  tks = append(tks, token.Token { token.End, "", 0 })
   
   return tks
 }

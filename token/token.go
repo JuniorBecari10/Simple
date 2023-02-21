@@ -10,6 +10,7 @@ const (
   Divide     = "Divide"
   LParen     = "LParen"
   RParen     = "RParen"
+  NewLine    = "NewLine"
   End        = "End"
   Error      = "Error"
 )

@@ -7,21 +7,15 @@ import (
 )
 
 func TestLexer(t *testing.T) {
-  inp := `
-  10
-  20
-  `
+  inp := `10
+  20`
   tks := Lex(inp)
   
   res := []token.Token {
-    []token.Token {
-      {token.Number, "10", 0},
-    },
-    
-    []token.Token {
-    {
-      {token.Number, "20", 0},
-    },
+    {token.Number, "10", 0},
+    {token.NewLine, "", 0},
+    {token.Number, "20", 0},
+    {token.End, "", 0},
   }
   
   for i, tk := range tks {
