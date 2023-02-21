@@ -22,12 +22,16 @@ type VarDeclStatement struct {
 type EndStatement struct {}
 
 type ErrorStatement struct {
-  msg string
+  Msg string
 }
 
 func (vds VarDeclStatement) stat() {}
 func (es EndStatement)      stat() {}
 func (es ErrorStatement)    stat() {}
+
+func (vds VarDeclStatement) node() {}
+func (es EndStatement)      node() {}
+func (es ErrorStatement)    node() {}
 
 // Expressions
 

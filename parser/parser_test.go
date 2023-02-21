@@ -1,6 +1,7 @@
 package parser
 
 import (
+  "fmt"
   "testing"
   
   "simple/token"
@@ -9,26 +10,41 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input = ""
+  input := "a = 10 + 1"
   
   tokens := lexer.Lex(input)
-  checkLexerErrors(tokens)
+  checkLexerErrors(t, tokens)
   
   stats := Parse(tokens)
   
   expect := []ast.Statement {
-    EndStatement {},
+    ast.VarDeclStatement {
+      &ast.Identifier {
+        token.Token {
+          token.Identifier,
+          "a",
+          0,
+        },
+        "a",
+      },
+      ast.NumberNode {
+        10,
+      },
+    },
+    ast.EndStatement {},
   }
   
-  for _, st := range stats {
-    if st != expect[i] {
-      t.Fatalf("parser error: expected type %T, got %T.", st, expect[i])
+  for i, s := range stats {
+    str1 := fmt.Sprintf("%+v", s)
+    str2 := fmt.Sprintf("%+v", expect[i])
+    
+    if str1 != str2 {
+      t.Fatalf("error. expect %s, got %s", str1, str2)
     }
   }
-  
 }
 
-func checkLexerErrors(tokens []token.Token) {
+func checkLexerErrors(t *testing.T, tokens []token.Token) {
   for _, tk := range tokens {
     if tk.Type == token.Error {
       t.Fatalf("lexer error: %s", tk.Content)

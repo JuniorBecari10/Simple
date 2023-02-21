@@ -1,6 +1,9 @@
 package parser
 
 import (
+  "fmt"
+  "strconv"
+  
   "simple/token"
   "simple/ast"
 )
@@ -18,7 +21,7 @@ func (this *Parser) advance() {
   this.cursor++
 }
 
-func (this *Parser) token() {
+func (this *Parser) token() token.Token {
   return this.tokens[this.cursor]
 }
 
@@ -31,24 +34,105 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parseVarDeclStatement()
   }
   
-  return ast.ErrorStatement { "Unknown statement. tokens: " + this.tokens }
+  return ast.ErrorStatement { "Unknown statement. tokens: " + fmt.Sprintf("%q", this.tokens) }
 }
 
 func (this *Parser) parseVarDeclStatement() ast.Statement {
   stat := ast.VarDeclStatement {}
-  id := ast.Identifier { Token: this.token(), Name: this.Token.Content }
+  id := ast.Identifier { Token: this.token(), Value: this.token().Content }
   
-  stat.id = id
+  stat.Name = &id
   this.advance()
   
   if this.token().Type != token.Assign {
-    return ErrorStatement { "Syntax error when declaring a variable. Examples: a = 10; message = 'Hello'." }
+    return ast.ErrorStatement { "Syntax error when declaring a variable. Examples: a = 10; message = 'Hello'." }
   }
   
   this.advance()
-  stat.Value = parseExpression()
+  stat.Value = this.parseExpression()
   
   return stat
+}
+
+func (this *Parser) parseExpression() ast.ExpressionNode {
+  return this.exp()
+}
+
+func (this *Parser) exp() ast.ExpressionNode {
+  if this.token().Type == token.Error {
+    return nil
+  }
+  
+  res := this.term()
+  
+  for this.token().Type != token.Error && (this.token().Type == token.Plus || this.token().Type == token.Minus) {
+    if this.token().Type == token.Plus {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "+" }
+    } else if this.token().Type == token.Minus {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "-" }
+    }
+  }
+  
+  return res
+}
+
+func (this *Parser) term() ast.ExpressionNode {
+  if this.token().Type == token.Error {
+    return nil
+  }
+  
+  res := this.factor()
+  
+  for this.token().Type != token.Error && (this.token().Type == token.Times || this.token().Type == token.Divide) {
+    if this.token().Type == token.Times {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "*" }
+    } else if this.token().Type == token.Divide {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "/" }
+    }
+  }
+  
+  return res
+}
+
+func (this *Parser) factor() ast.ExpressionNode {
+  tk := this.token()
+  
+  if tk.Type == token.LParen {
+    this.advance()
+    res := this.exp()
+    
+    this.advance()
+    return res
+  }
+  
+  if tk.Type == token.Plus {
+    this.advance()
+    
+    return ast.PlusNode { this.factor() }
+  }
+  
+  if tk.Type == token.Minus {
+    this.advance()
+    
+    return ast.MinusNode { this.factor() }
+  }
+  
+  if tk.Type == token.Number {
+    this.advance()
+    
+    value, _ := strconv.ParseFloat(tk.Content, 64)
+    return ast.NumberNode { value }
+  }
+  
+  return nil
 }
 
 func Parse(tokens []token.Token) []ast.Statement {
@@ -61,7 +145,7 @@ func Parse(tokens []token.Token) []ast.Statement {
     stats = append(stats, st)
     
     st := p.nextStatement()
-    _, ok := st.(ast.EndStatement)
+    _, ok = st.(ast.EndStatement)
   }
   
   return stats
