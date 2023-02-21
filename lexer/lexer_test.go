@@ -7,14 +7,13 @@ import (
 )
 
 func TestLexer(t *testing.T) {
-  inp := `10
-  20`
+  inp := "print = 10"
   tks := Lex(inp)
   
   res := []token.Token {
+    {token.Keyword, "print", 0},
+    {token.Assign, "=", 0},
     {token.Number, "10", 0},
-    {token.NewLine, "", 0},
-    {token.Number, "20", 0},
     {token.End, "", 0},
   }
   

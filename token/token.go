@@ -4,6 +4,7 @@ const (
   Number     = "Number"
   Identifier = "Identifier"
   Keyword    = "Keyword"
+  Assign     = "Assign"
   Plus       = "Plus"
   Minus      = "Minus"
   Times      = "Times"

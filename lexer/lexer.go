@@ -71,6 +71,14 @@ func (this *Lexer) NextToken() token.Token {
     return token.Token { token.Identifier, txt, pos }
   }
   
+  if this.char() == '=' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.Assign, string(ch), pos }
+  }
+  
   if this.char() == '+' {
     pos := this.cursor
     ch := this.char()
@@ -161,6 +169,7 @@ func Lex(chars string) []token.Token {
       tk = l.NextToken()
     }
     
+    // for removing extra NewLine token
     if i == len(lines) - 1 {
       break
     }

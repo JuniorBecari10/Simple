@@ -27,7 +27,28 @@ func (this *Parser) nextStatement() ast.Statement {
     return ast.EndStatement {}
   }
   
+  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && this.tokens[this.cursor + 1].Type == token.Assign {
+    return this.parseVarDeclStatement()
+  }
+  
   return ast.ErrorStatement { "Unknown statement. tokens: " + this.tokens }
+}
+
+func (this *Parser) parseVarDeclStatement() ast.Statement {
+  stat := ast.VarDeclStatement {}
+  id := ast.Identifier { Token: this.token(), Name: this.Token.Content }
+  
+  stat.id = id
+  this.advance()
+  
+  if this.token().Type != token.Assign {
+    return ErrorStatement { "Syntax error when declaring a variable. Examples: a = 10; message = 'Hello'." }
+  }
+  
+  this.advance()
+  stat.Value = parseExpression()
+  
+  return stat
 }
 
 func Parse(tokens []token.Token) []ast.Statement {
