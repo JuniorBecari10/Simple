@@ -132,6 +132,12 @@ func (this *Parser) factor() ast.ExpressionNode {
     return ast.NumberNode { value }
   }
   
+  if tk.Type == token.String {
+    this.advance()
+    
+    return ast.StringNode { tk.Content }
+  }
+  
   return nil
 }
 

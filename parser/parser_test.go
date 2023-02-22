@@ -1,8 +1,8 @@
 package parser
 
 import (
-  "fmt"
   "testing"
+  "reflect"
   
   "simple/token"
   "simple/lexer"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := "a = 10 + 1"
+  input := "a = 'hello' + ' world'"
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
@@ -27,19 +27,22 @@ func TestParser(t *testing.T) {
         },
         "a",
       },
-      ast.NumberNode {
-        10,
+      ast.BinNode {
+        ast.StringNode {
+          "'hello'",
+        },
+        ast.StringNode {
+          "' world'",
+        },
+        "+",
       },
     },
     ast.EndStatement {},
   }
   
   for i, s := range stats {
-    str1 := fmt.Sprintf("%+v", s)
-    str2 := fmt.Sprintf("%+v", expect[i])
-    
-    if str1 != str2 {
-      t.Fatalf("error. expect %s, got %s", str1, str2)
+    if !reflect.DeepEqual(s, expect[i]) {
+      t.Fatalf("not equal.")
     }
   }
 }

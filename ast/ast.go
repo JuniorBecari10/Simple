@@ -55,6 +55,10 @@ type NumberNode struct {
   Value float64
 }
 
+type StringNode struct {
+  Value string
+}
+
 type BinNode struct {
   NodeA ExpressionNode
   NodeB ExpressionNode
@@ -71,6 +75,7 @@ type MinusNode struct {
 
 func (i Identifier) exNode() {}
 func (n NumberNode) exNode() {}
+func (s StringNode) exNode() {}
 func (b BinNode)    exNode() {}
 func (p PlusNode)   exNode() {}
 func (m MinusNode)  exNode() {}

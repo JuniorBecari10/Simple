@@ -29,8 +29,6 @@ func (this *Lexer) char() byte {
 }
 
 func (this *Lexer) NextToken() token.Token {
-  fmt.Println(this.cursor, len(this.chars))
-  
   if this.cursor >= len(this.chars) {
     return token.Token { token.End, "", this.cursor }
   }
