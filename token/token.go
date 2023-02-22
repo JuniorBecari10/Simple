@@ -4,6 +4,7 @@ const (
   Number     = "Number"
   String     = "String"
   Identifier = "Identifier"
+  Label      = "Label"
   Keyword    = "Keyword"
   Assign     = "Assign"
   Plus       = "Plus"

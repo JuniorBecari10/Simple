@@ -81,6 +81,24 @@ func (this *Lexer) NextToken() token.Token {
     return token.Token { token.Identifier, txt, pos }
   }
   
+  if this.char() == ':' {
+    pos := this.cursor
+    
+    this.advance()
+    
+    for IsLetter(this.char()) {
+      this.advance()
+    }
+    
+    txt := this.chars[pos:this.cursor]
+    
+    if IsKeyword(txt) {
+      return token.Token { token.Error, "Cannot use a keyword as a label name.", pos }
+    }
+    
+    return token.Token { token.Label, txt, pos }
+  }
+  
   if this.char() == '=' {
     pos := this.cursor
     ch := this.char()
