@@ -10,7 +10,9 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := "a = 'hello' + ' world'"
+  input := `a = 'hello' + b
+print 'hello' + a
+`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
@@ -31,8 +33,34 @@ func TestParser(t *testing.T) {
         ast.StringNode {
           "'hello'",
         },
+        ast.Identifier {
+          token.Token {
+            token.Identifier,
+            "b",
+            14,
+          },
+          "b",
+        },
+        "+",
+      },
+    },
+    ast.PrintStatement {
+      &token.Token {
+        token.Keyword,
+        "print",
+        0,
+      },
+      ast.BinNode {
         ast.StringNode {
-          "' world'",
+          "'hello'",
+        },
+        ast.Identifier {
+          token.Token {
+            token.Identifier,
+            "a",
+            16,
+          },
+          "a",
         },
         "+",
       },
@@ -42,7 +70,7 @@ func TestParser(t *testing.T) {
   
   for i, s := range stats {
     if !reflect.DeepEqual(s, expect[i]) {
-      t.Fatalf("not equal.")
+      t.Fatalf("not equal. len %d.\nexpected %+v\ngot %+v", len(stats), expect[i], s)
     }
   }
 }

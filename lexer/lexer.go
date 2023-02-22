@@ -191,3 +191,20 @@ func Lex(chars string) []token.Token {
   
   return tks
 }
+
+func SplitLines(tokens []token.Token) [][]token.Token {
+  toks := make([][]token.Token, 0)
+  tks := []token.Token {}
+  
+  for _, t := range tokens {
+    if t.Type != token.NewLine {
+      tks = append(tks, t)
+      continue
+    }
+    
+    toks = append(toks, tks)
+    tks = []token.Token {}
+  }
+  
+  return toks
+}

@@ -20,8 +20,8 @@ type VarDeclStatement struct {
 }
 
 type PrintStatement struct {
-  Token *token.Token // print keyword
-  Expr  ExpressionNode
+  Token       *token.Token // print keyword
+  Expression  ExpressionNode
 }
 
 type EndStatement struct {}

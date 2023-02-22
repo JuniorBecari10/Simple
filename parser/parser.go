@@ -5,6 +5,7 @@ import (
   "strconv"
   
   "simple/token"
+  "simple/lexer"
   "simple/ast"
 )
 
@@ -22,6 +23,10 @@ func (this *Parser) advance() {
 }
 
 func (this *Parser) token() token.Token {
+  if this.cursor >= len(this.tokens) {
+    return token.Token { token.Error, "exceeded.", this.cursor }
+  }
+  
   return this.tokens[this.cursor]
 }
 
@@ -30,8 +35,16 @@ func (this *Parser) nextStatement() ast.Statement {
     return ast.EndStatement {}
   }
   
+  if this.token().Type == token.Error {
+    return ast.ErrorStatement { this.token().Content }
+  }
+  
   if len(this.tokens) >= 2 && this.token().Type == token.Identifier && this.tokens[this.cursor + 1].Type == token.Assign {
     return this.parseVarDeclStatement()
+  }
+  
+  if len(this.tokens) >= 1 && this.token().Type == token.Keyword && this.token().Content == "print" {
+    return this.parsePrintStatement()
   }
   
   return ast.ErrorStatement { "Unknown statement. tokens: " + fmt.Sprintf("%q", this.tokens) }
@@ -50,6 +63,20 @@ func (this *Parser) parseVarDeclStatement() ast.Statement {
   
   this.advance()
   stat.Value = this.parseExpression()
+  
+  return stat
+}
+
+func (this *Parser) parsePrintStatement() ast.Statement {
+  stat := ast.PrintStatement {}
+  
+  tk := this.token()
+  stat.Token = &tk
+  
+  this.advance()
+  stat.Expression = this.parseExpression()
+  
+  this.advance()
   
   return stat
 }
@@ -138,20 +165,30 @@ func (this *Parser) factor() ast.ExpressionNode {
     return ast.StringNode { tk.Content }
   }
   
+  if tk.Type == token.Identifier {
+    this.advance()
+    
+    return ast.Identifier { tk, tk.Content }
+  }
+  
   return nil
 }
 
 func Parse(tokens []token.Token) []ast.Statement {
-  p := New(tokens)
+  lines := lexer.SplitLines(tokens)
   stats := []ast.Statement {}
   
-  st := p.nextStatement()
-  _, ok := st.(ast.EndStatement)
-  for !ok {
-    stats = append(stats, st)
+  for _, l := range lines {
+    p := New(l)
     
     st := p.nextStatement()
-    _, ok = st.(ast.EndStatement)
+    _, ok := st.(ast.EndStatement)
+    
+    if ok {
+      break
+    }
+    
+    stats = append(stats, st)
   }
   
   return stats
