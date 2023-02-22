@@ -70,10 +70,16 @@ func (this *Parser) parseVarDeclStatement() ast.Statement {
 func (this *Parser) parsePrintStatement() ast.Statement {
   stat := ast.PrintStatement {}
   
-  stat.Token = this.token()
-  
+  tk := this.token()
   this.advance()
-  stat.Expression = this.parseExpression()
+  expr := this.parseExpression()
+  
+  if (tk.Type == token.Error) || (expr == nil) {
+    return ast.ErrorStatement { "Syntax error in a print statement. Examples: print 'Hello World'; print 1 + 1." }
+  }
+  
+  stat.Token = tk
+  stat.Expression = expr
   
   this.advance()
   
