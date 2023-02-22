@@ -75,7 +75,7 @@ func (this *Lexer) NextToken() token.Token {
     txt := this.chars[pos:this.cursor]
     
     if IsKeyword(txt) {
-      return token.Token { token.Keyword, txt, pos }
+      return token.Token { token.KeyTokens[txt], txt, pos }
     }
     
     return token.Token { token.Identifier, txt, pos }

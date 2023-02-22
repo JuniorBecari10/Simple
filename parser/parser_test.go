@@ -11,7 +11,7 @@ import (
 
 func TestParser(t *testing.T) {
   input := `a = 'hello' + b
-print 'hello' + a
+printl 'hello' + a
 `
   
   tokens := lexer.Lex(input)
@@ -46,8 +46,8 @@ print 'hello' + a
     },
     ast.PrintStatement {
       token.Token {
-        token.Keyword,
-        "print",
+        token.PrintlKw,
+        "printl",
         0,
       },
       ast.BinNode {
@@ -58,7 +58,7 @@ print 'hello' + a
           token.Token {
             token.Identifier,
             "a",
-            16,
+            17,
           },
           "a",
         },

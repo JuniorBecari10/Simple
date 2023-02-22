@@ -5,7 +5,8 @@ const (
   String     = "String"
   Identifier = "Identifier"
   Label      = "Label"
-  Keyword    = "Keyword"
+  PrintKw    = "PrintKw"
+  PrintlKw   = "PrintlKw"
   Assign     = "Assign"
   Plus       = "Plus"
   Minus      = "Minus"
@@ -28,4 +29,10 @@ type Token struct {
 
 var Keywords = []string {
   "print",
+  "printl",
+}
+
+var KeyTokens = map[string]TokenType {
+  "print":  PrintKw,
+  "printl": PrintlKw,
 }

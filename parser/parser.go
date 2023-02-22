@@ -24,7 +24,7 @@ func (this *Parser) advance() {
 
 func (this *Parser) token() token.Token {
   if this.cursor >= len(this.tokens) {
-    return token.Token { token.Error, "exceeded.", this.cursor }
+    return token.Token { token.Error, "Exceeded line length.", this.cursor }
   }
   
   return this.tokens[this.cursor]
@@ -43,7 +43,7 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parseVarDeclStatement()
   }
   
-  if len(this.tokens) >= 1 && this.token().Type == token.Keyword && this.token().Content == "print" {
+  if len(this.tokens) >= 1 && (this.token().Type == token.PrintKw || this.token().Type == token.PrintlKw) {
     return this.parsePrintStatement()
   }
   
@@ -74,7 +74,7 @@ func (this *Parser) parsePrintStatement() ast.Statement {
   this.advance()
   expr := this.parseExpression()
   
-  if (tk.Type == token.Error) || (expr == nil) {
+  if tk.Type == token.Error || expr == nil {
     return ast.ErrorStatement { "Syntax error in a print statement. Examples: print 'Hello World'; print 1 + 1." }
   }
   
