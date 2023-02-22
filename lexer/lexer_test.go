@@ -7,12 +7,12 @@ import (
 )
 
 func TestLexer(t *testing.T) {
-  inp := "print = 10"
+  inp := "print 'sei lá 1-24423'10"
   tks := Lex(inp)
   
   res := []token.Token {
     {token.Keyword, "print", 0},
-    {token.Assign, "=", 0},
+    {token.String, "'sei lá 1-24423'", 0},
     {token.Number, "10", 0},
     {token.End, "", 0},
   }

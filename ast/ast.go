@@ -15,8 +15,13 @@ type Statement interface {
 
 // Syntax: <ident> = <expression>
 type VarDeclStatement struct {
-  Name *Identifier
+  Name  *Identifier
   Value ExpressionNode
+}
+
+type PrintStatement struct {
+  Token *token.Token // print keyword
+  Expr  ExpressionNode
 }
 
 type EndStatement struct {}
@@ -25,11 +30,13 @@ type ErrorStatement struct {
   Msg string
 }
 
-func (vds VarDeclStatement) stat() {}
+func (vs VarDeclStatement)  stat() {}
+func (ps PrintStatement)    stat() {}
 func (es EndStatement)      stat() {}
 func (es ErrorStatement)    stat() {}
 
-func (vds VarDeclStatement) node() {}
+func (vs VarDeclStatement)  node() {}
+func (ps PrintStatement)    node() {}
 func (es EndStatement)      node() {}
 func (es ErrorStatement)    node() {}
 

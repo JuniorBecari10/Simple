@@ -39,6 +39,18 @@ func (this *Lexer) NextToken() token.Token {
     this.advance()
   }
   
+  if this.char() == '\'' {
+    pos := this.cursor
+    
+    this.advance()
+    for this.char() != '\'' {
+      this.advance()
+    }
+    this.advance()
+    
+    return token.Token { token.String, this.chars[pos:this.cursor], pos }
+  }
+  
   if IsDigit(this.char()) {
     pos := this.cursor
     

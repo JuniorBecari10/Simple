@@ -2,6 +2,7 @@ package token
 
 const (
   Number     = "Number"
+  String     = "String"
   Identifier = "Identifier"
   Keyword    = "Keyword"
   Assign     = "Assign"
