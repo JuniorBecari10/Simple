@@ -21,7 +21,7 @@ print 'hello' + a
   
   expect := []ast.Statement {
     ast.VarDeclStatement {
-      &ast.Identifier {
+      ast.Identifier {
         token.Token {
           token.Identifier,
           "a",
@@ -45,7 +45,7 @@ print 'hello' + a
       },
     },
     ast.PrintStatement {
-      &token.Token {
+      token.Token {
         token.Keyword,
         "print",
         0,

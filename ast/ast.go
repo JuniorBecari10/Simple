@@ -15,12 +15,12 @@ type Statement interface {
 
 // Syntax: <ident> = <expression>
 type VarDeclStatement struct {
-  Name  *Identifier
+  Name  Identifier
   Value ExpressionNode
 }
 
 type PrintStatement struct {
-  Token       *token.Token // print keyword
+  Token       token.Token // print keyword
   Expression  ExpressionNode
 }
 

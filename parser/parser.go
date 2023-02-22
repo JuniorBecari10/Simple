@@ -54,7 +54,7 @@ func (this *Parser) parseVarDeclStatement() ast.Statement {
   stat := ast.VarDeclStatement {}
   id := ast.Identifier { Token: this.token(), Value: this.token().Content }
   
-  stat.Name = &id
+  stat.Name = id
   this.advance()
   
   if this.token().Type != token.Assign {
@@ -70,8 +70,7 @@ func (this *Parser) parseVarDeclStatement() ast.Statement {
 func (this *Parser) parsePrintStatement() ast.Statement {
   stat := ast.PrintStatement {}
   
-  tk := this.token()
-  stat.Token = &tk
+  stat.Token = this.token()
   
   this.advance()
   stat.Expression = this.parseExpression()
