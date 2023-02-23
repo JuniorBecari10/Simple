@@ -19,7 +19,18 @@ func Repl() {
     fmt.Print("> ")
     
     sc.Scan()
-    fmt.Println("< " + Perform(sc.Text()))
+    
+    text := sc.Text()
+    
+    if text == "" {
+      continue
+    }
+    
+    if text == "exit" {
+      os.Exit(0)
+    }
+    
+    fmt.Println("< " + Perform(text))
   }
 }
 

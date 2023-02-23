@@ -46,7 +46,7 @@ func (this *Lexer) NextToken() token.Token {
     }
     this.advance()
     
-    return token.Token { token.String, this.chars[pos:this.cursor], pos }
+    return token.Token { token.String, this.chars[pos + 1:this.cursor - 1], pos }
   }
   
   if IsDigit(this.char()) {
