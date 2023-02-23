@@ -3,6 +3,7 @@ package run
 import (
   "fmt"
   "os"
+  "strconv"
   
   "simple/ast"
 )
@@ -139,8 +140,20 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         switch bin.Op {
           case "+":
             if !ok1 || !ok2 {
-              s1 := v1.(string)
-              s2 := v2.(string)
+              s1 := ""
+              s2 := ""
+              
+              if ok1 {
+                s1 = strconv.FormatFloat(n1, 'f', -1, 64)
+              } else {
+                s1 = v1.(string)
+              }
+              
+              if ok2 {
+                s2 = strconv.FormatFloat(n2, 'f', -1, 64)
+              } else {
+                s2 = v2.(string)
+              }
               
               return s1 + s2
             }
