@@ -21,6 +21,7 @@ type VarDeclStatement struct {
 
 type PrintStatement struct {
   Token       token.Token // print keyword
+  BreakLine   bool
   Expression  ExpressionNode
 }
 
