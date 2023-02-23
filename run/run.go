@@ -62,7 +62,16 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
     
     case ast.PrintStatement:
       return func(st ast.Statement) Any {
-        return ""
+        s := st.(ast.PrintStatement)
+        
+        exp := SolveExpression(s.Expression)
+        fmt.Print(exp)
+        
+        if s.BreakLine {
+          fmt.Println()
+        }
+        
+        return exp
       }
     
     case ast.ExpressionStatement:

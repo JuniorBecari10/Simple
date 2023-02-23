@@ -30,20 +30,26 @@ func Repl() {
       os.Exit(0)
     }
     
-    fmt.Println("< " + Perform(text))
+    Perform(text)
   }
 }
 
-func Perform(q string) string {
+func Perform(q string) {
   tks := lexer.Lex(q)
   stats := parser.Parse(tks)
-  vl := run.RunStat(stats[0], true) // it's going to return only one statement (I think)
   
-  value, ok := vl.(float64)
-  
-  if ok {
-    return strconv.FormatFloat(value, 'f', -1, 64)
+  for _, stat := range stats {
+    vl := run.RunStat(stat, true) // it's going to return only one statement (I think)
+    
+    value, ok := vl.(float64)
+    ret := ""
+    
+    if ok {
+      ret = strconv.FormatFloat(value, 'f', -1, 64)
+    } else {
+      ret = vl.(string)
+    }
+    
+    fmt.Println("< " + ret)
   }
-  
-  return vl.(string)
 }

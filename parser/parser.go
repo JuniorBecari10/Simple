@@ -78,7 +78,7 @@ func (this *Parser) parsePrintStatement() ast.Statement {
   }
   
   stat.Token = tk
-  stat.BreakLine = tk.Type == token.PrintlKw
+  stat.BreakLine = tk.Type != token.PrintlKw
   stat.Expression = expr
   
   this.advance()

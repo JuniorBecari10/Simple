@@ -37,6 +37,12 @@ func (this *Lexer) NextToken() token.Token {
     this.advance()
   }
   
+  if this.char() == ';' {
+    ch := this.char()
+    this.advance()
+    return token.Token { token.NewLine, string(ch), this.cursor }
+  }
+  
   if this.char() == '\'' {
     pos := this.cursor
     
