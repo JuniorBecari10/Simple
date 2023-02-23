@@ -21,21 +21,16 @@ func TestRun(t *testing.T) {
         ast.StringNode {
           "'hello'",
         },
-        ast.Identifier {
-          token.Token {
-            token.Identifier,
-            "b",
-            14,
-          },
-          "b",
+        ast.StringNode {
+          "' world'",
         },
         "+",
       },
     },
     ast.PrintStatement {
       token.Token {
-        token.PrintlKw,
-        "printl",
+        token.PrintKw,
+        "print",
         0,
       },
       ast.BinNode {
@@ -46,7 +41,7 @@ func TestRun(t *testing.T) {
           token.Token {
             token.Identifier,
             "a",
-            17,
+            16,
           },
           "a",
         },
@@ -56,7 +51,5 @@ func TestRun(t *testing.T) {
     ast.EndStatement {},
   }
   
-  ret := Run(stats)
-  
-  
+  Run(stats)
 }

@@ -6,21 +6,25 @@ import (
 
 var Variables = map[string]string {}
 
-func Run(stats []ast.Statement, repl bool) string {
+func Run(stats []ast.Statement) {
   pc := 0
   for pc < len(stats) {
     stat := stats[pc]
     
-    fn := GetStatFunc(stat)
-    
-    if fn == nil {
-      return "ERROR: Unknown statement."
-    }
-    
-    fn(stat)
+    RunStat(stat)
     
     pc++
   }
+}
+
+func RunStat(stat ast.Statement, repl bool) string {
+  fn := GetStatFunc(stat)
+  
+  if fn == nil {
+    return "ERROR: Unknown statement."
+  }
+  
+  return fn(stat)
 }
 
 func GetStatFunc(st ast.Statement) func(ast.Statement) string {
@@ -37,9 +41,15 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) string {
 }
 
 func RunVarDeclStatement(st ast.VarDeclStatement) string {
-  
+  Variables[st.Name.Value] = 
 }
 
 func RunPrintStatement(st ast.PrintStatement) string {
+  
+}
+
+// ---
+
+func SolveExpression(ex ast.ExpressionNode) string {
   
 }
