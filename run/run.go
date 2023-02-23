@@ -124,7 +124,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           Panic("ERROR: Not a number.")
         }
         
-        return nb
+        return -nb
       }
     
     case ast.BinNode:
