@@ -4,6 +4,7 @@ import (
   "fmt"
   "bufio"
   "os"
+  "strconv"
   
   "simple/lexer"
   "simple/parser"
@@ -25,7 +26,13 @@ func Repl() {
 func Perform(q string) string {
   tks := lexer.Lex(q)
   stats := parser.Parse(tks)
-  vl := run.RunStat(stats[0], true) // it's going to return only one statement
+  vl := run.RunStat(stats[0], true) // it's going to return only one statement (I think)
+  
+  value, ok := vl.(float64)
+  
+  if ok {
+    return strconv.FormatFloat(value, 'f', -1, 64)
+  }
   
   return vl.(string)
 }

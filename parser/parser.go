@@ -1,7 +1,6 @@
 package parser
 
 import (
-  "fmt"
   "strconv"
   
   "simple/token"
@@ -47,7 +46,7 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parsePrintStatement()
   }
   
-  return ast.ErrorStatement { "Unknown statement. tokens: " + fmt.Sprintf("%q", this.tokens) }
+  return ast.ExpressionStatement { this.parseExpression() }
 }
 
 func (this *Parser) parseVarDeclStatement() ast.Statement {

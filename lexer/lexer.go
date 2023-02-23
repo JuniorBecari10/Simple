@@ -215,7 +215,7 @@ func SplitLines(tokens []token.Token) [][]token.Token {
   tks := []token.Token {}
   
   for _, t := range tokens {
-    if t.Type != token.NewLine {
+    if t.Type != token.NewLine && t.Type != token.End {
       tks = append(tks, t)
       continue
     }

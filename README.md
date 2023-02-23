@@ -38,7 +38,7 @@ You can also print a variable.
 
 ```py
 a = 10
-print "a is " a
+print "a is " + a
 ```
 
 ## Variables
@@ -129,7 +129,7 @@ You can comment using `#`.
 name = input str
 
 # Print user's name
-print "Your name is " $name
+print "Your name is " + name
 ```
 
 ## Examples
@@ -178,5 +178,5 @@ name = input str
 printl "Type your age: "
 age = input num
 
-print "Your name is " name " and your age is " age "."
+print "Your name is " + name + " and your age is " + age + "."
 ```

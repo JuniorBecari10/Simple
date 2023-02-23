@@ -19,10 +19,15 @@ type VarDeclStatement struct {
   Value ExpressionNode
 }
 
+// Syntax: print <expression>
 type PrintStatement struct {
   Token       token.Token // print keyword
   BreakLine   bool
   Expression  ExpressionNode
+}
+
+type ExpressionStatement struct {
+  Expression ExpressionNode
 }
 
 type EndStatement struct {}
@@ -31,15 +36,17 @@ type ErrorStatement struct {
   Msg string
 }
 
-func (vs VarDeclStatement)  stat() {}
-func (ps PrintStatement)    stat() {}
-func (es EndStatement)      stat() {}
-func (es ErrorStatement)    stat() {}
+func (vs VarDeclStatement)    stat() {}
+func (ps PrintStatement)      stat() {}
+func (es EndStatement)        stat() {}
+func (es ErrorStatement)      stat() {}
+func (es ExpressionStatement) stat() {}
 
-func (vs VarDeclStatement)  node() {}
-func (ps PrintStatement)    node() {}
-func (es EndStatement)      node() {}
-func (es ErrorStatement)    node() {}
+func (vs VarDeclStatement)    node() {}
+func (ps PrintStatement)      node() {}
+func (es EndStatement)        node() {}
+func (es ErrorStatement)      node() {}
+func (es ExpressionStatement) node() {}
 
 // Expressions
 

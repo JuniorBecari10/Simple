@@ -64,6 +64,13 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         return ""
       }
     
+    case ast.ExpressionStatement:
+      return func(st ast.Statement) Any {
+        s := st.(ast.ExpressionStatement)
+        
+        return SolveExpression(s.Expression)
+      }
+    
     default:
       return nil
   }
@@ -85,7 +92,13 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
   switch ex.(type) {
     case ast.Identifier:
       return func(ex ast.ExpressionNode) Any {
-        return ex.(ast.Identifier).Value
+        value, ok := Variables[ex.(ast.Identifier).Value]
+        
+        if !ok {
+          Panic("Variable " + ex.(ast.Identifier).Value + " doesn't exist.")
+        }
+        
+        return value
       }
     
     case ast.NumberNode:
