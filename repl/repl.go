@@ -39,7 +39,7 @@ func Perform(q string) {
   stats := parser.Parse(tks)
   
   for _, stat := range stats {
-    vl := run.RunStat(stat, true) // it's going to return only one statement (I think)
+    vl := run.RunStat(stat, true)
     
     value, ok := vl.(float64)
     ret := ""
