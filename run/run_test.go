@@ -3,6 +3,7 @@ package run
 import (
   "testing"
   
+  "simple/token"
   "simple/ast"
 )
 
@@ -52,4 +53,8 @@ func TestRun(t *testing.T) {
   }
   
   Run(stats)
+  
+  if Variables["a"] != "'hello'' world'" {
+    t.Fatalf("not as expected: expected: %s, got %q", "'hello'' world'", Variables["a"])
+  }
 }

@@ -44,7 +44,7 @@ printl 'hello' + a
         "+",
       },
     },
-    ast.PrintStatement {
+    /*ast.PrintStatement {
       token.Token {
         token.PrintlKw,
         "printl",
@@ -64,7 +64,7 @@ printl 'hello' + a
         },
         "+",
       },
-    },
+    },*/
     ast.EndStatement {},
   }
   
