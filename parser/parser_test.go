@@ -10,7 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := `a = input`
+  input := `a = input num + 1`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
@@ -27,8 +27,14 @@ func TestParser(t *testing.T) {
         },
         "a",
       },
-      ast.InputNode {
-        "",
+      ast.BinNode {
+        ast.InputNode {
+          token.TypeNum,
+        },
+        ast.NumberNode {
+          1,
+        },
+        "+",
       },
     },
     ast.EndStatement {},

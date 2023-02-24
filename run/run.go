@@ -4,7 +4,9 @@ import (
   "fmt"
   "os"
   "strconv"
+  "bufio"
   
+  "simple/token"
   "simple/ast"
 )
 
@@ -20,6 +22,8 @@ func Panic(msg string) {
 }
 
 var Variables = map[string]Any {}
+
+var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
 
 func Run(stats []ast.Statement) {
   pc := 0
@@ -198,6 +202,42 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
             Panic("Unknown operation: " + bin.Op)
             return ""
         }
+      }
+    
+    case ast.InputNode:
+      return func(exp ast.ExpressionNode) Any {
+        inp := exp.(ast.InputNode)
+        vl := ""
+        
+        for {
+          scanner.Scan()
+          //vl = SolveExpression(parser.ParseExpr(scanner.Text()))
+          vl = scanner.Text()
+          
+          if inp.Type == "" {
+            return vl
+          }
+          
+          value, err := strconv.ParseFloat(vl, 64)
+          
+          if inp.Type == token.TypeNum {
+            if err != nil {
+              continue
+            }
+            
+            return value
+          }
+          
+          if inp.Type == token.TypeStr {
+            if err != nil {
+              return value
+            }
+            
+            continue
+          }
+        }
+        
+        return vl
       }
     
     default:

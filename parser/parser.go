@@ -191,9 +191,11 @@ func (this *Parser) factor() ast.ExpressionNode {
   if tk.Type == token.InputKw {
     peek := this.peekToken()
     typ := ""
+    this.advance()
     
     if lexer.IsType(peek.Content) {
       typ = string(token.TypeTokens[peek.Content])
+      this.advance()
     }
     
     return ast.InputNode { typ }
@@ -239,4 +241,26 @@ func CheckErrors(stats []ast.Statement) []string {
   }
   
   return errs
+}
+
+func ParseExpr(s string) ast.ExpressionNode {
+  tks := lexer.Lex(s)
+  
+  if len(lexer.CheckErrors(tks)) != 0 {
+    return nil
+  }
+  
+  stats := Parse(tks)
+  
+  if len(CheckErrors(stats)) != 0 || len(stats) > 1 {
+    return nil
+  }
+  
+  exp, ok := stats[0].(ast.ExpressionStatement)
+  
+  if !ok {
+    return nil
+  }
+  
+  return exp.Expression
 }
