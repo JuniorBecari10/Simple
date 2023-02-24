@@ -84,6 +84,10 @@ func (this *Lexer) NextToken() token.Token {
       return token.Token { token.KeyTokens[txt], txt, pos }
     }
     
+    if IsType(txt) {
+      return token.Token { token.TypeTokens[txt], txt, pos }
+    }
+    
     return token.Token { token.Identifier, txt, pos }
   }
   
@@ -98,8 +102,8 @@ func (this *Lexer) NextToken() token.Token {
     
     txt := this.chars[pos:this.cursor]
     
-    if IsKeyword(txt) {
-      return token.Token { token.Error, "Cannot use a keyword as a label name.", pos }
+    if IsKeyword(txt) || IsType(txt) {
+      return token.Token { token.Error, "Cannot use neither a keyword nor a type as a label name.", pos }
     }
     
     return token.Token { token.Label, txt, pos }
@@ -188,6 +192,16 @@ func IsKeyword(s string) bool {
   return false
 }
 
+func IsType(s string) bool {
+  for _, t := range token.Types {
+    if s == t {
+      return true
+    }
+  }
+  
+  return false
+}
+
 // ---
 
 func Lex(chars string) []token.Token {
@@ -231,4 +245,16 @@ func SplitLines(tokens []token.Token) [][]token.Token {
   }
   
   return toks
+}
+
+func CheckErrors(tks []token.Token) []string {
+  errs := []string {}
+  
+  for _, t := range tks {
+    if t.Type == token.Error {
+      errs = append(errs, t.Content)
+    }
+  }
+  
+  return errs
 }

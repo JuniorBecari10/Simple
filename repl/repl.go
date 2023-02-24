@@ -36,7 +36,26 @@ func Repl() {
 
 func Perform(q string) {
   tks := lexer.Lex(q)
+  errs := lexer.CheckErrors(tks)
+  
+  if len(errs) > 0 {
+    for _, e := range errs {
+      fmt.Println(e)
+    }
+    
+    return
+  }
+  
   stats := parser.Parse(tks)
+  errs = parser.CheckErrors(stats)
+  
+  if len(errs) > 0 {
+    for _, e := range errs {
+      fmt.Println(e)
+    }
+    
+    return
+  }
   
   for _, stat := range stats {
     vl := run.RunStat(stat, true)
@@ -45,7 +64,7 @@ func Perform(q string) {
     ret := ""
     
     if ok {
-      ret = strconv.FormatFloat(value, "f", -1, 64)
+      ret = strconv.FormatFloat(value, 'f', -1, 64)
     } else {
       ret = vl.(string)
     }

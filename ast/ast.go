@@ -17,6 +17,8 @@ type Statement interface {
 type VarDeclStatement struct {
   Name  Identifier
   Value ExpressionNode
+  
+  IsInput bool
 }
 
 // Syntax: print <expression>
