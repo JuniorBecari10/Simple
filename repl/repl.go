@@ -45,7 +45,7 @@ func Perform(q string) {
     ret := ""
     
     if ok {
-      ret = strconv.FormatFloat(value, 'f', -1, 64)
+      ret = strconv.FormatFloat(value, "f", -1, 64)
     } else {
       ret = vl.(string)
     }
