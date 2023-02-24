@@ -171,21 +171,21 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           
           case "-":
             if !ok1 || !ok2 {
-              Panic("Cannot perforn subtraction on a string")
+              Panic("Cannot perform subtraction on a string")
             }
             
             return n1 - n2
           
           case "*":
             if !ok1 || !ok2 {
-              Panic("Cannot perforn multiplication on a string")
+              Panic("Cannot perform multiplication on a string")
             }
             
             return n1 * n2
           
           case "/":
             if !ok1 || !ok2 {
-              Panic("Cannot perforn division on a string")
+              Panic("Cannot perform division on a string")
             }
             
             if n2 == 0 {

@@ -42,7 +42,7 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parseVarDeclStatement()
   }
   
-  if len(this.tokens) >= 1 && (this.token().Type == token.PrintKw || this.token().Type == token.PrintlKw) {
+  if len(this.tokens) >= 1 && (this.token().Type == token.PrintlnKw || this.token().Type == token.PrintKw) {
     return this.parsePrintStatement()
   }
   
@@ -78,7 +78,7 @@ func (this *Parser) parsePrintStatement() ast.Statement {
   }
   
   stat.Token = tk
-  stat.BreakLine = tk.Type != token.PrintlKw
+  stat.BreakLine = tk.Type != token.PrintKw
   stat.Expression = expr
   
   this.advance()
