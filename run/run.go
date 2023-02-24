@@ -230,7 +230,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           
           if inp.Type == token.TypeStr {
             if err != nil {
-              return value
+              return vl
             }
             
             continue

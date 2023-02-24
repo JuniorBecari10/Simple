@@ -85,10 +85,6 @@ func (this *Parser) parsePrintStatement() ast.Statement {
     return ast.ErrorStatement { "Syntax error in a print statement. Examples: print 'Hello World'; print 1 + 1." }
   }
   
-  if lexer.IsKeyword(tk.Content) || lexer.IsType(tk.Content) {
-    return ast.ErrorStatement { "Cannot use neither a keyword nor a type as a variable name." }
-  }
-  
   stat.Token = tk
   stat.BreakLine = tk.Type != token.PrintKw
   stat.Expression = expr
