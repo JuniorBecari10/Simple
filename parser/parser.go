@@ -184,6 +184,10 @@ func Parse(tokens []token.Token) []ast.Statement {
   stats := []ast.Statement {}
   
   for _, l := range lines {
+    if len(l) == 0 {
+      continue
+    }
+    
     p := New(l)
     
     st := p.nextStatement()
