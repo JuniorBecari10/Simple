@@ -21,19 +21,25 @@ func main() {
     if os.Args[1] == "-v" || os.Args[1] == "--version" {
       fmt.Println("Simple " + Version)
       fmt.Println("Made by JuniorBecari10")
+      return
     }
     
     if os.Args[1] == "help" || os.Args[1] == "-h" || os.Args[1] == "--help" {
       help()
-      return
     }
-  } else if len(os.Args) == 3 {
+    
+    return
+  }
+  
+  if len(os.Args) == 3 {
     if os.Args[1] == "run" {
       repl.Run(os.Args[2], false)
     }
-  } else {
-    help()
+    
+    return
   }
+  
+  help()
 }
 
 func help() {
