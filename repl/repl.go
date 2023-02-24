@@ -30,12 +30,12 @@ func Repl() {
       os.Exit(0)
     }
     
-    Perform(text)
+    Run(text, true)
   }
 }
 
-func Perform(q string) {
-  tks := lexer.Lex(q)
+func Run(code string, printRet bool) {
+  tks := lexer.Lex(code)
   errs := lexer.CheckErrors(tks)
   
   if len(errs) > 0 {
@@ -69,6 +69,8 @@ func Perform(q string) {
       ret = vl.(string)
     }
     
-    fmt.Println("< " + ret)
+    if printRet {
+      fmt.Println("< " + ret)
+    }
   }
 }

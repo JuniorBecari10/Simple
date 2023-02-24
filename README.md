@@ -43,7 +43,7 @@ println 'a is ' + a
 
 ## Variables
 
-A variable can hold any value, its type can be `str` or `num`.
+A variable can hold any value, its type can be `str` or `num`. _(bool will be added soon)_
 
 ```
 var = <value | [input [str | num]]>
@@ -52,14 +52,20 @@ var = <value | [input [str | num]]>
 In this case, the variable `var` will have the value `value`. <br>
 You can use the `input` keyword to get user's input.
 
-A variable type will be `num` if the value is a number. Simple. <br>
-So there's no `str`s with numbers inside, unless there's a character that's not a number inside the variable.
-
 ```py
 var = input
 ```
 
 The user will be prompted for a value, and the value that'll be typed in will be the value of the variable.
+
+You can force a type with `input` too. Just type the type in front of the `input` keyword.
+
+```
+age = input num
+```
+
+The language will keep prompting until you type a value that satisfies the condiftion; <br>
+The same is for `str`; in thic case numbers will not be accepted, and vice versa.
 
 ## Labels
 
