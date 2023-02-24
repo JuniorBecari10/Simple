@@ -1,4 +1,4 @@
-<img src="logo.png">
+<img src='logo.png'>
 
 # Simple
 
@@ -7,39 +7,38 @@ It's very easy to use.
 
 ## Keywords
 
-`print` - Prints text to the screen; <br>
-`printl` - Prints text to the screen, but doesn't break the line; <br>
+`println` - Prints text to the screen; <br>
+`prinl` - Prints text to the screen, but doesn't break the line; <br>
 `input` - For use when declaring a variable | _See Variables_; <br>
 `goto` - Go to a specified line or label | _See labels_; <br>
 `exec` - Run a system command; <br>
 `exit` - Exit the program; <br>
 `if` - Checks a condition and go to a line if it's true | _See Conditions_; <br>
-`emptystr` - Represents a empty `str`.
 
 ## Print
 
 For printing things on the screen, you can use the keywords `print` and `printl`. <br>
 
 The difference between them is: <br>
-`print` prints the text and break the line. <br>
-`printl` prints the text and **DOES NOT** break the line. <br>
+`println` prints the text and break the line. <br>
+`print` prints the text and **DOES NOT** break the line. <br>
 
 ### Printing Examples:
 
 ```py
-print "Hello World"
+println 'Hello World'
 ```
 
 ```py
-printl "Hello "
-print "World"
+print 'Hello '
+println 'World'
 ```
 
 You can also print a variable.
 
 ```py
 a = 10
-print "a is " $a
+println 'a is ' + a
 ```
 
 ## Variables
@@ -118,7 +117,7 @@ if x == 10 goto :end
 exit 0
 
 :end
-print "x is 10!"
+println 'x is 10!'
 ```
 
 ## Comments
@@ -130,7 +129,7 @@ You can comment using `#`.
 name = input str
 
 # Print user's name
-print "Your name is " $name
+print 'Your name is ' + name
 ```
 
 ## Examples
@@ -138,13 +137,13 @@ print "Your name is " $name
 Print Hello World:
 
 ```py
-print "Hello World"
+print 'Hello World'
 ```
 
 Set a variable:
 
 ```py
-var = "value"
+var = 'value'
 ```
 
 Get user input and store it in a variable:
@@ -165,7 +164,7 @@ Print a variable:
 
 ```py
 var = 10
-print "var is " $var
+print 'var is ' $var
 ```
 
 ------
@@ -173,11 +172,11 @@ print "var is " $var
 Program to get user's name and age:
 
 ```py
-printl "Type your name: "
+printl 'Type your name: '
 name = input str
 
-printl "Type your age: "
+printl 'Type your age: '
 age = input num
 
-print "Your name is " $name " and your age is " $age "."
+print 'Your name is ' + name + ' and your age is ' + age + '.'
 ```
