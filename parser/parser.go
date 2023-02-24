@@ -29,6 +29,14 @@ func (this *Parser) token() token.Token {
   return this.tokens[this.cursor]
 }
 
+func (this *Parser) peekToken() token.Token {
+  if this.cursor + 1 >= len(this.tokens) {
+    return token.Token { token.Error, "Exceeded line length.", this.cursor + 1 }
+  }
+  
+  return this.tokens[this.cursor + 1]
+}
+
 func (this *Parser) nextStatement() ast.Statement {
   if this.token().Type == token.End {
     return ast.EndStatement {}
@@ -178,6 +186,17 @@ func (this *Parser) factor() ast.ExpressionNode {
     this.advance()
     
     return ast.Identifier { tk, tk.Content }
+  }
+  
+  if tk.Type == token.InputKw {
+    peek := this.peekToken()
+    typ := ""
+    
+    if lexer.IsType(peek.Content) {
+      typ = string(token.TypeTokens[peek.Content])
+    }
+    
+    return ast.InputNode { typ }
   }
   
   return nil

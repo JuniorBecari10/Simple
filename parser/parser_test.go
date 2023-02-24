@@ -10,9 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := `a = 'hello' + b
-printl 'hello' + a
-`
+  input := `a = input`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
@@ -29,42 +27,10 @@ printl 'hello' + a
         },
         "a",
       },
-      ast.BinNode {
-        ast.StringNode {
-          "'hello'",
-        },
-        ast.Identifier {
-          token.Token {
-            token.Identifier,
-            "b",
-            14,
-          },
-          "b",
-        },
-        "+",
+      ast.InputNode {
+        "",
       },
     },
-    /*ast.PrintStatement {
-      token.Token {
-        token.PrintlKw,
-        "printl",
-        0,
-      },
-      ast.BinNode {
-        ast.StringNode {
-          "'hello'",
-        },
-        ast.Identifier {
-          token.Token {
-            token.Identifier,
-            "a",
-            17,
-          },
-          "a",
-        },
-        "+",
-      },
-    },*/
     ast.EndStatement {},
   }
   

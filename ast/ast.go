@@ -17,8 +17,6 @@ type Statement interface {
 type VarDeclStatement struct {
   Name  Identifier
   Value ExpressionNode
-  
-  IsInput bool
 }
 
 // Syntax: print <expression>
@@ -83,9 +81,14 @@ type MinusNode struct {
   Value ExpressionNode
 }
 
+type InputNode struct {
+  Type string
+}
+
 func (i Identifier) exNode() {}
 func (n NumberNode) exNode() {}
 func (s StringNode) exNode() {}
 func (b BinNode)    exNode() {}
 func (p PlusNode)   exNode() {}
 func (m MinusNode)  exNode() {}
+func (i InputNode)  exNode() {}
