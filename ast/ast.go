@@ -19,6 +19,13 @@ type VarDeclStatement struct {
   Value ExpressionNode
 }
 
+// Syntax: <ident> +|-|*|/= <expression>
+type OperationStatement struct {
+  Name  Identifier
+  Value ExpressionNode
+  Op    string
+}
+
 // Syntax: print <expression>
 type PrintStatement struct {
   Token       token.Token // print keyword
@@ -37,12 +44,14 @@ type ErrorStatement struct {
 }
 
 func (vs VarDeclStatement)    stat() {}
+func (os OperationStatement)  stat() {}
 func (ps PrintStatement)      stat() {}
 func (es EndStatement)        stat() {}
 func (es ErrorStatement)      stat() {}
 func (es ExpressionStatement) stat() {}
 
 func (vs VarDeclStatement)    node() {}
+func (os OperationStatement)  node() {}
 func (ps PrintStatement)      node() {}
 func (es EndStatement)        node() {}
 func (es ErrorStatement)      node() {}

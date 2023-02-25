@@ -10,7 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := `a = input str + 1`
+  input := `a += input str + 1`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
@@ -18,7 +18,7 @@ func TestParser(t *testing.T) {
   stats := Parse(tokens)
   
   expect := []ast.Statement {
-    ast.VarDeclStatement {
+    ast.OperationStatement {
       ast.Identifier {
         token.Token {
           token.Identifier,
@@ -36,13 +36,14 @@ func TestParser(t *testing.T) {
         },
         "+",
       },
+      "+",
     },
     ast.EndStatement {},
   }
   
   for i, s := range stats {
     if !reflect.DeepEqual(s, expect[i]) {
-      t.Fatalf("not equal. len %d.\nexpected %+v\ngot %+v", len(stats), expect[i], s)
+      t.Fatalf("not equal. len %d.\nexpected %+v\ngot      %+v", len(stats), expect[i], s)
     }
   }
 }

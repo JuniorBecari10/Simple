@@ -28,6 +28,14 @@ func (this *Lexer) char() byte {
   return this.chars[this.cursor]
 }
 
+func (this *Lexer) peekChar() byte {
+  if this.cursor + 1 >= len(this.chars) {
+    return 0
+  }
+  
+  return this.chars[this.cursor + 1]
+}
+
 func (this *Lexer) NextToken() token.Token {
   if this.cursor >= len(this.chars) {
     return token.Token { token.End, "", this.cursor }
@@ -127,6 +135,42 @@ func (this *Lexer) NextToken() token.Token {
     this.advance()
     
     return token.Token { token.Assign, string(ch), pos }
+  }
+  
+  if this.char() == '+' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.PlusAssign, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '-' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.MinusAssign, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '*' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.TimesAssign, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '/' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.DivideAssign, this.chars[pos:pos + 2], pos }
   }
   
   if this.char() == '+' {

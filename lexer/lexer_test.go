@@ -7,12 +7,12 @@ import (
 )
 
 func TestLexer(t *testing.T) {
-  inp := "a = input num"
+  inp := "a *= input num"
   tks := Lex(inp)
   
   res := []token.Token {
     {token.Identifier, "a", 0},
-    {token.Assign, "=", 0},
+    {token.TimesAssign, "*=", 0},
     {token.InputKw, "input", 0},
     {token.TypeNum, "num", 0},
     {token.End, "", 0},

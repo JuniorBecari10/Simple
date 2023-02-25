@@ -50,6 +50,10 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parseVarDeclStatement()
   }
   
+  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && (this.tokens[this.cursor + 1].Type == token.PlusAssign || this.tokens[this.cursor + 1].Type == token.MinusAssign || this.tokens[this.cursor + 1].Type == token.TimesAssign || this.tokens[this.cursor + 1].Type == token.DivideAssign) {
+    return this.parseOperationStatement()
+  }
+  
   if len(this.tokens) >= 1 && (this.token().Type == token.PrintlnKw || this.token().Type == token.PrintKw) {
     return this.parsePrintStatement()
   }
@@ -67,6 +71,25 @@ func (this *Parser) parseVarDeclStatement() ast.Statement {
   if this.token().Type != token.Assign {
     return ast.ErrorStatement { "Syntax error when declaring a variable. Examples: a = 10; message = 'Hello'." }
   }
+  
+  this.advance()
+  stat.Value = this.parseExpression()
+  
+  return stat
+}
+
+func (this *Parser) parseOperationStatement() ast.Statement {
+  stat := ast.OperationStatement {}
+  id := ast.Identifier { Token: this.token(), Value: this.token().Content }
+  
+  stat.Name = id
+  this.advance()
+  
+  if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign }) == -1 {
+    return ast.ErrorStatement { "Syntax error when setting a value. Examples: a -= 10; message += 'Hello'." }
+  }
+  
+  stat.Op = string(this.token().Content[0])
   
   this.advance()
   stat.Value = this.parseExpression()
@@ -259,4 +282,14 @@ func ParseExpr(s string) ast.ExpressionNode {
   }
   
   return exp.Expression
+}
+
+func Find(what string, where []string) int {
+  for i, v := range where {
+    if v == what {
+      return i
+    }
+  }
+  
+  return -1
 }
