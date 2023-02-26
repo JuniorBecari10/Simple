@@ -69,11 +69,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         s := st.(ast.OperationStatement)
         
         vl := SolveExpression(s.Value)
-        num, ok := vl.(float64)
-        
-        if !ok && s.Op != "+" {
-          Panic("Cannot perform any other operations on strings, except addition")
-        }
+        vlAsNum, _ := vl.(float64)
         
         switch s.Op {
           case "+":
@@ -81,8 +77,10 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
             asNum, ok := oldValue.(float64)
             
             if ok {
-              asNum += num
+              asNum += vlAsNum
+              fmt.Println(asNum)
               Variables[s.Name.Value] = asNum
+              return asNum
             }
             
             break
