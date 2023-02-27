@@ -150,8 +150,16 @@ func (this *Parser) term() ast.ExpressionNode {
   
   res := this.factor()
   
-  for this.token().Type != token.Error && (this.token().Type == token.Times || this.token().Type == token.Divide) {
-    if this.token().Type == token.Times {
+  for this.token().Type != token.Error && (this.token().Type == token.And || this.token().Type == token.Or || this.token().Type == token.Times || this.token().Type == token.Divide) {
+    if this.token().Type == token.And {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "&" }
+    } else if this.token().Type == token.Or {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "|" }
+    } else if this.token().Type == token.Times {
       this.advance()
       
       res = ast.BinNode { res, this.term(), "*" }

@@ -10,7 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := `a += input str + 1`
+  input := `a = a | b`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
@@ -18,7 +18,7 @@ func TestParser(t *testing.T) {
   stats := Parse(tokens)
   
   expect := []ast.Statement {
-    ast.OperationStatement {
+    ast.VarDeclStatement {
       ast.Identifier {
         token.Token {
           token.Identifier,
@@ -28,15 +28,24 @@ func TestParser(t *testing.T) {
         "a",
       },
       ast.BinNode {
-        ast.InputNode {
-          token.TypeStr,
+        ast.Identifier {
+          token.Token {
+            token.Identifier,
+            "a",
+            4,
+          },
+          "a",
         },
-        ast.NumberNode {
-          1,
+        ast.Identifier {
+          token.Token {
+            token.Identifier,
+            "b",
+            8,
+          },
+          "b",
         },
-        "+",
+        "|",
       },
-      "+",
     },
     ast.EndStatement {},
   }
