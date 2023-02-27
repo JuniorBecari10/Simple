@@ -13,6 +13,7 @@ import (
 type Any interface {}
 
 var Error bool = false
+var PC int = 0
 
 type Value struct {
   Value Any
@@ -28,7 +29,7 @@ var Variables = map[string]Any {}
 var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
 
 func Run(stats []ast.Statement) {
-  pc := 0
+  PC = 0
   for pc < len(stats) {
     stat := stats[pc]
     
@@ -40,7 +41,7 @@ func Run(stats []ast.Statement) {
     
     RunStat(stat, false)
     
-    pc++
+    PC++
   }
 }
 
