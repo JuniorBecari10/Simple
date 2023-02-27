@@ -7,14 +7,15 @@ import (
 )
 
 func TestLexer(t *testing.T) {
-  inp := "a *= input num"
+  inp := "&|!true false"
   tks := Lex(inp)
   
   res := []token.Token {
-    {token.Identifier, "a", 0},
-    {token.TimesAssign, "*=", 0},
-    {token.InputKw, "input", 0},
-    {token.TypeNum, "num", 0},
+    {token.And, "&", 0},
+    {token.Or, "|", 0},
+    {token.Bang, "!", 0},
+    {token.TrueKw, "true", 0},
+    {token.FalseKw, "false", 0},
     {token.End, "", 0},
   }
   

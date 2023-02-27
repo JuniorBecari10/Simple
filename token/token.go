@@ -66,7 +66,7 @@ var Types   = []string {
   "bool",
 }
 
-var KeyTokens   = map[string]TokenType {
+var KeyTokens = map[string]TokenType {
   "println": PrintlnKw,
   "print":   PrintKw,
   "input":   InputKw,
@@ -74,7 +74,7 @@ var KeyTokens   = map[string]TokenType {
   "false":   FalseKw,
 }
 
-var TypeTokens   = map[string]TokenType {
+var TypeTokens = map[string]TokenType {
   "num":  TypeNum,
   "str":  TypeStr,
   "bool": TypeBool,

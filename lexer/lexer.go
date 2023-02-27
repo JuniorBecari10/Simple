@@ -173,6 +173,32 @@ func (this *Lexer) NextToken() token.Token {
     return token.Token { token.DivideAssign, this.chars[pos:pos + 2], pos }
   }
   
+  if this.char() == '&' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.And, string(ch), pos }
+  }
+  
+  if this.char() == '|' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.Or, string(ch), pos }
+  }
+  
+  // xor will be added later
+  
+  if this.char() == '!' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.Bang, string(ch), pos }
+  }
+  
   if this.char() == '+' {
     pos := this.cursor
     ch := this.char()
