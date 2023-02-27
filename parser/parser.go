@@ -228,6 +228,18 @@ func (this *Parser) factor() ast.ExpressionNode {
     return ast.InputNode { typ }
   }
   
+  if tk.Type == token.TrueKw {
+    this.advance()
+    
+    return ast.BoolNode { ast.TrueType }
+  }
+  
+  if tk.Type == token.FalseKw {
+    this.advance()
+    
+    return ast.BoolNode { ast.FalseType }
+  }
+  
   return nil
 }
 

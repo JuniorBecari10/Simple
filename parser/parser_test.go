@@ -10,7 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := `a = a | b`
+  input := `a = true | false`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
@@ -28,21 +28,11 @@ func TestParser(t *testing.T) {
         "a",
       },
       ast.BinNode {
-        ast.Identifier {
-          token.Token {
-            token.Identifier,
-            "a",
-            4,
-          },
-          "a",
+        ast.BoolNode {
+          ast.TrueType,
         },
-        ast.Identifier {
-          token.Token {
-            token.Identifier,
-            "b",
-            8,
-          },
-          "b",
+        ast.BoolNode {
+          ast.FalseType,
         },
         "|",
       },
