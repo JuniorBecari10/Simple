@@ -73,22 +73,28 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         
         switch s.Op {
           case "+":
-            sum := Sum(Variables[s.Name.Value], vl)
-            Variables[s.Name.Value] = sum
+            vl := Sum(Variables[s.Name.Value], vl)
+            Variables[s.Name.Value] = vl
             
-            return sum
+            return vl
           
           case "-":
-            //Variables[s.Name.Value] -= vl
-            break
+            vl := Sub(Variables[s.Name.Value], vl)
+            Variables[s.Name.Value] = vl
+            
+            return vl
           
           case "*":
-            //Variables[s.Name.Value] *= vl
-            break
+            vl := Mul(Variables[s.Name.Value], vl)
+            Variables[s.Name.Value] = vl
+            
+            return vl
           
           case "/":
-            //Variables[s.Name.Value] /= vl
-            break
+            vl := Div(Variables[s.Name.Value], vl)
+            Variables[s.Name.Value] = vl
+            
+            return vl
         }
         
         return vl
@@ -203,7 +209,6 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         
         for {
           scanner.Scan()
-          //vl = SolveExpression(parser.ParseExpr(scanner.Text()))
           vl = scanner.Text()
           
           if inp.Type == "" {
@@ -266,8 +271,6 @@ func Sum(v1 Any, v2 Any) Any {
 func Sub(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
-  
-  fmt.Println(n1, n2)
   
   if !ok1 || !ok2 {
     Panic("Cannot perform subtraction on a string")
