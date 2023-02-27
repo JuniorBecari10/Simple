@@ -69,21 +69,14 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         s := st.(ast.OperationStatement)
         
         vl := SolveExpression(s.Value)
-        vlAsNum, _ := vl.(float64)
+        
         
         switch s.Op {
           case "+":
-            oldValue := Variables[s.Name.Value]
-            asNum, ok := oldValue.(float64)
+            sum := Sum(Variables[s.Name.Value], vl)
+            Variables[s.Name.Value] = sum
             
-            if ok {
-              asNum += vlAsNum
-              fmt.Println(asNum)
-              Variables[s.Name.Value] = asNum
-              return asNum
-            }
-            
-            break
+            return sum
           
           case "-":
             //Variables[s.Name.Value] -= vl
@@ -184,56 +177,18 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         
         v1, v2 := SolveExpression(bin.NodeA), SolveExpression(bin.NodeB)
         
-        n1, ok1 := v1.(float64)
-        n2, ok2 := v2.(float64)
-        
         switch bin.Op {
           case "+":
-            if !ok1 || !ok2 {
-              s1 := ""
-              s2 := ""
-              
-              if ok1 {
-                s1 = strconv.FormatFloat(n1, 'f', -1, 64)
-              } else {
-                s1 = v1.(string)
-              }
-              
-              if ok2 {
-                s2 = strconv.FormatFloat(n2, 'f', -1, 64)
-              } else {
-                s2 = v2.(string)
-              }
-              
-              return s1 + s2
-            }
-            
-            return n1 + n2
+            return Sum(v1, v2)
           
           case "-":
-            if !ok1 || !ok2 {
-              Panic("Cannot perform subtraction on a string")
-            }
-            
-            return n1 - n2
+            return Sub(v1, v2)
           
           case "*":
-            if !ok1 || !ok2 {
-              Panic("Cannot perform multiplication on a string")
-            }
-            
-            return n1 * n2
+            return Mul(v1, v2)
           
           case "/":
-            if !ok1 || !ok2 {
-              Panic("Cannot perform division on a string")
-            }
-            
-            if n2 == 0 {
-              Panic("Cannot divide by 0")
-            }
-            
-            return n1 / n2
+            return Div(v1, v2)
           
           default:
             Panic("Unknown operation: " + bin.Op)
@@ -280,4 +235,69 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
     default:
       return nil
   }
+}
+
+func Sum(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  if !ok1 || !ok2 {
+    s1 := ""
+    s2 := ""
+    
+     if ok1 {
+       s1 = strconv.FormatFloat(n1, 'f', -1, 64)
+     } else {
+       s1 = v1.(string)
+     }
+     
+     if ok2 {
+       s2 = strconv.FormatFloat(n2, 'f', -1, 64)
+     } else {
+       s2 = v2.(string)
+     }
+     
+     return s1 + s2
+  }
+  
+  return n1 + n2
+}
+
+func Sub(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  fmt.Println(n1, n2)
+  
+  if !ok1 || !ok2 {
+    Panic("Cannot perform subtraction on a string")
+  }
+  
+  return n1 - n2
+}
+
+func Mul(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  if !ok1 || !ok2 {
+    Panic("Cannot perform multiplication on a string")
+  }
+  
+  return n1 * n2
+}
+
+func Div(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  if !ok1 || !ok2 {
+    Panic("Cannot perform division on a string")
+  }
+  
+  if n2 == 0 {
+    Panic("Cannot divide by zero")
+  }
+  
+  return n1 / n2
 }
