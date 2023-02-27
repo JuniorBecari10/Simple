@@ -12,13 +12,15 @@ import (
 
 type Any interface {}
 
+var Error bool = false
+
 type Value struct {
   Value Any
 }
 
 func Panic(msg string) {
   fmt.Println("ERROR: " + msg)
-  os.Exit(1)
+  Error = true
 }
 
 var Variables = map[string]Any {}
@@ -279,13 +281,17 @@ func Sum(v1 Any, v2 Any) Any {
      if ok1 {
        s1 = strconv.FormatFloat(n1, 'f', -1, 64)
      } else {
-       s1 = v1.(string)
+       s1, ok1 = v1.(string)
      }
      
      if ok2 {
        s2 = strconv.FormatFloat(n2, 'f', -1, 64)
      } else {
-       s2 = v2.(string)
+       s2, ok2 = v2.(string)
+     }
+     
+     if !ok1 || !ok2 {
+       Panic("Cannot perform sum on a bool")
      }
      
      return s1 + s2
@@ -299,7 +305,7 @@ func Sub(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    Panic("Cannot perform subtraction on a string")
+    Panic("Cannot perform subtraction on a string or a bool")
   }
   
   return n1 - n2
@@ -310,7 +316,7 @@ func Mul(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    Panic("Cannot perform multiplication on a string")
+    Panic("Cannot perform multiplication on a string or a bool")
   }
   
   return n1 * n2
@@ -321,7 +327,7 @@ func Div(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    Panic("Cannot perform division on a string")
+    Panic("Cannot perform division on a string or a bool")
   }
   
   if n2 == 0 {
@@ -336,7 +342,7 @@ func And(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(bool)
   
   if !ok1 || !ok2 {
-    Panic("Cannot perform and on a idk")
+    Panic("You can only perform and on bools")
   }
   
   return n1 && n2
@@ -347,7 +353,7 @@ func Or(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(bool)
   
   if !ok1 || !ok2 {
-    Panic("Cannot perform and on a idk")
+    Panic("You can only perform or on bools")
   }
   
   return n1 || n2

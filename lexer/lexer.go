@@ -269,7 +269,7 @@ func (this *Lexer) NextToken() token.Token {
   ch := this.char()
   this.advance()
   
-  return token.Token { token.Error, "Unknown token: '" + string(ch) + "' char " + fmt.Sprintf("%v", ch) + ", pos " + fmt.Sprintf("%d", pos) + ".", pos }
+  return token.Token { token.Error, "Unknown token: '" + string(ch) + "', pos " + fmt.Sprintf("%d", pos) + ".", pos }
 }
 
 // -- Helper -- //

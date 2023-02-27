@@ -40,7 +40,7 @@ func Run(code string, printRet bool) {
   
   if len(errs) > 0 {
     for _, e := range errs {
-      fmt.Println(e)
+      fmt.Println("ERROR: " + e)
     }
     
     return
@@ -51,7 +51,7 @@ func Run(code string, printRet bool) {
   
   if len(errs) > 0 {
     for _, e := range errs {
-      fmt.Println(e)
+      fmt.Println("ERROR: " + e)
     }
     
     return
@@ -59,6 +59,10 @@ func Run(code string, printRet bool) {
   
   for _, stat := range stats {
     vl := run.RunStat(stat, true)
+    
+    if vl == nil {
+      continue
+    }
     
     value, ok := vl.(float64)
     ret := ""
@@ -75,8 +79,10 @@ func Run(code string, printRet bool) {
       ret = fmt.Sprintf("%t", b)
     }
     
-    if printRet {
+    if printRet && !run.Error {
       fmt.Println("< " + ret)
     }
+    
+    run.Error = false
   }
 }
