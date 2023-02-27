@@ -21,6 +21,17 @@ const (
   Times        = "Times"
   Divide       = "Divide"
   
+  Power        = "Power"
+  Bang         = "Bang"
+  
+  And          = "And"
+  Or           = "Or"
+  Xor          = "Xor"
+  Not          = "Not"
+  
+  TrueKw       = "True"
+  FalseKw      = "False"
+  
   LParen       = "LParen"
   RParen       = "RParen"
   
@@ -45,6 +56,8 @@ var Keywords   = []string {
   "println",
   "print",
   "input",
+  "true",
+  "false",
 }
 
 var Types   = []string {
@@ -57,6 +70,8 @@ var KeyTokens   = map[string]TokenType {
   "println": PrintlnKw,
   "print":   PrintKw,
   "input":   InputKw,
+  "true":    TrueKw,
+  "false":   FalseKw,
 }
 
 var TypeTokens   = map[string]TokenType {
