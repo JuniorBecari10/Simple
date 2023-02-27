@@ -95,6 +95,19 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
             Variables[s.Name.Value] = vl
             
             return vl
+          
+          case "&":
+            vl := And(Variables[s.Name.Value], vl)
+            Variables[s.Name.Value] = vl
+            
+            return vl
+          
+          case "|":
+            vl := Or(Variables[s.Name.Value], vl)
+            Variables[s.Name.Value] = vl
+            
+            return vl
+          
         }
         
         return vl
@@ -196,6 +209,12 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           case "/":
             return Div(v1, v2)
           
+          case "&":
+            return And(v1, v2)
+          
+          case "|":
+            return Or(v1, v2)
+          
           default:
             Panic("Unknown operation: " + bin.Op)
             return ""
@@ -235,6 +254,13 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         }
         
         return vl
+      }
+    
+    case ast.BoolNode:
+      return func(ex ast.ExpressionNode) Any {
+        bo := ex.(ast.BoolNode)
+        
+        return bo.Type == ast.TrueType
       }
     
     default:
@@ -303,4 +329,26 @@ func Div(v1 Any, v2 Any) Any {
   }
   
   return n1 / n2
+}
+
+func And(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(bool)
+  n2, ok2 := v2.(bool)
+  
+  if !ok1 || !ok2 {
+    Panic("Cannot perform and on a idk")
+  }
+  
+  return n1 && n2
+}
+
+func Or(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(bool)
+  n2, ok2 := v2.(bool)
+  
+  if !ok1 || !ok2 {
+    Panic("Cannot perform and on a idk")
+  }
+  
+  return n1 || n2
 }

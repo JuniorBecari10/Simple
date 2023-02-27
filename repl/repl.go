@@ -66,7 +66,13 @@ func Run(code string, printRet bool) {
     if ok {
       ret = strconv.FormatFloat(value, 'f', -1, 64)
     } else {
-      ret = vl.(string)
+      b, ok := vl.(bool)
+      
+      if !ok {
+        ret = vl.(string)
+      }
+      
+      ret = fmt.Sprintf("%t", b)
     }
     
     if printRet {
