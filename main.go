@@ -28,6 +28,14 @@ func main() {
       help()
     }
     
+    content, err := os.ReadFile(os.Args[1])
+    
+    if err != nil {
+      fmt.Println("File " + os.Args[1] + " doesn't exist.")
+    }
+    
+    repl.Run(string(content), false)
+    
     return
   }
   
