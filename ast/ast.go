@@ -103,11 +103,16 @@ type BoolNode struct {
   Type string
 }
 
-func (i Identifier) exNode() {}
-func (n NumberNode) exNode() {}
-func (s StringNode) exNode() {}
-func (b BinNode)    exNode() {}
-func (p PlusNode)   exNode() {}
-func (m MinusNode)  exNode() {}
-func (i InputNode)  exNode() {}
-func (b BoolNode)   exNode() {}
+type FactorialNode struct {
+  Node ExpressionNode
+}
+
+func (i Identifier)    exNode() {}
+func (n NumberNode)    exNode() {}
+func (s StringNode)    exNode() {}
+func (b BinNode)       exNode() {}
+func (p PlusNode)      exNode() {}
+func (m MinusNode)     exNode() {}
+func (i InputNode)     exNode() {}
+func (b BoolNode)      exNode() {}
+func (f FactorialNode) exNode() {}

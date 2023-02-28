@@ -30,12 +30,12 @@ var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
 
 func Run(stats []ast.Statement) {
   PC = 0
-  for pc < len(stats) {
-    stat := stats[pc]
+  for PC < len(stats) {
+    stat := stats[PC]
     
     _, ok := stat.(ast.EndStatement)
     
-    if ok {
+    if ok || Error {
       break
     }
     

@@ -148,7 +148,7 @@ func (this *Parser) term() ast.ExpressionNode {
     return nil
   }
   
-  res := this.factor()
+  res := this.postfix()
   
   for this.token().Type != token.Error && (this.token().Type == token.And || this.token().Type == token.Or || this.token().Type == token.Times || this.token().Type == token.Divide) {
     if this.token().Type == token.And {
@@ -168,6 +168,20 @@ func (this *Parser) term() ast.ExpressionNode {
       
       res = ast.BinNode { res, this.term(), "/" }
     }
+  }
+  
+  return res
+}
+
+func (this *Parser) postfix() ast.ExpressionNode {
+  if this.token().Type == token.Error {
+    return nil
+  }
+  
+  res := this.factor()
+  
+  if this.token().Type == token.Bang {
+    return ast.FactorialNode { res }
   }
   
   return res
