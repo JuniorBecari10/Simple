@@ -266,6 +266,19 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         return bo.Type == ast.TrueType
       }
     
+    case ast.FactorialNode:
+      return func(ex ast.ExpressionNode) Any {
+        f := ex.(ast.FactorialNode)
+        
+        n, ok := SolveExpression(f.Node).(float64)
+        
+        if !ok {
+          Panic("Can only perform factorial on a number.")
+        }
+        
+        return Factorial(n)
+      }
+    
     default:
       return nil
   }
@@ -358,4 +371,16 @@ func Or(v1 Any, v2 Any) Any {
   }
   
   return n1 || n2
+}
+
+func Factorial(n float64) float64 {
+  if n < 0 {
+    Panic("Cannot calculate factorial of a negative number.")
+  }
+  
+  if n == 1 {
+    return n
+  }
+  
+  return n * Factorial(n - 1)
 }
