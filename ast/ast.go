@@ -42,6 +42,10 @@ type ExpressionStatement struct {
   Expression ExpressionNode
 }
 
+type LabelStatement struct {
+  Name string
+}
+
 type EndStatement struct {}
 
 type ErrorStatement struct {
@@ -52,15 +56,17 @@ func (vs VarDeclStatement)    stat() {}
 func (os OperationStatement)  stat() {}
 func (ps PrintStatement)      stat() {}
 func (es EndStatement)        stat() {}
-func (es ErrorStatement)      stat() {}
+func (ls LabelStatement)      stat() {}
 func (es ExpressionStatement) stat() {}
+func (es ErrorStatement)      stat() {}
 
 func (vs VarDeclStatement)    node() {}
 func (os OperationStatement)  node() {}
 func (ps PrintStatement)      node() {}
 func (es EndStatement)        node() {}
-func (es ErrorStatement)      node() {}
+func (ls LabelStatement)      node() {}
 func (es ExpressionStatement) node() {}
+func (es ErrorStatement)      node() {}
 
 // Expressions
 

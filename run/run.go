@@ -276,6 +276,10 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           Panic("Can only perform factorial on a number.")
         }
         
+        if n < 0 {
+          Panic("Cannot calculate factorial of a negative number.")
+        }
+        
         return Factorial(n)
       }
     
@@ -374,8 +378,8 @@ func Or(v1 Any, v2 Any) Any {
 }
 
 func Factorial(n float64) float64 {
-  if n < 0 {
-    Panic("Cannot calculate factorial of a negative number.")
+  if n == 0 {
+    return 1
   }
   
   if n == 1 {

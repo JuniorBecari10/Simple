@@ -10,7 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := `a = 5!`
+  input := `a = 5!; :label`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
@@ -32,6 +32,9 @@ func TestParser(t *testing.T) {
           5,
         },
       },
+    },
+    ast.LabelStatement {
+      "label",
     },
     ast.EndStatement {},
   }

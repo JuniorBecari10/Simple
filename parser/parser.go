@@ -58,6 +58,14 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parsePrintStatement()
   }
   
+  if len(this.tokens) >= 1 && this.token().Type == token.Label {
+    return this.parseLabelStatement()
+    
+    if len(this.tokens) > 1 {
+      return ast.ErrorStatement { "A label statement can only contain the label!" }
+    }
+  }
+  
   return ast.ExpressionStatement { this.parseExpression() }
 }
 
@@ -115,6 +123,10 @@ func (this *Parser) parsePrintStatement() ast.Statement {
   this.advance()
   
   return stat
+}
+
+func (this *Parser) parseLabelStatement() ast.Statement {
+  return ast.LabelStatement { this.token().Content[1:] }
 }
 
 func (this *Parser) parseExpression() ast.ExpressionNode {
@@ -254,6 +266,7 @@ func (this *Parser) factor() ast.ExpressionNode {
     return ast.BoolNode { ast.FalseType }
   }
   
+  // panic
   return nil
 }
 
