@@ -12,12 +12,18 @@ import (
 
 type Any interface {}
 
-var Error bool = false
-var PC int = 0
+type Label struct {
+  Name string
+  Line int
+}
 
 type Value struct {
   Value Any
 }
+
+var Error bool = false
+var PC int = 0
+var Labels []Label
 
 func Panic(msg string) {
   fmt.Println("ERROR: " + msg)
@@ -28,7 +34,20 @@ var Variables = map[string]Any {}
 
 var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
 
+func DetectLabels(stats []ast.Statement) {
+  Labels = make([]Label, 0)
+  
+  for i, v := range stats {
+    if ls, ok := v.(ast.LabelStatement); ok {
+      Labels = append(Labels, Label { ls.Name, i })
+    }
+  }
+}
+
 func Run(stats []ast.Statement) {
+  DetectLabels(stats)
+  fmt.Println(Labels)
+  
   PC = 0
   for PC < len(stats) {
     stat := stats[PC]
@@ -37,6 +56,13 @@ func Run(stats []ast.Statement) {
     
     if ok || Error {
       break
+    }
+    
+    if stat != nil {
+      if _, ok := stat.(ast.LabelStatement); ok {
+        PC++
+        continue
+      }
     }
     
     RunStat(stat, false)
@@ -49,7 +75,7 @@ func RunStat(stat ast.Statement, repl bool) Any {
   fn := GetStatFunc(stat)
   
   if fn == nil {
-    Panic("ERROR: Unknown statement.")
+    Panic("Unknown statement.")
   }
   
   return fn(stat)
