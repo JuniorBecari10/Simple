@@ -33,6 +33,8 @@ func Panic(msg, hint string) {
     fmt.Println(hint)
   }
   
+  fmt.Println()
+  
   Error = true
 }
 
@@ -183,7 +185,8 @@ func SolveExpression(ex ast.ExpressionNode) Any {
   fn := GetExprFunc(ex)
   
   if fn == nil {
-    Panic("ERROR: Couldn't get function to solve this expression: " + fmt.Sprintf("%q", ex), "This happens when you use an operator the wrong way or the operator isn't supported.")
+    Panic("Couldn't get function to solve this expression: " + fmt.Sprintf("%q", ex), "This happens when you use an operator the wrong way or the operator isn't supported.")
+    return nil
   }
   
   return fn(ex)
