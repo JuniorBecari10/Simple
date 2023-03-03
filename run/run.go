@@ -25,8 +25,14 @@ var Error bool = false
 var PC int = 0
 var Labels []Label
 
-func Panic(msg string) {
-  fmt.Println("ERROR: " + msg)
+func Panic(msg, hint string) {
+  fmt.Println("ERROR - On line " + strconv.Itoa(PC + 1) + ".")
+  fmt.Println("\n" + msg)
+  
+  if hint != "" {
+    fmt.Println(hint)
+  }
+  
   Error = true
 }
 
@@ -46,7 +52,6 @@ func DetectLabels(stats []ast.Statement) {
 
 func Run(stats []ast.Statement) {
   DetectLabels(stats)
-  fmt.Println(Labels)
   
   PC = 0
   for PC < len(stats) {
@@ -73,12 +78,12 @@ func RunStat(stat ast.Statement, repl bool) Any {
   fn := GetStatFunc(stat)
   
   if _, ok := stat.(ast.LabelStatement); ok && repl {
-    Panic("You cannot declare labels in REPL mode.")
+    Panic("You cannot declare labels in REPL mode.", "")
     return nil
   }
   
   if fn == nil {
-    Panic("Unknown statement.")
+    Panic("Unknown statement.", "Verify if you typed correctly.")
     return nil
   }
   
@@ -178,7 +183,7 @@ func SolveExpression(ex ast.ExpressionNode) Any {
   fn := GetExprFunc(ex)
   
   if fn == nil {
-    Panic("ERROR: Couldn't get function to solve this expression: " + fmt.Sprintf("%q", ex))
+    Panic("ERROR: Couldn't get function to solve this expression: " + fmt.Sprintf("%q", ex), "This happens when you use an operator the wrong way or the operator isn't supported.")
   }
   
   return fn(ex)
@@ -191,7 +196,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         value, ok := Variables[ex.(ast.Identifier).Value]
         
         if !ok {
-          Panic("Variable " + ex.(ast.Identifier).Value + " doesn't exist.")
+          Panic("Variable '" + ex.(ast.Identifier).Value + "' doesn't exist.", "Verify if you typed the name correctly.")
         }
         
         return value
@@ -217,7 +222,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         nb, ok := SolveExpression(ex.(ast.MinusNode).Value).(float64)
         
         if !ok {
-          Panic("ERROR: Not a number.")
+          Panic("You can only use numbers with the operator '-'.", "Examples: -10, -a, -25.5.")
         }
         
         return -nb
@@ -249,7 +254,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
             return Or(v1, v2)
           
           default:
-            Panic("Unknown operation: " + bin.Op)
+            Panic("Unknown operation: " + bin.Op, "")
             return ""
         }
       }
@@ -303,11 +308,11 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         n, ok := SolveExpression(f.Node).(float64)
         
         if !ok {
-          Panic("Can only perform factorial on a number.")
+          Panic("Can only perform factorial on a number.", "Examples: 5!, 10.5!, a!")
         }
         
         if n < 0 {
-          Panic("Cannot calculate factorial of a negative number.")
+          Panic("Cannot calculate factorial of a negative number.", "You cannot calculate it.")
         }
         
         return Factorial(n)
@@ -339,7 +344,7 @@ func Sum(v1 Any, v2 Any) Any {
      }
      
      if !ok1 || !ok2 {
-       Panic("Cannot perform sum on a bool")
+       Panic("Cannot perform sum on a bool.", "You can only add numbers and strings.")
      }
      
      return s1 + s2
@@ -353,7 +358,7 @@ func Sub(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    Panic("Cannot perform subtraction on a string or a bool")
+    Panic("Cannot perform subtraction on a string or a bool", "Examples: 10 - 4, a - 4, c - f.")
   }
   
   return n1 - n2
@@ -364,7 +369,7 @@ func Mul(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    Panic("Cannot perform multiplication on a string or a bool")
+    Panic("You can only multiply numbers.", "Examples: 5 * 5, 3 * b, a * c.")
   }
   
   return n1 * n2
@@ -375,11 +380,11 @@ func Div(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    Panic("Cannot perform division on a string or a bool")
+    Panic("You can only divide numbers.", "Examples: 10 / 5, 20 / a, a / b.")
   }
   
   if n2 == 0 {
-    Panic("Cannot divide by zero")
+    Panic("Cannot divide by zero.", "Self explanatory.")
   }
   
   return n1 / n2
@@ -390,7 +395,7 @@ func And(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(bool)
   
   if !ok1 || !ok2 {
-    Panic("You can only perform and on bools")
+    Panic("You can only perform AND on bools.", "Examples: a & b, true & false, false & d.")
   }
   
   return n1 && n2
@@ -401,7 +406,7 @@ func Or(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(bool)
   
   if !ok1 || !ok2 {
-    Panic("You can only perform or on bools")
+    Panic("You can only perform OR on bools.", "Examples: a | b, true | false, false | d.")
   }
   
   return n1 || n2
