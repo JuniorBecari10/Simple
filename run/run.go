@@ -64,9 +64,7 @@ func Run(stats []ast.Statement) {
         continue
       }
     }
-    
     RunStat(stat, false)
-    
     PC++
   }
 }
@@ -74,8 +72,14 @@ func Run(stats []ast.Statement) {
 func RunStat(stat ast.Statement, repl bool) Any {
   fn := GetStatFunc(stat)
   
+  if _, ok := stat.(ast.LabelStatement); ok && repl {
+    Panic("You cannot declare labels in REPL mode.")
+    return nil
+  }
+  
   if fn == nil {
     Panic("Unknown statement.")
+    return nil
   }
   
   return fn(stat)

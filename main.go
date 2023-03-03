@@ -5,6 +5,9 @@ import (
   "os"
   
   "simple/repl"
+  "simple/lexer"
+  "simple/parser"
+  "simple/run"
 )
 
 const (
@@ -41,7 +44,7 @@ func main() {
   
   if len(os.Args) == 3 {
     if os.Args[1] == "run" {
-      repl.Run(os.Args[2], false)
+      Run(os.Args[2])
     }
     
     return
@@ -59,4 +62,30 @@ func help() {
   fmt.Println("Run 'simple -v' or 'simple --version' to show up the version number.")
   
   fmt.Println("\nhttps://github.com/JuniorBecari10/Simple")
+}
+
+func Run(code string) {
+  tks := lexer.Lex(code)
+  errs := lexer.CheckErrors(tks)
+  
+  if len(errs) > 0 {
+    for _, e := range errs {
+      fmt.Println("ERROR: " + e)
+    }
+    
+    return
+  }
+  
+  stats := parser.Parse(tks)
+  errs = parser.CheckErrors(stats)
+  
+  if len(errs) > 0 {
+    for _, e := range errs {
+      fmt.Println("ERROR: " + e)
+    }
+    
+    return
+  }
+  
+  run.Run(stats)
 }

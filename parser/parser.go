@@ -126,7 +126,10 @@ func (this *Parser) parsePrintStatement() ast.Statement {
 }
 
 func (this *Parser) parseLabelStatement() ast.Statement {
-  return ast.LabelStatement { this.token().Content[1:] }
+  tk := this.token()
+  this.advance()
+  
+  return ast.LabelStatement { tk.Content[1:] }
 }
 
 func (this *Parser) parseExpression() ast.ExpressionNode {
