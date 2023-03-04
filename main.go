@@ -11,7 +11,7 @@ import (
 )
 
 const (
-  Version = "v0.1 Alpha"
+  Version = "v1.2 Beta"
 )
 
 func main() {
@@ -29,12 +29,14 @@ func main() {
     
     if os.Args[1] == "help" || os.Args[1] == "-h" || os.Args[1] == "--help" {
       help()
+      return
     }
     
     content, err := os.ReadFile(os.Args[1])
     
     if err != nil {
-      fmt.Println("File " + os.Args[1] + " doesn't exist.")
+      fmt.Println("File '" + os.Args[1] + "' doesn't exist.")
+      fmt.Println("Verify if you typed the name correctly.")
     }
     
     Run(string(content))
@@ -54,6 +56,11 @@ func main() {
 }
 
 func help() {
+  fmt.Println("Simple")
+  fmt.Println("Version " + Version)
+  
+  fmt.Println("\nA simple, interpreted programming language. It's very easy to use.\n")
+  
   fmt.Println("Usage: simple [file] | [-v | --version] | run [code]\n")
   
   fmt.Println("Run 'simple' to open the REPL;")
