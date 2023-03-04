@@ -74,10 +74,11 @@ func help() {
 func Run(code string) {
   tks := lexer.Lex(code)
   errs := lexer.CheckErrors(tks)
+  lines := lexer.SplitLines(code)
   
   if len(errs) > 0 {
-    for _, e := range errs {
-      fmt.Println("ERROR: " + e)
+    for i, e := range errs {
+      repl.Panic(e, lines[i], i)
     }
     
     return
@@ -87,8 +88,8 @@ func Run(code string) {
   errs = parser.CheckErrors(stats)
   
   if len(errs) > 0 {
-    for _, e := range errs {
-      fmt.Println("ERROR: " + e)
+    for i, e := range errs {
+      repl.Panic(e, lines[i], i)
     }
     
     return

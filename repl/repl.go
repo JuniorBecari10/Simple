@@ -39,23 +39,25 @@ func Run(code string, printRet bool) {
   errs := lexer.CheckErrors(tks)
   
   if len(errs) > 0 {
-    for _, e := range errs {
-      fmt.Println("ERROR: " + e)
+    for i, e := range errs {
+      Panic(e, code, i)
     }
     
     return
   }
+  
   
   stats := parser.Parse(tks)
   errs = parser.CheckErrors(stats)
   
   if len(errs) > 0 {
-    for _, e := range errs {
-      fmt.Println("ERROR: " + e)
+    for i, e := range errs {
+      Panic(e, code, i)
     }
     
     return
   }
+  
   
   for _, stat := range stats {
     vl := run.RunStat(stat, true, code)
@@ -85,4 +87,20 @@ func Run(code string, printRet bool) {
     
     run.Error = false
   }
+}
+
+func Panic(msg, lineStr string, line int) {
+  fmt.Println("ERROR: On line " + strconv.Itoa(line + 1) + ".")
+  fmt.Println("\n" + msg)
+  
+  fmt.Println()
+  
+  if line > 0 {
+    fmt.Printf("%d |\n", line)
+  }
+  
+  fmt.Printf("%d | %s\n", line + 1, lineStr)
+  fmt.Printf("%d |\n", line + 2)
+  
+  fmt.Println()
 }

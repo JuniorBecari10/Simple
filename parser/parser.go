@@ -23,7 +23,7 @@ func (this *Parser) advance() {
 
 func (this *Parser) token() token.Token {
   if this.cursor >= len(this.tokens) {
-    return token.Token { token.Error, "Exceeded line length.", this.cursor }
+    return token.Token { token.Error, "", this.cursor }
   }
   
   return this.tokens[this.cursor]
@@ -31,7 +31,7 @@ func (this *Parser) token() token.Token {
 
 func (this *Parser) peekToken() token.Token {
   if this.cursor + 1 >= len(this.tokens) {
-    return token.Token { token.Error, "Exceeded line length.", this.cursor + 1 }
+    return token.Token { token.Error, "", this.cursor + 1 }
   }
   
   return this.tokens[this.cursor + 1]
@@ -161,7 +161,7 @@ func (this *Parser) parseIfStatement() ast.Statement {
   exp := this.parseExpression()
   
   if this.token().Type != token.GotoKw {
-    return ast.ErrorStatement { "Syntax error in a if statement: expected 'goto', got '" + this.token().Content + "'." }
+    return ast.ErrorStatement { "Syntax error in a if statement: expected 'goto', got '" + this.token().Content + "'.\nExamples: if a < 1 goto :jump, if false | b goto :label." }
   }
   
   this.advance()
