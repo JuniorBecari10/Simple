@@ -8,7 +8,10 @@ const (
   
   PrintlnKw    = "PrintlnKw"
   PrintKw      = "PrintKw"
+  
   InputKw      = "InputKw"
+  IfKw         = "IfKw"
+  GotoKw       = "GotoKw"
   
   Assign       = "Assign"
   PlusAssign   = "PlusAssign"
@@ -60,6 +63,8 @@ var Keywords   = []string {
   "input",
   "true",
   "false",
+  "if",
+  "goto",
 }
 
 var Types   = []string {
@@ -74,6 +79,8 @@ var KeyTokens = map[string]TokenType {
   "input":   InputKw,
   "true":    TrueKw,
   "false":   FalseKw,
+  "if":      IfKw,
+  "goto":    GotoKw,
 }
 
 var TypeTokens = map[string]TokenType {

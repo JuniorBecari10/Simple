@@ -58,6 +58,10 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parsePrintStatement()
   }
   
+  if len(this.tokens) >= 1 && this.token().Type == token.GotoKw {
+    return this.parseGotoStatement()
+  }
+  
   if len(this.tokens) >= 1 && this.token().Type == token.Label {
     return this.parseLabelStatement()
     
@@ -119,6 +123,25 @@ func (this *Parser) parsePrintStatement() ast.Statement {
   stat.Token = tk
   stat.BreakLine = tk.Type != token.PrintKw
   stat.Expression = expr
+  
+  this.advance()
+  
+  return stat
+}
+
+func (this *Parser) parseGotoStatement() ast.Statement {
+  stat := ast.GotoStatement {}
+  
+  tk := this.token()
+  this.advance()
+  label := this.token().Content
+  
+  if tk.Type == token.Error || this.token().Type != token.Label {
+    return ast.ErrorStatement { "Syntax error in a goto statement. Examples: goto :jump, goto :label" }
+  }
+  
+  stat.Token = tk
+  stat.Label = label
   
   this.advance()
   
