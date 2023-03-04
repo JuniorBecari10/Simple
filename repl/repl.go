@@ -58,7 +58,7 @@ func Run(code string, printRet bool) {
   }
   
   for _, stat := range stats {
-    vl := run.RunStat(stat, true)
+    vl := run.RunStat(stat, true, code)
     
     if vl == nil {
       continue

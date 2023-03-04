@@ -87,5 +87,5 @@ func Run(code string) {
     return
   }
   
-  run.Run(stats)
+  run.Run(stats, lexer.SplitLines(code))
 }

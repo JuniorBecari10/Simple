@@ -24,10 +24,20 @@ type Value struct {
 var Error bool = false
 var PC int = 0
 var Labels []Label
+var Lines []string
 
 func Panic(msg, hint string) {
-  fmt.Println("ERROR - On line " + strconv.Itoa(PC + 1) + ".")
+  fmt.Println("ERROR: On statement " + strconv.Itoa(PC + 1) + ".")
   fmt.Println("\n" + msg)
+  
+  fmt.Println()
+  
+  if PC > 0 {
+    fmt.Printf("%d |\n", PC)
+  }
+  
+  fmt.Printf("%d | %s\n", PC + 1, Lines[PC])
+  fmt.Printf("%d |\n\n", PC + 2)
   
   if hint != "" {
     fmt.Println(hint)
@@ -52,10 +62,11 @@ func DetectLabels(stats []ast.Statement) {
   }
 }
 
-func Run(stats []ast.Statement) {
+func Run(stats []ast.Statement, lines []string) {
   DetectLabels(stats)
   
   PC = 0
+  Lines = lines
   for PC < len(stats) {
     stat := stats[PC]
     
@@ -71,12 +82,16 @@ func Run(stats []ast.Statement) {
         continue
       }
     }
-    RunStat(stat, false)
+    RunStat(stat, false, "")
     PC++
   }
 }
 
-func RunStat(stat ast.Statement, repl bool) Any {
+func RunStat(stat ast.Statement, repl bool, s string) Any {
+  if repl {
+    Lines = []string { s }
+  }
+  
   fn := GetStatFunc(stat)
   
   if _, ok := stat.(ast.LabelStatement); ok && repl {

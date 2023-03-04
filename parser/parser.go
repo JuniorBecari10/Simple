@@ -274,7 +274,7 @@ func (this *Parser) factor() ast.ExpressionNode {
 }
 
 func Parse(tokens []token.Token) []ast.Statement {
-  lines := lexer.SplitLines(tokens)
+  lines := lexer.SplitTokens(tokens)
   stats := []ast.Statement {}
   
   for _, l := range lines {

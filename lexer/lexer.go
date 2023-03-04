@@ -330,7 +330,7 @@ func Lex(chars string) []token.Token {
   return tks
 }
 
-func SplitLines(tokens []token.Token) [][]token.Token {
+func SplitTokens(tokens []token.Token) [][]token.Token {
   toks := make([][]token.Token, 0)
   tks := []token.Token {}
   
@@ -345,6 +345,28 @@ func SplitLines(tokens []token.Token) [][]token.Token {
   }
   
   return toks
+}
+
+func SplitLines(s string) []string {
+  lines := []string {}
+  str := ""
+  
+  for _, c := range s {
+    if c != '\n' && c != ';' {
+      str += string(c)
+      continue
+    }
+    
+    lines = append(lines, str)
+    str = ""
+  }
+  
+  if str != "" {
+    lines = append(lines, str)
+    str = ""
+  }
+  
+  return lines
 }
 
 func CheckErrors(tks []token.Token) []string {
