@@ -95,7 +95,7 @@ func RunStat(stat ast.Statement, repl bool, s string) Any {
   fn := GetStatFunc(stat)
   
   if _, ok := stat.(ast.LabelStatement); ok && repl {
-    Panic("You cannot declare labels in REPL mode.", "")
+    Panic("You cannot declare labels in REPL mode.", "You can only use them when you read an actual script.")
     return nil
   }
   
