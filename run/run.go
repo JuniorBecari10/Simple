@@ -104,6 +104,11 @@ func RunStat(stat ast.Statement, repl bool, s string) Any {
     return nil
   }
   
+  if _, ok := stat.(ast.IfStatement); ok && repl {
+    Panic("You cannot declare if statements in REPL mode.", "You can only use them when you read an actual script.")
+    return nil
+  }
+  
   if fn == nil {
     Panic("Unknown statement.", "Verify if you typed correctly.")
     return nil
@@ -204,6 +209,35 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
           if l.Name == label {
             PC = l.Line
             return ""
+          }
+        }
+        
+        Panic("Couldn't find label '" + label + "'.", "Verify if you typed the name correctly.")
+        return nil
+      }
+    
+    case ast.IfStatement:
+      return func(st ast.Statement) Any {
+        s := st.(ast.IfStatement)
+        
+        res := SolveExpression(s.Expression)
+        
+        label := s.Label
+        pc := 0
+        
+        for _, l := range Labels {
+          if l.Name == label {
+            pc = l.Line
+            
+            if vl, ok := res.(bool); ok {
+              if vl {
+                PC = pc
+                return ""
+              }
+            }
+            
+            Panic("Cannot use non-boolean expressions inside an if statement.", "You should use only boolean expressions.")
+            return nil
           }
         }
         
