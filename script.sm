@@ -1,0 +1,5 @@
+:a
+print "Type your name: "
+name = input str
+println "Your name is " + name
+goto :a

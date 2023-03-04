@@ -37,7 +37,7 @@ func main() {
       fmt.Println("File " + os.Args[1] + " doesn't exist.")
     }
     
-    repl.Run(string(content), false)
+    Run(string(content))
     
     return
   }

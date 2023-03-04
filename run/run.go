@@ -57,7 +57,7 @@ func DetectLabels(stats []ast.Statement) {
   
   for i, v := range stats {
     if ls, ok := v.(ast.LabelStatement); ok {
-      Labels = append(Labels, Label { ls.Name, i })
+      Labels = append(Labels, Label { ":" + ls.Name, i })
     }
   }
 }
@@ -96,6 +96,11 @@ func RunStat(stat ast.Statement, repl bool, s string) Any {
   
   if _, ok := stat.(ast.LabelStatement); ok && repl {
     Panic("You cannot declare labels in REPL mode.", "You can only use them when you read an actual script.")
+    return nil
+  }
+  
+  if _, ok := stat.(ast.GotoStatement); ok && repl {
+    Panic("You cannot declare goto statements in REPL mode.", "You can only use them when you read an actual script.")
     return nil
   }
   
@@ -187,6 +192,23 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         s := st.(ast.ExpressionStatement)
         
         return SolveExpression(s.Expression)
+      }
+    
+    case ast.GotoStatement:
+      return func(st ast.Statement) Any {
+        s := st.(ast.GotoStatement)
+        
+        label := s.Label
+        
+        for _, l := range Labels {
+          if l.Name == label {
+            PC = l.Line
+            return ""
+          }
+        }
+        
+        Panic("Couldn't find label '" + label + "'.", "Verify if you typed the name correctly.")
+        return nil
       }
     
     default:
