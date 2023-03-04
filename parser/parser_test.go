@@ -10,9 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := `a = 'hello' + b
-printl 'hello' + a
-`
+  input := `if true goto :label`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
@@ -20,57 +18,23 @@ printl 'hello' + a
   stats := Parse(tokens)
   
   expect := []ast.Statement {
-    ast.VarDeclStatement {
-      ast.Identifier {
-        token.Token {
-          token.Identifier,
-          "a",
-          0,
-        },
-        "a",
-      },
-      ast.BinNode {
-        ast.StringNode {
-          "'hello'",
-        },
-        ast.Identifier {
-          token.Token {
-            token.Identifier,
-            "b",
-            14,
-          },
-          "b",
-        },
-        "+",
-      },
-    },
-    /*ast.PrintStatement {
+    ast.IfStatement {
       token.Token {
-        token.PrintlKw,
-        "printl",
+        token.IfKw,
+        "if",
         0,
       },
-      ast.BinNode {
-        ast.StringNode {
-          "'hello'",
-        },
-        ast.Identifier {
-          token.Token {
-            token.Identifier,
-            "a",
-            17,
-          },
-          "a",
-        },
-        "+",
+      ast.BoolNode {
+        ast.TrueType,
       },
-    },*/
+      ":label",
+    },
     ast.EndStatement {},
   }
   
   for i, s := range stats {
     if !reflect.DeepEqual(s, expect[i]) {
-      t.Fatalf("not equal. len %d.\nexpected %+v\ngot %+v", len(stats), expect[i], s)
+      t.Fatalf("not equal. len %d.\nexpected %+v\ngot      %+v", len(stats), expect[i], s)
     }
   }
 }

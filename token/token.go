@@ -1,27 +1,52 @@
 package token
 
 const (
-  Number     = "Number"
-  String     = "String"
-  Identifier = "Identifier"
-  Label      = "Label"
-  PrintlnKw  = "PrintlnKw"
-  PrintKw    = "PrintKw"
-  InputKw    = "InputKw"
-  Assign     = "Assign"
-  Plus       = "Plus"
-  Minus      = "Minus"
-  Times      = "Times"
-  Divide     = "Divide"
-  LParen     = "LParen"
-  RParen     = "RParen"
-  NewLine    = "NewLine"
-  End        = "End"
-  Error      = "Error"
+  Number       = "Number"
+  String       = "String"
+  Identifier   = "Identifier"
+  Label        = "Label"
   
-  TypeNum    = "Num"
-  TypeStr    = "Str"
-  TypeBool   = "Bool"
+  PrintlnKw    = "PrintlnKw"
+  PrintKw      = "PrintKw"
+  
+  InputKw      = "InputKw"
+  IfKw         = "IfKw"
+  GotoKw       = "GotoKw"
+  
+  Assign       = "Assign"
+  PlusAssign   = "PlusAssign"
+  MinusAssign  = "MinusAssign"
+  TimesAssign  = "TimesAssign"
+  DivideAssign = "DivideAssign"
+  AndAssign    = "AndAssign"
+  OrAssign     = "OrAssign"
+  
+  Plus         = "Plus"
+  Minus        = "Minus"
+  Times        = "Times"
+  Divide       = "Divide"
+  
+  Power        = "Power"
+  Bang         = "Bang"
+  
+  And          = "And"
+  Or           = "Or"
+  Xor          = "Xor"
+  Not          = "Not"
+  
+  TrueKw       = "True"
+  FalseKw      = "False"
+  
+  LParen       = "LParen"
+  RParen       = "RParen"
+  
+  NewLine      = "NewLine"
+  End          = "End"
+  Error        = "Error"
+  
+  TypeNum      = "Num"
+  TypeStr      = "Str"
+  TypeBool     = "Bool"
 )
 
 type TokenType string
@@ -32,13 +57,17 @@ type Token struct {
   Pos     int
 }
 
-var Keywords = []string {
+var Keywords   = []string {
   "println",
   "print",
   "input",
+  "true",
+  "false",
+  "if",
+  "goto",
 }
 
-var Types = []string {
+var Types   = []string {
   "num",
   "str",
   "bool",
@@ -48,6 +77,10 @@ var KeyTokens = map[string]TokenType {
   "println": PrintlnKw,
   "print":   PrintKw,
   "input":   InputKw,
+  "true":    TrueKw,
+  "false":   FalseKw,
+  "if":      IfKw,
+  "goto":    GotoKw,
 }
 
 var TypeTokens = map[string]TokenType {

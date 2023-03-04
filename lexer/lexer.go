@@ -28,6 +28,14 @@ func (this *Lexer) char() byte {
   return this.chars[this.cursor]
 }
 
+func (this *Lexer) peekChar() byte {
+  if this.cursor + 1 >= len(this.chars) {
+    return 0
+  }
+  
+  return this.chars[this.cursor + 1]
+}
+
 func (this *Lexer) NextToken() token.Token {
   if this.cursor >= len(this.chars) {
     return token.Token { token.End, "", this.cursor }
@@ -48,6 +56,18 @@ func (this *Lexer) NextToken() token.Token {
     
     this.advance()
     for this.char() != '\'' {
+      this.advance()
+    }
+    this.advance()
+    
+    return token.Token { token.String, this.chars[pos + 1:this.cursor - 1], pos }
+  }
+  
+  if this.char() == '"' {
+    pos := this.cursor
+    
+    this.advance()
+    for this.char() != '"' {
       this.advance()
     }
     this.advance()
@@ -117,6 +137,86 @@ func (this *Lexer) NextToken() token.Token {
     return token.Token { token.Assign, string(ch), pos }
   }
   
+  if this.char() == '+' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.PlusAssign, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '-' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.MinusAssign, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '*' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.TimesAssign, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '/' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.DivideAssign, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '&' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.AndAssign, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '|' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.OrAssign, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '&' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.And, string(ch), pos }
+  }
+  
+  if this.char() == '|' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.Or, string(ch), pos }
+  }
+  
+  // xor will be added later
+  
+  if this.char() == '!' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.Bang, string(ch), pos }
+  }
+  
   if this.char() == '+' {
     pos := this.cursor
     ch := this.char()
@@ -169,7 +269,7 @@ func (this *Lexer) NextToken() token.Token {
   ch := this.char()
   this.advance()
   
-  return token.Token { token.Error, "Unknown token: '" + string(ch) + "' char " + fmt.Sprintf("%v", ch) + ", pos " + fmt.Sprintf("%d", pos) + ".", pos }
+  return token.Token { token.Error, "Unknown token: '" + string(ch) + "', pos " + fmt.Sprintf("%d", pos) + ".", pos }
 }
 
 // -- Helper -- //
@@ -230,7 +330,7 @@ func Lex(chars string) []token.Token {
   return tks
 }
 
-func SplitLines(tokens []token.Token) [][]token.Token {
+func SplitTokens(tokens []token.Token) [][]token.Token {
   toks := make([][]token.Token, 0)
   tks := []token.Token {}
   
@@ -245,6 +345,28 @@ func SplitLines(tokens []token.Token) [][]token.Token {
   }
   
   return toks
+}
+
+func SplitLines(s string) []string {
+  lines := []string {}
+  str := ""
+  
+  for _, c := range s {
+    if c != '\n' && c != ';' {
+      str += string(c)
+      continue
+    }
+    
+    lines = append(lines, str)
+    str = ""
+  }
+  
+  if str != "" {
+    lines = append(lines, str)
+    str = ""
+  }
+  
+  return lines
 }
 
 func CheckErrors(tks []token.Token) []string {
