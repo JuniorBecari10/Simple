@@ -10,7 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := `goto :label`
+  input := `if true goto :label`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
@@ -18,11 +18,14 @@ func TestParser(t *testing.T) {
   stats := Parse(tokens)
   
   expect := []ast.Statement {
-    ast.GotoStatement {
+    ast.IfStatement {
       token.Token {
-        token.GotoKw,
-        "goto",
+        token.IfKw,
+        "if",
         0,
+      },
+      ast.BoolNode {
+        ast.TrueType,
       },
       ":label",
     },

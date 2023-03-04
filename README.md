@@ -17,7 +17,7 @@ It's very easy to use.
 
 ## Print
 
-For printing things on the screen, you can use the keywords `print` and `printl`. <br>
+For printing things on the screen, you can use the keywords `print` and `println`. <br>
 
 The difference between them is: <br>
 `println` prints the text and break the line. <br>

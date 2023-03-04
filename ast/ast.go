@@ -38,10 +38,17 @@ type PrintStatement struct {
   Expression  ExpressionNode
 }
 
-// Syntax: goto <expression>
+// Syntax: goto :<label>
 type GotoStatement struct {
   Token token.Token // goto keyword
   Label string
+}
+
+// Syntax: if <expression> goto :<label>
+type IfStatement struct {
+  Token      token.Token // goto keyword
+  Expression ExpressionNode
+  Label      string
 }
 
 type ExpressionStatement struct {
@@ -64,6 +71,7 @@ func (ps PrintStatement)      stat() {}
 func (es EndStatement)        stat() {}
 func (ls LabelStatement)      stat() {}
 func (gs GotoStatement)       stat() {}
+func (is IfStatement)         stat() {}
 func (es ExpressionStatement) stat() {}
 func (es ErrorStatement)      stat() {}
 
@@ -73,6 +81,7 @@ func (ps PrintStatement)      node() {}
 func (es EndStatement)        node() {}
 func (ls LabelStatement)      node() {}
 func (gs GotoStatement)       node() {}
+func (is IfStatement)         node() {}
 func (es ExpressionStatement) node() {}
 func (es ErrorStatement)      node() {}
 
