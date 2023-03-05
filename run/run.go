@@ -327,6 +327,12 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           case "|":
             return Or(v1, v2)
           
+          case "==":
+            return Eq(v1, v2)
+          
+          case "!=":
+            return Diff(v1, v2)
+          
           default:
             Panic("Unknown operation: " + bin.Op, "")
             return ""
@@ -484,6 +490,14 @@ func Or(v1 Any, v2 Any) Any {
   }
   
   return n1 || n2
+}
+
+func Eq(v1 Any, v2 Any) Any {
+  
+}
+
+func Diff(v1 Any, v2 Any) Any {
+  
 }
 
 func Factorial(n float64) float64 {
