@@ -5,6 +5,7 @@ import (
   "os"
   "strconv"
   "bufio"
+  "reflect"
   
   "simple/token"
   "simple/ast"
@@ -493,11 +494,11 @@ func Or(v1 Any, v2 Any) Any {
 }
 
 func Eq(v1 Any, v2 Any) Any {
-  
+  return reflect.DeepEqual(v1, v2)
 }
 
 func Diff(v1 Any, v2 Any) Any {
-  
+  return !reflect.DeepEqual(v1, v2)
 }
 
 func Factorial(n float64) float64 {
