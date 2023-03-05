@@ -129,6 +129,58 @@ func (this *Lexer) NextToken() token.Token {
     return token.Token { token.Label, txt, pos }
   }
   
+  if this.char() == '=' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.Equals, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '!' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.Different, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '>' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.GreaterEq, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '<' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.LessEq, this.chars[pos:pos + 2], pos }
+  }
+  
+  if this.char() == '>' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.Greater, string(ch), pos }
+  }
+  
+  if this.char() == '<' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.Less, string(ch), pos }
+  }
+  
   if this.char() == '=' {
     pos := this.cursor
     ch := this.char()

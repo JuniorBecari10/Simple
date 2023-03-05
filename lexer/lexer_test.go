@@ -7,12 +7,16 @@ import (
 )
 
 func TestLexer(t *testing.T) {
-  inp := "if goto"
+  inp := "== != > >= < <="
   tks := Lex(inp)
   
   res := []token.Token {
-    {token.IfKw, "if", 0},
-    {token.GotoKw, "goto", 0},
+    {token.Equals, "==", 0},
+    {token.Different, "!=", 0},
+    {token.Greater, ">", 0},
+    {token.GreaterEq, ">=", 0},
+    {token.Less, "<", 0},
+    {token.LessEq, "<=", 0},
     {token.End, "", 0},
   }
   
