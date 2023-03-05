@@ -334,6 +334,18 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           case "!=":
             return Diff(v1, v2)
           
+          case ">":
+            return Greater(v1, v2)
+          
+          case ">=":
+            return GreaterEq(v1, v2)
+          
+          case "<":
+            return Less(v1, v2)
+          
+          case "<=":
+            return LessEq(v1, v2)
+          
           default:
             Panic("Unknown operation: " + bin.Op, "")
             return ""
@@ -499,6 +511,50 @@ func Eq(v1 Any, v2 Any) Any {
 
 func Diff(v1 Any, v2 Any) Any {
   return !reflect.DeepEqual(v1, v2)
+}
+
+func Greater(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  if !ok1 || !ok2 {
+    Panic("You can only perform Greater on numbers.", "Examples: a > b, 1 > 2, 2 > c.")
+  }
+  
+  return n1 > n2
+}
+
+func GreaterEq(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  if !ok1 || !ok2 {
+    Panic("You can only perform Greater or Equal on numbers.", "Examples: a >= b, 1 >= 2, 2 >= c.")
+  }
+  
+  return n1 >= n2
+}
+
+func Less(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  if !ok1 || !ok2 {
+    Panic("You can only perform Less on numbers.", "Examples: a < b, 1 < 2, 2 < c.")
+  }
+  
+  return n1 < n2
+}
+
+func LessEq(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  if !ok1 || !ok2 {
+    Panic("You can only perform Less or Equal on numbers.", "Examples: a <= b, 1 <= 2, 2 <= c.")
+  }
+  
+  return n1 <= n2
 }
 
 func Factorial(n float64) float64 {
