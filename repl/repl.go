@@ -4,10 +4,7 @@ import (
   "fmt"
   "bufio"
   "os"
-  "strconv"
   
-  "simple/lexer"
-  "simple/parser"
   "simple/run"
 )
 
@@ -30,6 +27,6 @@ func Repl() {
       os.Exit(0)
     }
     
-    run.RunRepl(text, true)
+    run.ExecRepl(text, true)
   }
 }

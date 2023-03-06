@@ -20,12 +20,18 @@ type Statement interface {
 
 // Syntax: <ident> = <expression>
 type VarDeclStatement struct {
+  Code string
+  Line int
+  
   Name  Identifier
   Value ExpressionNode
 }
 
 // Syntax: <ident> +|-|*|/= <expression>
 type OperationStatement struct {
+  Code string
+  Line int
+  
   Name  Identifier
   Value ExpressionNode
   Op    string

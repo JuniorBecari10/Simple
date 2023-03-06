@@ -37,7 +37,7 @@ func (this *Parser) peekToken() token.Token {
   return this.tokens[this.cursor + 1]
 }
 
-func (this *Parser) nextStatement() ast.Statement {
+func (this *Parser) nextStatement(code string, line int) ast.Statement {
   if this.token().Type == token.End {
     return ast.EndStatement {}
   }
@@ -47,37 +47,37 @@ func (this *Parser) nextStatement() ast.Statement {
   }
   
   if len(this.tokens) >= 2 && this.token().Type == token.Identifier && this.tokens[this.cursor + 1].Type == token.Assign {
-    return this.parseVarDeclStatement()
+    return this.parseVarDeclStatement(code, line)
   }
   
   if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.AndAssign, token.OrAssign }) != -1 {
-    return this.parseOperationStatement()
+    return this.parseOperationStatement(code, line)
   }
   
   if len(this.tokens) >= 1 && (this.token().Type == token.PrintlnKw || this.token().Type == token.PrintKw) {
-    return this.parsePrintStatement()
+    return this.parsePrintStatement(code, line)
   }
   
   if len(this.tokens) >= 1 && this.token().Type == token.GotoKw {
-    return this.parseGotoStatement()
+    return this.parseGotoStatement(code, line)
   }
   
   if len(this.tokens) >= 1 && this.token().Type == token.IfKw {
-    return this.parseIfStatement()
+    return this.parseIfStatement(code, line)
   }
   
   if len(this.tokens) >= 1 && this.token().Type == token.Label {
-    return this.parseLabelStatement()
+    return this.parseLabelStatement(code, line)
     
     if len(this.tokens) > 1 {
-      return ast.ErrorStatement { Msg: "A label statement can only contain the label!" }
+      return ast.ErrorStatement { Code: code, Line: line, Msg: "A label statement can only contain the label!" }
     }
   }
   
   return ast.ExpressionStatement { Expression: this.parseExpression() }
 }
 
-func (this *Parser) parseVarDeclStatement() ast.Statement {
+func (this *Parser) parseVarDeclStatement(code string, line int) ast.Statement {
   stat := ast.VarDeclStatement {}
   id := ast.Identifier { Value: this.token().Content }
   
@@ -91,10 +91,13 @@ func (this *Parser) parseVarDeclStatement() ast.Statement {
   this.advance()
   stat.Value = this.parseExpression()
   
+  stat.Code = code
+  stat.Line = line
+  
   return stat
 }
 
-func (this *Parser) parseOperationStatement() ast.Statement {
+func (this *Parser) parseOperationStatement(code string, line int) ast.Statement {
   stat := ast.OperationStatement {}
   id := ast.Identifier { Value: this.token().Content }
   
@@ -110,10 +113,13 @@ func (this *Parser) parseOperationStatement() ast.Statement {
   this.advance()
   stat.Value = this.parseExpression()
   
+  stat.Code = code
+  stat.Line = line
+  
   return stat
 }
 
-func (this *Parser) parsePrintStatement() ast.Statement {
+func (this *Parser) parsePrintStatement(code string, line int) ast.Statement {
   stat := ast.PrintStatement {}
   
   tk := this.token()
@@ -129,10 +135,13 @@ func (this *Parser) parsePrintStatement() ast.Statement {
   
   this.advance()
   
+  stat.Code = code
+  stat.Line = line
+  
   return stat
 }
 
-func (this *Parser) parseGotoStatement() ast.Statement {
+func (this *Parser) parseGotoStatement(code string, line int) ast.Statement {
   stat := ast.GotoStatement {}
   
   tk := this.token()
@@ -147,10 +156,13 @@ func (this *Parser) parseGotoStatement() ast.Statement {
   
   this.advance()
   
+  stat.Code = code
+  stat.Line = line
+  
   return stat
 }
 
-func (this *Parser) parseIfStatement() ast.Statement {
+func (this *Parser) parseIfStatement(code string, line int) ast.Statement {
   stat := ast.IfStatement {}
   
   tk := this.token()
@@ -175,15 +187,20 @@ func (this *Parser) parseIfStatement() ast.Statement {
   
   this.advance()
   
+  stat.Code = code
+  stat.Line = line
+  
   return stat
 }
 
-func (this *Parser) parseLabelStatement() ast.Statement {
+func (this *Parser) parseLabelStatement(code string, line int) ast.Statement {
   tk := this.token()
   this.advance()
   
-  return ast.LabelStatement { Name: tk.Content[1:] }
+  return ast.LabelStatement { Code: code, Line: line, Name: tk.Content[1:] }
 }
+
+// ---
 
 func (this *Parser) parseExpression() ast.ExpressionNode {
   return this.exp()
@@ -364,18 +381,18 @@ func (this *Parser) factor() ast.ExpressionNode {
   return nil
 }
 
-func Parse(tokens []token.Token) []ast.Statement {
+func Parse(tokens []token.Token, code string) []ast.Statement {
   lines := lexer.SplitTokens(tokens)
   stats := []ast.Statement {}
   
-  for _, l := range lines {
+  for i, l := range lines {
     if len(l) == 0 {
       continue
     }
     
     p := New(l)
     
-    st := p.nextStatement()
+    st := p.nextStatement(code, i)
     _, ok := st.(ast.EndStatement)
     
     if ok {
@@ -410,7 +427,7 @@ func ParseExpr(s string) ast.ExpressionNode {
     return nil
   }
   
-  stats := Parse(tks)
+  stats := Parse(tks, s)
   
   if len(CheckErrors(stats)) != 0 || len(stats) > 1 {
     return nil
