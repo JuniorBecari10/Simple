@@ -33,35 +33,50 @@ type OperationStatement struct {
 
 // Syntax: print <expression>
 type PrintStatement struct {
-  Token       token.Token // print keyword
+  Code string
+  Line int
+  
   BreakLine   bool
   Expression  ExpressionNode
 }
 
 // Syntax: goto :<label>
 type GotoStatement struct {
-  Token token.Token // goto keyword
+  Code string
+  Line int
+  
   Label string
 }
 
 // Syntax: if <expression> goto :<label>
 type IfStatement struct {
-  Token      token.Token // goto keyword
+  Code string
+  Line int
+  
   Expression ExpressionNode
   Label      string
 }
 
 type ExpressionStatement struct {
+  Code string
+  Line int
+  
   Expression ExpressionNode
 }
 
 type LabelStatement struct {
+  Code string
+  Line int
+  
   Name string
 }
 
 type EndStatement struct {}
 
 type ErrorStatement struct {
+  Code string
+  Line int
+  
   Msg string
 }
 
