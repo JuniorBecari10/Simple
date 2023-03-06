@@ -27,18 +27,117 @@ var PC int = 0
 var Labels []Label
 var Lines []string
 
-func Panic(msg, hint string) {
-  fmt.Println("ERROR: On statement " + strconv.Itoa(PC + 1) + ".")
+// ---
+
+func Run(code string) {
+  tks := lexer.Lex(code)
+  errs := lexer.CheckErrors(tks)
+  lines := lexer.SplitLines(code)
+  
+  if len(errs) > 0 {
+    for i, e := range errs {
+      repl.Panic(e, lines[i], i)
+    }
+    
+    return
+  }
+  
+  stats := parser.Parse(tks)
+  errs = parser.CheckErrors(stats)
+  
+  if len(errs) > 0 {
+    for i, e := range errs {
+      repl.Panic(e, lines[i], i) // o 'i' não reflete a linha, mas o indice dos erros, adicionar numero da linha nos statements
+    }
+    
+    return
+  }
+  
+  Run(stats, lexer.SplitLines(code))
+}
+
+func RunRepl(code string) {
+  tks := lexer.Lex(code)
+  errs := lexer.CheckErrors(tks)
+  
+  if len(errs) > 0 {
+    for i, e := range errs {
+      Panic(e, code, i)
+    }
+    
+    return
+  }
+  
+  
+  stats := parser.Parse(tks)
+  errs = parser.CheckErrors(stats)
+  
+  if len(errs) > 0 {
+    for i, e := range errs {
+      Panic(e, code, i)
+    }
+    
+    return
+  }
+  
+  for _, stat := range stats {
+    vl := run.RunStat(stat, true, code)
+    
+    if vl == nil {
+      continue
+    }
+    
+    value, ok := vl.(float64)
+    ret := ""
+    
+    if ok {
+      ret = strconv.FormatFloat(value, 'f', -1, 64)
+    } else {
+      b, ok := vl.(bool)
+      
+      if !ok {
+        ret = vl.(string)
+      }
+      
+      ret = fmt.Sprintf("%t", b)
+    }
+    
+    if printRet && !run.Error {
+      fmt.Println("< " + ret)
+    }
+    
+    run.Error = false
+  }
+}
+
+func PrintError(msg, code string, line int) {
+  fmt.Println("ERROR: On line " + strconv.Itoa(line + 1) + ".")
   fmt.Println("\n" + msg)
   
   fmt.Println()
   
-  if PC > 0 {
-    fmt.Printf("%d |\n", PC)
+  if line > 0 {
+    fmt.Printf("%d | %s\n", line, code)
   }
   
-  fmt.Printf("%d | %s\n", PC + 1, Lines[PC])
-  fmt.Printf("%d |\n\n", PC + 2)
+  fmt.Printf("%d | %s\n", line + 1, lineStr)
+  fmt.Printf("%d |\n", line + 2)
+  
+  fmt.Println()
+  
+  Error = true
+}
+
+// ---
+
+/*
+func Panic(msg, hint, code string, line int) {
+  fmt.Println("ERROR: On line " + strconv.Itoa(line + 1) + ".")
+  fmt.Println("\n" + msg)
+  
+  fmt.Println()
+  
+  fmt.Printf("%d | %s\n", line + 1, code)
   
   if hint != "" {
     fmt.Println(hint)
@@ -48,6 +147,7 @@ func Panic(msg, hint string) {
   
   Error = true
 }
+*/
 
 var Variables = map[string]Any {}
 
@@ -63,7 +163,7 @@ func DetectLabels(stats []ast.Statement) {
   }
 }
 
-func Run(stats []ast.Statement, lines []string) {
+func Exec(stats []ast.Statement, lines []string) {
   DetectLabels(stats)
   
   PC = 0
