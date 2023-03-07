@@ -8,9 +8,7 @@ import (
   "reflect"
   
   "simple/token"
-  "simple/lexer"
   "simple/ast"
-  "simple/parser"
 )
 
 type Any interface {}
@@ -25,107 +23,35 @@ type Value struct {
 }
 
 var Error bool = false
+var PC int = 0
 var Labels []Label
-var PC int
-var Variables = map[string]Any {}
-var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
+var Lines []string
 
-// ---
-
-func Run(code string) {
-  tks := lexer.Lex(code)
-  errs := lexer.CheckErrors(tks)
-  lines := lexer.SplitLines(code)
-  
-  if len(errs) > 0 {
-    for i, e := range errs {
-      PrintError(e, "", lines[i], i)
-    }
-    
-    return
-  }
-  
-  stats := parser.Parse(tks, code)
-  errs = parser.CheckErrors(stats)
-  
-  if len(errs) > 0 {
-    for i, e := range errs {
-      PrintError(e, "", lines[i], i) // colocar o numero da linha
-    }
-    
-    return
-  }
-  
-  Exec(stats, lexer.SplitLines(code))
-}
-
-func ExecRepl(code string) {
-  tks := lexer.Lex(code)
-  errs := lexer.CheckErrors(tks)
-  
-  if len(errs) > 0 {
-    for i, e := range errs {
-      PrintError(e, "", code, i)
-    }
-    
-    return
-  }
-  
-  stats := parser.Parse(tks, code)
-  errs = parser.CheckErrors(stats)
-  
-  if len(errs) > 0 {
-    for i, e := range errs {
-      PrintError(e, "", code, i)
-    }
-    
-    return
-  }
-  
-  for _, stat := range stats {
-    vl := ExecStat(stat, true, code)
-    
-    if vl == nil {
-      continue
-    }
-    
-    value, ok := vl.(float64)
-    ret := ""
-    
-    if ok {
-      ret = strconv.FormatFloat(value, 'f', -1, 64)
-    } else {
-      b, ok := vl.(bool)
-      
-      if !ok {
-        ret = vl.(string)
-      }
-      
-      ret = fmt.Sprintf("%t", b)
-    }
-    
-    if !Error {
-      fmt.Println("< " + ret)
-    }
-    
-    Error = false
-  }
-}
-
-func PrintError(msg, hint, code string, line int) {
-  fmt.Println("ERROR: On line " + strconv.Itoa(line + 1) + ".")
+func Panic(msg, hint string) {
+  fmt.Println("ERROR: On statement " + strconv.Itoa(PC + 1) + ".")
   fmt.Println("\n" + msg)
   
   fmt.Println()
   
-  fmt.Printf("%d | %s\n", line + 1, code)
+  if PC > 0 {
+    fmt.Printf("%d |\n", PC)
+  }
   
-  fmt.Printf("\n%s\n\n", hint);
+  fmt.Printf("%d | %s\n", PC + 1, Lines[PC])
+  fmt.Printf("%d |\n\n", PC + 2)
+  
+  if hint != "" {
+    fmt.Println(hint)
+  }
+  
+  fmt.Println()
   
   Error = true
 }
 
-// ---
+var Variables = map[string]Any {}
+
+var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
 
 func DetectLabels(stats []ast.Statement) {
   Labels = make([]Label, 0)
@@ -137,10 +63,11 @@ func DetectLabels(stats []ast.Statement) {
   }
 }
 
-func Exec(stats []ast.Statement, lines []string) {
+func Run(stats []ast.Statement, lines []string) {
   DetectLabels(stats)
   
   PC = 0
+  Lines = lines
   for PC < len(stats) {
     stat := stats[PC]
     
@@ -156,35 +83,35 @@ func Exec(stats []ast.Statement, lines []string) {
         continue
       }
     }
-    ExecStat(stat, false, "")
+    RunStat(stat, false, "")
     PC++
   }
 }
 
-func ExecStat(stat ast.Statement, repl bool, lineRepl string) Any {
-  /*if repl {
-    Lines = []string { lineRepl }
-  }*/
+func RunStat(stat ast.Statement, repl bool, s string) Any {
+  if repl {
+    Lines = []string { s }
+  }
   
   fn := GetStatFunc(stat)
   
-  if st, ok := stat.(ast.LabelStatement); ok && repl {
-    PrintError("You cannot declare labels in REPL mode.", "You can only use them when you read an actual script.", st.Code, st.Line)
+  if _, ok := stat.(ast.LabelStatement); ok && repl {
+    Panic("You cannot declare labels in REPL mode.", "You can only use them when you read an actual script.")
     return nil
   }
   
-  if st, ok := stat.(ast.GotoStatement); ok && repl {
-    PrintError("You cannot declare goto statements in REPL mode.", "You can only use them when you read an actual script.", st.Code, st.Line)
+  if _, ok := stat.(ast.GotoStatement); ok && repl {
+    Panic("You cannot declare goto statements in REPL mode.", "You can only use them when you read an actual script.")
     return nil
   }
   
-  if st, ok := stat.(ast.IfStatement); ok && repl {
-    PrintError("You cannot declare if statements in REPL mode.", "You can only use them when you read an actual script.", st.Code, st.Line)
+  if _, ok := stat.(ast.IfStatement); ok && repl {
+    Panic("You cannot declare if statements in REPL mode.", "You can only use them when you read an actual script.")
     return nil
   }
   
   if fn == nil {
-    PrintError("Unknown statement.", "Verify if you typed correctly.", "", -1) // corrigir
+    Panic("Unknown statement.", "Verify if you typed correctly.")
     return nil
   }
   
@@ -197,7 +124,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         s := st.(ast.VarDeclStatement)
         
-        vl := SolveExpression(s.Value, s.Code, s.Line)
+        vl := SolveExpression(s.Value)
         Variables[s.Name.Value] = vl
         
         return vl
@@ -207,42 +134,42 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         s := st.(ast.OperationStatement)
         
-        vl := SolveExpression(s.Value, s.Code, s.Line)
+        vl := SolveExpression(s.Value)
         
         
         switch s.Op {
           case "+":
-            vl := Sum(Variables[s.Name.Value], vl, s.Code, s.Line)
+            vl := Sum(Variables[s.Name.Value], vl)
             Variables[s.Name.Value] = vl
             
             return vl
           
           case "-":
-            vl := Sub(Variables[s.Name.Value], vl, s.Code, s.Line)
+            vl := Sub(Variables[s.Name.Value], vl)
             Variables[s.Name.Value] = vl
             
             return vl
           
           case "*":
-            vl := Mul(Variables[s.Name.Value], vl, s.Code, s.Line)
+            vl := Mul(Variables[s.Name.Value], vl)
             Variables[s.Name.Value] = vl
             
             return vl
           
           case "/":
-            vl := Div(Variables[s.Name.Value], vl, s.Code, s.Line)
+            vl := Div(Variables[s.Name.Value], vl)
             Variables[s.Name.Value] = vl
             
             return vl
           
           case "&":
-            vl := And(Variables[s.Name.Value], vl, s.Code, s.Line)
+            vl := And(Variables[s.Name.Value], vl)
             Variables[s.Name.Value] = vl
             
             return vl
           
           case "|":
-            vl := Or(Variables[s.Name.Value], vl, s.Code, s.Line)
+            vl := Or(Variables[s.Name.Value], vl)
             Variables[s.Name.Value] = vl
             
             return vl
@@ -256,7 +183,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         s := st.(ast.PrintStatement)
         
-        exp := SolveExpression(s.Expression, s.Code, s.Line)
+        exp := SolveExpression(s.Expression)
         fmt.Print(exp)
         
         if s.BreakLine {
@@ -270,7 +197,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         s := st.(ast.ExpressionStatement)
         
-        return SolveExpression(s.Expression, s.Code, s.Line)
+        return SolveExpression(s.Expression)
       }
     
     case ast.GotoStatement:
@@ -286,7 +213,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
           }
         }
         
-        PrintError("Couldn't find label '" + label + "'.", "Verify if you typed the name correctly.", s.Code, s.Line)
+        Panic("Couldn't find label '" + label + "'.", "Verify if you typed the name correctly.")
         return nil
       }
     
@@ -294,7 +221,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         s := st.(ast.IfStatement)
         
-        res := SolveExpression(s.Expression, s.Code, s.Line)
+        res := SolveExpression(s.Expression)
         
         label := s.Label
         pc := 0
@@ -310,12 +237,12 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
               }
             }
             
-            PrintError("Cannot use non-boolean expressions inside an if statement.", "You should use only boolean expressions.", s.Code, s.Line)
+            Panic("Cannot use non-boolean expressions inside an if statement.", "You should use only boolean expressions.")
             return nil
           }
         }
         
-        PrintError("Couldn't find label '" + label + "'.", "Verify if you typed the name correctly.", s.Code, s.Line)
+        Panic("Couldn't find label '" + label + "'.", "Verify if you typed the name correctly.")
         return nil
       }
     
@@ -326,11 +253,11 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
 
 // ---
 
-func SolveExpression(ex ast.ExpressionNode, code string, line int) Any {
+func SolveExpression(ex ast.ExpressionNode) Any {
   fn := GetExprFunc(ex)
   
   if fn == nil {
-    PrintError("Couldn't get function to solve this expression: " + fmt.Sprintf("%q", ex), "This happens when you use an operator the wrong way or the operator isn't supported.", code, line)
+    Panic("Couldn't get function to solve this expression: " + fmt.Sprintf("%q", ex), "This happens when you use an operator the wrong way or the operator isn't supported.")
     return nil
   }
   
@@ -344,7 +271,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         value, ok := Variables[ex.(ast.Identifier).Value]
         
         if !ok {
-          PrintError("Variable '" + ex.(ast.Identifier).Value + "' doesn't exist.", "Verify if you typed the name correctly.", s.Code, s.Line)
+          Panic("Variable '" + ex.(ast.Identifier).Value + "' doesn't exist.", "Verify if you typed the name correctly.")
         }
         
         return value
@@ -367,11 +294,10 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
     
     case ast.MinusNode:
       return func(ex ast.ExpressionNode) Any {
-        s := ex.(ast.MinusNode)
-        nb, ok := SolveExpression(s.Value, s.Code, s.Line).(float64)
+        nb, ok := SolveExpression(ex.(ast.MinusNode).Value).(float64)
         
         if !ok {
-          PrintError("You can only use numbers with the operator '-'.", "Examples: -10, -a, -25.5.", s.Code, s.Line)
+          Panic("You can only use numbers with the operator '-'.", "Examples: -10, -a, -25.5.")
         }
         
         return -nb
@@ -408,8 +334,20 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           case "!=":
             return Diff(v1, v2)
           
+          case ">":
+            return Greater(v1, v2)
+          
+          case ">=":
+            return GreaterEq(v1, v2)
+          
+          case "<":
+            return Less(v1, v2)
+          
+          case "<=":
+            return LessEq(v1, v2)
+          
           default:
-            PrintError("Unknown operation: " + bin.Op, "", bin.Code, bin.Line)
+            Panic("Unknown operation: " + bin.Op, "")
             return ""
         }
       }
@@ -463,11 +401,11 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         n, ok := SolveExpression(f.Node).(float64)
         
         if !ok {
-          PrintError("Can only perform factorial on a number.", "Examples: 5!, 10.5!, a!", f.Code, f.Line)
+          Panic("Can only perform factorial on a number.", "Examples: 5!, 10.5!, a!")
         }
         
         if n < 0 {
-          PrintError("Cannot calculate factorial of a negative number.", "You cannot calculate it.", f.Code, f.Line)
+          Panic("Cannot calculate factorial of a negative number.", "You cannot calculate it.")
         }
         
         return Factorial(n)
@@ -478,7 +416,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
   }
 }
 
-func Sum(v1 Any, v2 Any, code string, line int) Any {
+func Sum(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
   
@@ -499,7 +437,7 @@ func Sum(v1 Any, v2 Any, code string, line int) Any {
      }
      
      if !ok1 || !ok2 {
-       PrintError("Cannot perform sum on a bool.", "You can only add numbers and strings.", code, line)
+       Panic("Cannot perform sum on a bool.", "You can only add numbers and strings.")
      }
      
      return s1 + s2
@@ -508,60 +446,60 @@ func Sum(v1 Any, v2 Any, code string, line int) Any {
   return n1 + n2
 }
 
-func Sub(v1 Any, v2 Any, code string, line int) Any {
+func Sub(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    PrintError("Cannot perform subtraction on a string or a bool", "Examples: 10 - 4, a - 4, c - f.", code, line)
+    Panic("Cannot perform subtraction on a string or a bool", "Examples: 10 - 4, a - 4, c - f.")
   }
   
   return n1 - n2
 }
 
-func Mul(v1 Any, v2 Any, code string, line int) Any {
+func Mul(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    PrintError("You can only multiply numbers.", "Examples: 5 * 5, 3 * b, a * c.", code, line)
+    Panic("You can only multiply numbers.", "Examples: 5 * 5, 3 * b, a * c.")
   }
   
   return n1 * n2
 }
 
-func Div(v1 Any, v2 Any, code string, line int) Any {
+func Div(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    PrintError("You can only divide numbers.", "Examples: 10 / 5, 20 / a, a / b.", code, line)
+    Panic("You can only divide numbers.", "Examples: 10 / 5, 20 / a, a / b.")
   }
   
   if n2 == 0 {
-    PrintError("Cannot divide by zero.", "Self explanatory.")
+    Panic("Cannot divide by zero.", "Self explanatory.")
   }
   
   return n1 / n2
 }
 
-func And(v1 Any, v2 Any, code string, line int) Any {
+func And(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(bool)
   n2, ok2 := v2.(bool)
   
   if !ok1 || !ok2 {
-    PrintError("You can only perform AND on bools.", "Examples: a & b, true & false, false & d.", code, line)
+    Panic("You can only perform AND on bools.", "Examples: a & b, true & false, false & d.")
   }
   
   return n1 && n2
 }
 
-func Or(v1 Any, v2 Any, code string, line int) Any {
+func Or(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(bool)
   n2, ok2 := v2.(bool)
   
   if !ok1 || !ok2 {
-    PrintError("You can only perform OR on bools.", "Examples: a | b, true | false, false | d.", code, line)
+    Panic("You can only perform OR on bools.", "Examples: a | b, true | false, false | d.")
   }
   
   return n1 || n2
@@ -575,45 +513,45 @@ func Diff(v1 Any, v2 Any) Any {
   return !reflect.DeepEqual(v1, v2)
 }
 
-func Greater(v1 Any, v2 Any, code string, line int) Any {
+func Greater(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    PrintError("You can only perform Greater on numbers.", "Examples: a > b, 1 > 2, 2 > c.", code, line)
+    Panic("You can only perform Greater on numbers.", "Examples: a > b, 1 > 2, 2 > c.")
   }
   
   return n1 > n2
 }
 
-func GreaterEq(v1 Any, v2 Any, code string, line int) Any {
+func GreaterEq(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    PrintError("You can only perform Greater or Equal on numbers.", "Examples: a >= b, 1 >= 2, 2 >= c.", code, line)
+    Panic("You can only perform Greater or Equal on numbers.", "Examples: a >= b, 1 >= 2, 2 >= c.")
   }
   
   return n1 >= n2
 }
 
-func Less(v1 Any, v2 Any, code string, line int) Any {
+func Less(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    PrintError("You can only perform Less on numbers.", "Examples: a < b, 1 < 2, 2 < c.", code, line)
+    Panic("You can only perform Less on numbers.", "Examples: a < b, 1 < 2, 2 < c.")
   }
   
   return n1 < n2
 }
 
-func LessEq(v1 Any, v2 Any, code string, line int) Any {
+func LessEq(v1 Any, v2 Any) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    PrintError("You can only perform Less or Equal on numbers.", "Examples: a <= b, 1 <= 2, 2 <= c.", code, line)
+    Panic("You can only perform Less or Equal on numbers.", "Examples: a <= b, 1 <= 2, 2 <= c.")
   }
   
   return n1 <= n2

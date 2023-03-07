@@ -20,18 +20,12 @@ type Statement interface {
 
 // Syntax: <ident> = <expression>
 type VarDeclStatement struct {
-  Code string
-  Line int
-  
   Name  Identifier
   Value ExpressionNode
 }
 
 // Syntax: <ident> +|-|*|/= <expression>
 type OperationStatement struct {
-  Code string
-  Line int
-  
   Name  Identifier
   Value ExpressionNode
   Op    string
@@ -39,50 +33,35 @@ type OperationStatement struct {
 
 // Syntax: print <expression>
 type PrintStatement struct {
-  Code string
-  Line int
-  
+  Token       token.Token // print keyword
   BreakLine   bool
   Expression  ExpressionNode
 }
 
 // Syntax: goto :<label>
 type GotoStatement struct {
-  Code string
-  Line int
-  
+  Token token.Token // goto keyword
   Label string
 }
 
 // Syntax: if <expression> goto :<label>
 type IfStatement struct {
-  Code string
-  Line int
-  
+  Token      token.Token // goto keyword
   Expression ExpressionNode
   Label      string
 }
 
 type ExpressionStatement struct {
-  Code string
-  Line int
-  
   Expression ExpressionNode
 }
 
 type LabelStatement struct {
-  Code string
-  Line int
-  
   Name string
 }
 
 type EndStatement struct {}
 
 type ErrorStatement struct {
-  Code string
-  Line int
-  
   Msg string
 }
 

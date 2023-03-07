@@ -39,14 +39,14 @@ func main() {
       fmt.Println("Verify if you typed the name correctly.")
     }
     
-    run.Run(string(content))
+    Run(string(content))
     
     return
   }
   
   if len(os.Args) == 3 {
     if os.Args[1] == "run" {
-      run.Run(os.Args[2])
+      Run(os.Args[2])
     }
     
     return
@@ -69,4 +69,31 @@ func help() {
   fmt.Println("Run 'simple -v' or 'simple --version' to show up the version number.")
   
   fmt.Println("\nhttps://github.com/JuniorBecari10/Simple")
+}
+
+func Run(code string) {
+  tks := lexer.Lex(code)
+  errs := lexer.CheckErrors(tks)
+  lines := lexer.SplitLines(code)
+  
+  if len(errs) > 0 {
+    for i, e := range errs {
+      repl.Panic(e, lines[i], i)
+    }
+    
+    return
+  }
+  
+  stats := parser.Parse(tks)
+  errs = parser.CheckErrors(stats)
+  
+  if len(errs) > 0 {
+    for i, e := range errs {
+      repl.Panic(e, lines[i], i) // o 'i' não reflete a linha, mas o indice dos erros, adicionar numero da linha nos statements
+    }
+    
+    return
+  }
+  
+  run.Run(stats, lexer.SplitLines(code))
 }

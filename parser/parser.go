@@ -37,75 +37,72 @@ func (this *Parser) peekToken() token.Token {
   return this.tokens[this.cursor + 1]
 }
 
-func (this *Parser) nextStatement(code string, line int) ast.Statement {
+func (this *Parser) nextStatement() ast.Statement {
   if this.token().Type == token.End {
     return ast.EndStatement {}
   }
   
   if this.token().Type == token.Error {
-    return ast.ErrorStatement { Msg: this.token().Content }
+    return ast.ErrorStatement { this.token().Content }
   }
   
   if len(this.tokens) >= 2 && this.token().Type == token.Identifier && this.tokens[this.cursor + 1].Type == token.Assign {
-    return this.parseVarDeclStatement(code, line)
+    return this.parseVarDeclStatement()
   }
   
   if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.AndAssign, token.OrAssign }) != -1 {
-    return this.parseOperationStatement(code, line)
+    return this.parseOperationStatement()
   }
   
   if len(this.tokens) >= 1 && (this.token().Type == token.PrintlnKw || this.token().Type == token.PrintKw) {
-    return this.parsePrintStatement(code, line)
+    return this.parsePrintStatement()
   }
   
   if len(this.tokens) >= 1 && this.token().Type == token.GotoKw {
-    return this.parseGotoStatement(code, line)
+    return this.parseGotoStatement()
   }
   
   if len(this.tokens) >= 1 && this.token().Type == token.IfKw {
-    return this.parseIfStatement(code, line)
+    return this.parseIfStatement()
   }
   
   if len(this.tokens) >= 1 && this.token().Type == token.Label {
-    return this.parseLabelStatement(code, line)
+    return this.parseLabelStatement()
     
     if len(this.tokens) > 1 {
-      return ast.ErrorStatement { Code: code, Line: line, Msg: "A label statement can only contain the label!" }
+      return ast.ErrorStatement { "A label statement can only contain the label!" }
     }
   }
   
-  return ast.ExpressionStatement { Expression: this.parseExpression() }
+  return ast.ExpressionStatement { this.parseExpression() }
 }
 
-func (this *Parser) parseVarDeclStatement(code string, line int) ast.Statement {
+func (this *Parser) parseVarDeclStatement() ast.Statement {
   stat := ast.VarDeclStatement {}
-  id := ast.Identifier { Value: this.token().Content }
+  id := ast.Identifier { Token: this.token(), Value: this.token().Content }
   
   stat.Name = id
   this.advance()
   
   if this.token().Type != token.Assign {
-    return ast.ErrorStatement { Msg: "Syntax error when declaring a variable. Examples: a = 10; message = 'Hello'." }
+    return ast.ErrorStatement { "Syntax error when declaring a variable. Examples: a = 10; message = 'Hello'." }
   }
   
   this.advance()
   stat.Value = this.parseExpression()
   
-  stat.Code = code
-  stat.Line = line
-  
   return stat
 }
 
-func (this *Parser) parseOperationStatement(code string, line int) ast.Statement {
+func (this *Parser) parseOperationStatement() ast.Statement {
   stat := ast.OperationStatement {}
-  id := ast.Identifier { Value: this.token().Content }
+  id := ast.Identifier { Token: this.token(), Value: this.token().Content }
   
   stat.Name = id
   this.advance()
   
   if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.AndAssign, token.OrAssign }) == -1 {
-    return ast.ErrorStatement { Msg: "Syntax error when setting a value. Examples: a -= 10; message += 'Hello'." }
+    return ast.ErrorStatement { "Syntax error when setting a value. Examples: a -= 10; message += 'Hello'." }
   }
   
   stat.Op = string(this.token().Content[0])
@@ -113,13 +110,10 @@ func (this *Parser) parseOperationStatement(code string, line int) ast.Statement
   this.advance()
   stat.Value = this.parseExpression()
   
-  stat.Code = code
-  stat.Line = line
-  
   return stat
 }
 
-func (this *Parser) parsePrintStatement(code string, line int) ast.Statement {
+func (this *Parser) parsePrintStatement() ast.Statement {
   stat := ast.PrintStatement {}
   
   tk := this.token()
@@ -127,21 +121,19 @@ func (this *Parser) parsePrintStatement(code string, line int) ast.Statement {
   expr := this.parseExpression()
   
   if tk.Type == token.Error || expr == nil {
-    return ast.ErrorStatement { Msg: "Syntax error in a print statement. Examples: print 'Hello World'; print 1 + 1." }
+    return ast.ErrorStatement { "Syntax error in a print statement. Examples: print 'Hello World'; print 1 + 1." }
   }
   
+  stat.Token = tk
   stat.BreakLine = tk.Type != token.PrintKw
   stat.Expression = expr
   
   this.advance()
   
-  stat.Code = code
-  stat.Line = line
-  
   return stat
 }
 
-func (this *Parser) parseGotoStatement(code string, line int) ast.Statement {
+func (this *Parser) parseGotoStatement() ast.Statement {
   stat := ast.GotoStatement {}
   
   tk := this.token()
@@ -149,20 +141,18 @@ func (this *Parser) parseGotoStatement(code string, line int) ast.Statement {
   label := this.token().Content
   
   if tk.Type == token.Error || this.token().Type != token.Label {
-    return ast.ErrorStatement { Msg: "Syntax error in a goto statement. Examples: goto :jump, goto :label." }
+    return ast.ErrorStatement { "Syntax error in a goto statement. Examples: goto :jump, goto :label." }
   }
   
+  stat.Token = tk
   stat.Label = label
   
   this.advance()
   
-  stat.Code = code
-  stat.Line = line
-  
   return stat
 }
 
-func (this *Parser) parseIfStatement(code string, line int) ast.Statement {
+func (this *Parser) parseIfStatement() ast.Statement {
   stat := ast.IfStatement {}
   
   tk := this.token()
@@ -171,7 +161,7 @@ func (this *Parser) parseIfStatement(code string, line int) ast.Statement {
   exp := this.parseExpression()
   
   if this.token().Type != token.GotoKw {
-    return ast.ErrorStatement { Msg: "Syntax error in a if statement: expected 'goto', got '" + this.token().Content + "'.\nExamples: if a < 1 goto :jump, if false | b goto :label." }
+    return ast.ErrorStatement { "Syntax error in a if statement: expected 'goto', got '" + this.token().Content + "'.\nExamples: if a < 1 goto :jump, if false | b goto :label." }
   }
   
   this.advance()
@@ -179,28 +169,24 @@ func (this *Parser) parseIfStatement(code string, line int) ast.Statement {
   label := this.token().Content
   
   if tk.Type == token.Error || this.token().Type != token.Label {
-    return ast.ErrorStatement { Msg: "Syntax error in a if statement. Examples: if a < 1 goto :jump, if false | b goto :label." }
+    return ast.ErrorStatement { "Syntax error in a if statement. Examples: if a < 1 goto :jump, if false | b goto :label." }
   }
   
+  stat.Token = tk
   stat.Expression = exp
   stat.Label = label
   
   this.advance()
   
-  stat.Code = code
-  stat.Line = line
-  
   return stat
 }
 
-func (this *Parser) parseLabelStatement(code string, line int) ast.Statement {
+func (this *Parser) parseLabelStatement() ast.Statement {
   tk := this.token()
   this.advance()
   
-  return ast.LabelStatement { Code: code, Line: line, Name: tk.Content[1:] }
+  return ast.LabelStatement { tk.Content[1:] }
 }
-
-// ---
 
 func (this *Parser) parseExpression() ast.ExpressionNode {
   return this.exp()
@@ -381,18 +367,18 @@ func (this *Parser) factor() ast.ExpressionNode {
   return nil
 }
 
-func Parse(tokens []token.Token, code string) []ast.Statement {
+func Parse(tokens []token.Token) []ast.Statement {
   lines := lexer.SplitTokens(tokens)
   stats := []ast.Statement {}
   
-  for i, l := range lines {
+  for _, l := range lines {
     if len(l) == 0 {
       continue
     }
     
     p := New(l)
     
-    st := p.nextStatement(code, i)
+    st := p.nextStatement()
     _, ok := st.(ast.EndStatement)
     
     if ok {
@@ -427,7 +413,7 @@ func ParseExpr(s string) ast.ExpressionNode {
     return nil
   }
   
-  stats := Parse(tks, s)
+  stats := Parse(tks)
   
   if len(CheckErrors(stats)) != 0 || len(stats) > 1 {
     return nil
