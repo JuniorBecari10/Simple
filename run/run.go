@@ -408,18 +408,6 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           case "!=":
             return Diff(v1, v2)
           
-          case ">":
-            return Greater(v1, v2)
-          
-          case ">=":
-            return GreaterEq(v1, v2)
-          
-          case "<":
-            return Less(v1, v2)
-          
-          case "<=":
-            return LessEq(v1, v2)
-          
           default:
             PrintError("Unknown operation: " + bin.Op, "", bin.Code, bin.Line)
             return ""
@@ -587,6 +575,7 @@ func Diff(v1 Any, v2 Any) Any {
   return !reflect.DeepEqual(v1, v2)
 }
 
+<<<<<<< HEAD
 func Greater(v1 Any, v2 Any, code string, line int) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
