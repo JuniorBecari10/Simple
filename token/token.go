@@ -29,6 +29,15 @@ const (
   Power        = "Power"
   Bang         = "Bang"
   
+  Equals       = "Equals"
+  Different    = "Different"
+  
+  Greater      = "Greater"
+  GreaterEq    = "GreaterEq"
+  
+  Less         = "Less"
+  LessEq       = "LessEq"
+  
   And          = "And"
   Or           = "Or"
   Xor          = "Xor"

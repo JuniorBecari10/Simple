@@ -219,9 +219,31 @@ func (this *Parser) term() ast.ExpressionNode {
     return nil
   }
   
+  res := this.boolean()
+  
+  for this.token().Type != token.Error && (this.token().Type == token.Times || this.token().Type == token.Divide) {
+    if this.token().Type == token.Times {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "*" }
+    } else if this.token().Type == token.Divide {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "/" }
+    }
+  }
+  
+  return res
+}
+
+func (this *Parser) boolean() ast.ExpressionNode {
+  if this.token().Type == token.Error {
+    return nil
+  }
+  
   res := this.postfix()
   
-  for this.token().Type != token.Error && (this.token().Type == token.And || this.token().Type == token.Or || this.token().Type == token.Times || this.token().Type == token.Divide) {
+  for this.token().Type != token.Error && (this.token().Type == token.And || this.token().Type == token.Or || this.token().Type == token.Equals || this.token().Type == token.Different || this.token().Type == token.Greater|| this.token().Type == token.GreaterEq || this.token().Type == token.Less || this.token().Type == token.LessEq) {
     if this.token().Type == token.And {
       this.advance()
       
@@ -230,14 +252,30 @@ func (this *Parser) term() ast.ExpressionNode {
       this.advance()
       
       res = ast.BinNode { res, this.term(), "|" }
-    } else if this.token().Type == token.Times {
+    } else if this.token().Type == token.Equals {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "*" }
-    } else if this.token().Type == token.Divide {
+      res = ast.BinNode { res, this.term(), "==" }
+    } else if this.token().Type == token.Different {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "/" }
+      res = ast.BinNode { res, this.term(), "!=" }
+    } else if this.token().Type == token.Greater {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), ">" }
+    } else if this.token().Type == token.GreaterEq {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), ">=" }
+    } else if this.token().Type == token.Less {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "<" }
+    } else if this.token().Type == token.LessEq {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "<=" }
     }
   }
   

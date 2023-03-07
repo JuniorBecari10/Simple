@@ -89,7 +89,7 @@ func Run(code string) {
   
   if len(errs) > 0 {
     for i, e := range errs {
-      repl.Panic(e, lines[i], i)
+      repl.Panic(e, lines[i], i) // o 'i' não reflete a linha, mas o indice dos erros, adicionar numero da linha nos statements
     }
     
     return
