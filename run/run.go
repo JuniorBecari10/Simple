@@ -197,7 +197,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         s := st.(ast.VarDeclStatement)
         
-        vl := SolveExpression(s.Value)
+        vl := SolveExpression(s.Value, s.Code, s.Line)
         Variables[s.Name.Value] = vl
         
         return vl
@@ -207,42 +207,42 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         s := st.(ast.OperationStatement)
         
-        vl := SolveExpression(s.Value)
+        vl := SolveExpression(s.Value, s.Code, s.Line)
         
         
         switch s.Op {
           case "+":
-            vl := Sum(Variables[s.Name.Value], vl)
+            vl := Sum(Variables[s.Name.Value], vl, s.Code, s.Line)
             Variables[s.Name.Value] = vl
             
             return vl
           
           case "-":
-            vl := Sub(Variables[s.Name.Value], vl)
+            vl := Sub(Variables[s.Name.Value], vl, s.Code, s.Line)
             Variables[s.Name.Value] = vl
             
             return vl
           
           case "*":
-            vl := Mul(Variables[s.Name.Value], vl)
+            vl := Mul(Variables[s.Name.Value], vl, s.Code, s.Line)
             Variables[s.Name.Value] = vl
             
             return vl
           
           case "/":
-            vl := Div(Variables[s.Name.Value], vl)
+            vl := Div(Variables[s.Name.Value], vl, s.Code, s.Line)
             Variables[s.Name.Value] = vl
             
             return vl
           
           case "&":
-            vl := And(Variables[s.Name.Value], vl)
+            vl := And(Variables[s.Name.Value], vl, s.Code, s.Line)
             Variables[s.Name.Value] = vl
             
             return vl
           
           case "|":
-            vl := Or(Variables[s.Name.Value], vl)
+            vl := Or(Variables[s.Name.Value], vl, s.Code, s.Line)
             Variables[s.Name.Value] = vl
             
             return vl
@@ -256,7 +256,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         s := st.(ast.PrintStatement)
         
-        exp := SolveExpression(s.Expression)
+        exp := SolveExpression(s.Expression, s.Code, s.Line)
         fmt.Print(exp)
         
         if s.BreakLine {
@@ -270,7 +270,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         s := st.(ast.ExpressionStatement)
         
-        return SolveExpression(s.Expression)
+        return SolveExpression(s.Expression, s.Code, s.Line)
       }
     
     case ast.GotoStatement:
@@ -294,7 +294,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         s := st.(ast.IfStatement)
         
-        res := SolveExpression(s.Expression)
+        res := SolveExpression(s.Expression, s.Code, s.Line)
         
         label := s.Label
         pc := 0
@@ -368,7 +368,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
     case ast.MinusNode:
       return func(ex ast.ExpressionNode) Any {
         s := ex.(ast.MinusNode)
-        nb, ok := SolveExpression(s.Value).(float64)
+        nb, ok := SolveExpression(s.Value, s.Code, s.Line).(float64)
         
         if !ok {
           PrintError("You can only use numbers with the operator '-'.", "Examples: -10, -a, -25.5.", s.Code, s.Line)
