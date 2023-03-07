@@ -575,7 +575,6 @@ func Diff(v1 Any, v2 Any) Any {
   return !reflect.DeepEqual(v1, v2)
 }
 
-<<<<<<< HEAD
 func Greater(v1 Any, v2 Any, code string, line int) Any {
   n1, ok1 := v1.(float64)
   n2, ok2 := v2.(float64)
