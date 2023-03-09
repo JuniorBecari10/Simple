@@ -257,6 +257,11 @@ func SolveExpression(ex ast.ExpressionNode) Any {
   fn := GetExprFunc(ex)
   
   if fn == nil {
+    if ex == nil {
+      Panic("The infix expression is incomplete.", "Certify that you completed it correctly.")
+      return nil
+    }
+    
     Panic("Couldn't get function to solve this expression: " + fmt.Sprintf("%q", ex), "This happens when you use an operator the wrong way or the operator isn't supported.")
     return nil
   }
@@ -289,7 +294,9 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
     
     case ast.PlusNode:
       return func(ex ast.ExpressionNode) Any {
-        return ex.(ast.PlusNode).Value
+        nb, _ := SolveExpression(ex.(ast.PlusNode).Value).(float64)
+        
+        return nb
       }
     
     case ast.MinusNode:
@@ -297,7 +304,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         nb, ok := SolveExpression(ex.(ast.MinusNode).Value).(float64)
         
         if !ok {
-          Panic("You can only use numbers with the operator '-'.", "Examples: -10, -a, -25.5.")
+          Panic("You can only use numbers with the operator '-'.", "Examples: -10, -25.5, -a.")
         }
         
         return -nb
