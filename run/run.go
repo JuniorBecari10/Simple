@@ -28,6 +28,8 @@ var Labels []Label
 var Lines []string
 
 func Panic(msg, hint string) {
+  fmt.Println("\n-------------\n")
+  
   fmt.Println("ERROR: On statement " + strconv.Itoa(PC + 1) + ".")
   fmt.Println("\n" + msg)
   

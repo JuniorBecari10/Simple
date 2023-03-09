@@ -12,6 +12,7 @@ const (
   InputKw      = "InputKw"
   IfKw         = "IfKw"
   GotoKw       = "GotoKw"
+  ExitKw       = "ExitKw"
   
   Assign       = "Assign"
   PlusAssign   = "PlusAssign"
@@ -74,6 +75,7 @@ var Keywords   = []string {
   "false",
   "if",
   "goto",
+  "exit",
 }
 
 var Types   = []string {
@@ -90,6 +92,7 @@ var KeyTokens = map[string]TokenType {
   "false":   FalseKw,
   "if":      IfKw,
   "goto":    GotoKw,
+  "exit":    ExitKw,
 }
 
 var TypeTokens = map[string]TokenType {
