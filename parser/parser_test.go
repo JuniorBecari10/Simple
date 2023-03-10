@@ -10,7 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := `exit 0`
+  input := `if true goto :a; if false goto :b`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)
