@@ -10,7 +10,7 @@ import (
 )
 
 func TestParser(t *testing.T) {
-  input := `1 != 1`
+  input := `exit 0`
   
   tokens := lexer.Lex(input)
   checkLexerErrors(t, tokens)

@@ -248,6 +248,24 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         return nil
       }
     
+    case ast.ExitStatement:
+      return func(st ast.Statement) Any {
+        s := st.(ast.ExitStatement)
+        
+        code, ok := SolveExpression(s.Code).(float64)
+        i := int(code)
+        
+        
+        if !ok {
+          Panic("The exit code provided must be an integer.", "Examples: exit 0, exit 1 + 1, exit a + b.")
+          return nil
+        }
+        
+        os.Exit(i)
+        
+        return nil
+      }
+    
     default:
       return nil
   }

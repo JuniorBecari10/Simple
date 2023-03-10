@@ -74,6 +74,10 @@ func (this *Parser) nextStatement() ast.Statement {
     }
   }
   
+  if len(this.tokens) >= 1 && this.token().Type == token.ExitKw {
+    return this.parseExitStatement()
+  }
+  
   return ast.ExpressionStatement { this.parseExpression() }
 }
 
@@ -186,6 +190,18 @@ func (this *Parser) parseLabelStatement() ast.Statement {
   this.advance()
   
   return ast.LabelStatement { tk.Content[1:] }
+}
+
+func (this *Parser) parseExitStatement() ast.Statement {
+  this.advance()
+  
+  if this.token().Type == token.Number {
+    exp := this.parseExpression()
+    
+    return ast.ExitStatement { exp }
+  }
+  
+  return ast.ExitStatement { ast.NumberNode { -1 } }
 }
 
 func (this *Parser) parseExpression() ast.ExpressionNode {
