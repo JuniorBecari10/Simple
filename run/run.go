@@ -434,6 +434,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
             continue
           }
           
+          // fun fact: this error will never happen
           Panic("Unknown type used on input expressions.", "Verify if you typed correctly.")
           return nil
         }
@@ -616,7 +617,7 @@ func Factorial(n float64) float64 {
     return 1
   }
   
-  if n == 1 {
+  if n <= 1 && n > 0 {
     return n
   }
   
