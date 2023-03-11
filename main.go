@@ -3,6 +3,7 @@ package main
 import (
   "fmt"
   "os"
+  "reflect"
   
   "simple/repl"
   "simple/lexer"
@@ -63,7 +64,7 @@ func main() {
     return
   }
   
-  if len(os.Args) == 3 { // >=
+  if len(os.Args) >= 3 {
     if os.Args[1] == "run" {
       Run(os.Args[2])
     }
@@ -104,10 +105,12 @@ func Run(code string) {
   }
   
   if Mode == ModeTokens {
-    fmt.Println("a")
+    fmt.Println("Tokens:\n")
+    
     for _, t := range tks {
       fmt.Println(t)
     }
+    return
   }
   
   stats := parser.Parse(tks)
@@ -118,6 +121,15 @@ func Run(code string) {
       repl.Panic(e, lines[i], i) // o 'i' não reflete a linha, mas o indice dos erros, adicionar numero da linha nos statements
     }
     
+    return
+  }
+  
+  if Mode == ModeStatements {
+    fmt.Println("Statements:\n")
+    
+    for _, s := range stats {
+      fmt.Printf("%s | %+v", reflect.TypeOf(s), s)
+    }
     return
   }
   
