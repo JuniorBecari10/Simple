@@ -11,7 +11,7 @@ It's very easy to use.
 `print` - Prints text to the screen, but doesn't break the line; <br>
 `input` - For use when declaring a variable | _See Variables_; <br>
 `goto` - Go to a specified line or label | _See labels_; <br>
-`exec` - Run a system command; <br>
+~~`exec` - Run a system command~~ | _not added yet_; <br>
 `exit` - Exit the program; <br>
 `if` - Checks a condition and go to a line if it's true | _See Conditions_; <br>
 
@@ -43,7 +43,7 @@ println 'a is ' + a
 
 ## Variables
 
-A variable can hold any value, its type can be `str` or `num`. _(bool will be added soon)_
+A variable can hold any value, its type can be `str` or `num`.
 
 ```
 var = <value | [input [str | num | bool]]>

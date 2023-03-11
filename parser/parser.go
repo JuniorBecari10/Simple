@@ -2,7 +2,6 @@ package parser
 
 import (
   "strconv"
-  "fmt"
   
   "simple/token"
   "simple/lexer"
@@ -387,8 +386,6 @@ func (this *Parser) factor() ast.ExpressionNode {
 func Parse(tokens []token.Token) []ast.Statement {
   lines := lexer.SplitTokens(tokens)
   stats := []ast.Statement {}
-  
-  fmt.Println(lines)
   
   for _, l := range lines {
     if len(l) == 0 {

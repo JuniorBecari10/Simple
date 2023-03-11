@@ -232,11 +232,14 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
           if l.Name == label {
             pc = l.Line
             
-            if vl, ok := res.(bool); ok {
+            vl, ok := res.(bool)
+            if ok {
               if vl {
                 PC = pc
                 return ""
               }
+              
+              return ""
             }
             
             Panic("Cannot use non-boolean expressions inside an if statement.", "You should use only boolean expressions.")
