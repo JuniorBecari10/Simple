@@ -239,6 +239,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
                 return ""
               }
               
+              // in case returning false, also return and don't print the error
               return ""
             }
             
@@ -406,11 +407,31 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           
           if inp.Type == token.TypeStr {
             if err != nil {
+              
+              if vl == "true" || vl == "false" {
+                continue
+              }
+              
               return vl
             }
             
             continue
           }
+          
+          if inp.Type == token.TypeBool {
+            if vl == "true" {
+              return true
+            }
+            
+            if vl == "false" {
+              return false
+            }
+            
+            continue
+          }
+          
+          Panic("Unknown type used on input expressions.", "Verify if you typed correctly.")
+          return nil
         }
         
         return vl

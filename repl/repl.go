@@ -66,19 +66,18 @@ func Run(code string, printRet bool) {
       continue
     }
     
-    value, ok := vl.(float64)
     ret := ""
     
-    if ok {
-      ret = strconv.FormatFloat(value, 'f', -1, 64)
-    } else {
-      b, ok := vl.(bool)
-      
-      if !ok {
-        ret = vl.(string)
-      }
-      
-      ret = fmt.Sprintf("%t", b)
+    num, ok1 := vl.(float64)
+    str, ok2 := vl.(string)
+    boo, ok3 := vl.(bool)
+    
+    if ok1 {
+      ret = strconv.FormatFloat(num, 'f', -1, 64)
+    } else if ok2 {
+      ret = str
+    } else if ok3 {
+      ret = fmt.Sprintf("%t", boo)
     }
     
     if printRet && !run.Error {
