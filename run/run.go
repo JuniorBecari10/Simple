@@ -399,6 +399,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           
           if inp.Type == token.TypeNum {
             if err != nil {
+              fmt.Println("Please enter a valid num!")
               continue
             }
             
@@ -409,12 +410,14 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
             if err != nil {
               
               if vl == "true" || vl == "false" {
+                fmt.Println("Please enter a valid str!")
                 continue
               }
               
               return vl
             }
             
+            fmt.Println("Please enter a valid str!")
             continue
           }
           
@@ -427,6 +430,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
               return false
             }
             
+            fmt.Println("Please enter a valid bool!")
             continue
           }
           
