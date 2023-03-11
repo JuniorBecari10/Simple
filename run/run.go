@@ -532,7 +532,7 @@ func Div(v1 Any, v2 Any) Any {
   }
   
   if n2 == 0 {
-    Panic("Cannot divide by zero.", "Self explanatory.")
+    Panic("Cannot divide by zero.", "The divisor is equal to zero.")
   }
   
   return n1 / n2
