@@ -243,6 +243,14 @@ func (this *Lexer) NextToken() token.Token {
     return token.Token { token.OrAssign, this.chars[pos:pos + 2], pos }
   }
   
+  if this.char() == '%' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.Mod, string(ch), pos }
+  }
+  
   if this.char() == '&' {
     pos := this.cursor
     ch := this.char()

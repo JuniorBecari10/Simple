@@ -7,11 +7,11 @@ import (
 )
 
 func TestLexer(t *testing.T) {
-  inp := "exit"
+  inp := "%"
   tks := Lex(inp)
   
   res := []token.Token {
-    {token.ExitKw, "exit", 0},
+    {token.Mod, "%", 0},
     {token.End, "", 0},
   }
   

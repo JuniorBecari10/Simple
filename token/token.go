@@ -29,6 +29,7 @@ const (
   
   Power        = "Power"
   Bang         = "Bang"
+  Mod          = "Mod"
   
   Equals       = "Equals"
   Different    = "Different"
