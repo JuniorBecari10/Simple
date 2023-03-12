@@ -3,10 +3,14 @@ package run
 import (
   "fmt"
   "os"
+  "os/exec"
   "strconv"
   "bufio"
   "reflect"
   "math"
+  "bytes"
+  "strings"
+  "runtime"
   
   "simple/token"
   "simple/ast"
@@ -501,6 +505,31 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         }
         
         return Factorial(n)
+      }
+    
+    case ast.ExecNode:
+      return func(ex ast.ExpressionNode) Any {
+        e := ex.(ast.ExecNode)
+        
+        c := SolveExpression(e.Command).(string)
+        var cmd *exec.Cmd
+        
+        if runtime.GOOS == "windows" {
+          cmd = exec.Command("cmd", "/c", c)
+        } else {
+          cmd = exec.Command("bash", "-c", c)
+        }
+        
+        var out bytes.Buffer
+        cmd.Stdout = &out
+        
+        err := cmd.Run()
+        
+        if err != nil {
+          Panic("An error occurred while executing the command '" + c + "':\n" + err.Error(), "Fix the error and try again.")
+        }
+        
+        return strings.TrimSpace(out.String())
       }
     
     default:
