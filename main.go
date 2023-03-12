@@ -128,7 +128,7 @@ func Run(code string) {
     fmt.Println("Statements:\n")
     
     for _, s := range stats {
-      fmt.Printf("%s | %+v", reflect.TypeOf(s), s)
+      fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
     }
     return
   }

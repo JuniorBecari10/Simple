@@ -225,6 +225,15 @@ func (this *Lexer) NextToken() token.Token {
     return token.Token { token.DivideAssign, this.chars[pos:pos + 2], pos }
   }
   
+  if this.char() == '%' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.ModAssign, this.chars[pos:pos + 2], pos }
+  }
+  
   if this.char() == '&' && this.peekChar() == '=' {
     pos := this.cursor
     

@@ -165,6 +165,12 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
             
             return vl
           
+          case "%":
+            vl := Mod(Variables[s.Name.Value], vl)
+            Variables[s.Name.Value] = vl
+            
+            return vl
+          
           case "&":
             vl := And(Variables[s.Name.Value], vl)
             Variables[s.Name.Value] = vl

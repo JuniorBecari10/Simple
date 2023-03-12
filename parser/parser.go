@@ -50,7 +50,7 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parseVarDeclStatement()
   }
   
-  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.AndAssign, token.OrAssign }) != -1 {
+  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) != -1 {
     return this.parseOperationStatement()
   }
   
@@ -105,7 +105,7 @@ func (this *Parser) parseOperationStatement() ast.Statement {
   stat.Name = id
   this.advance()
   
-  if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.AndAssign, token.OrAssign }) == -1 {
+  if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) == -1 {
     return ast.ErrorStatement { "Syntax error when setting a value. Examples: a -= 10; message += 'Hello'." }
   }
   

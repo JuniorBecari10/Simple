@@ -19,6 +19,7 @@ const (
   MinusAssign  = "MinusAssign"
   TimesAssign  = "TimesAssign"
   DivideAssign = "DivideAssign"
+  ModAssign    = "ModAssign"
   AndAssign    = "AndAssign"
   OrAssign     = "OrAssign"
   
