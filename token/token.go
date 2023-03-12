@@ -13,6 +13,7 @@ const (
   IfKw         = "IfKw"
   GotoKw       = "GotoKw"
   ExitKw       = "ExitKw"
+  RetKw        = "RetKw"
   
   Assign       = "Assign"
   PlusAssign   = "PlusAssign"
@@ -78,6 +79,7 @@ var Keywords   = []string {
   "if",
   "goto",
   "exit",
+  "ret",
 }
 
 var Types   = []string {
@@ -95,6 +97,7 @@ var KeyTokens = map[string]TokenType {
   "if":      IfKw,
   "goto":    GotoKw,
   "exit":    ExitKw,
+  "ret":     RetKw,
 }
 
 var TypeTokens = map[string]TokenType {

@@ -27,6 +27,7 @@ var Error bool = false
 var PC int = 0
 var Labels []Label
 var Lines []string
+var Stack []int
 
 func Panic(msg, hint string) {
   fmt.Println("\n-------------\n")
@@ -217,6 +218,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         
         for _, l := range Labels {
           if l.Name == label {
+            Stack = append(Stack, PC)
             PC = l.Line
             return ""
           }
@@ -242,6 +244,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
             vl, ok := res.(bool)
             if ok {
               if vl {
+                Stack = append(Stack, PC)
                 PC = pc
                 return ""
               }
