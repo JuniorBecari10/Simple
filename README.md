@@ -8,12 +8,12 @@ It's very easy to use.
 ## Keywords
 
 `println` - Prints text to the screen; <br>
-`prinl` - Prints text to the screen, but doesn't break the line; <br>
+`print` - Prints text to the screen, but doesn't break the line; <br>
 `input` - For use when declaring a variable | _See Variables_; <br>
-`goto` - Go to a specified line or label | _See labels_; <br>
-`exec` - Run a system command; <br>
+`goto` - Go to a specified label | _See labels_; <br>
+`ret` - Return to the previous goto statement | _See labels_; <br>
 `exit` - Exit the program; <br>
-`if` - Checks a condition and go to a line if it's true | _See Conditions_; <br>
+`if` - Checks a condition and go to a label if it's true | _See Conditions_; <br>
 
 ## Print
 
@@ -43,10 +43,10 @@ println 'a is ' + a
 
 ## Variables
 
-A variable can hold any value, its type can be `str` or `num`. _(bool will be added soon)_
+A variable can hold any value, its type can be `str` or `num`.
 
 ```
-var = <value | [input [str | num]]>
+var = <value | [input [str | num | bool]]>
 ```
 
 In this case, the variable `var` will have the value `value`. <br>
@@ -67,10 +67,10 @@ age = input num
 The language will keep prompting until you type a value that satisfies the condiftion; <br>
 The same is for `str`; in thic case numbers will not be accepted, and vice versa.
 
-## Labels
+## Labels and Jumps
 
 Labels are used to identify a part of the code. <br>
-They are used exclusively with the _goto_ keyword.
+They are used exclusively with the `goto` keyword.
 
 Example:
 
@@ -80,6 +80,21 @@ exit 0
 
 :menu
 # menu...
+```
+
+### Returning
+
+You can return to the last goto statement that has been executed.
+
+```
+goto :first
+println 'After'
+exit 0
+
+:first
+println 'Before'
+ret
+
 ```
 
 As you can see, the `exit 0` command won't be executed.
@@ -113,7 +128,7 @@ In this case, the language won't accept numbers, but strings.
 A condition is done with the `if` keyword.
 
 ```
-if variable <logic> <value | $var> goto <line | label>
+if <expression> goto <label>
 ```
 
 ```py
@@ -170,7 +185,7 @@ Print a variable:
 
 ```py
 var = 10
-print 'var is ' $var
+print 'var is ' + var
 ```
 
 ------
@@ -185,4 +200,47 @@ printl 'Type your age: '
 age = input num
 
 print 'Your name is ' + name + ' and your age is ' + age + '.'
+```
+
+Basic Calculator:
+```
+print 'Type a number: '
+
+na = input num
+
+print 'Type another number: '
+
+nb = input num
+
+:ope
+print 'Type the operation (+ - * /): '
+
+op = input str
+
+if op == '+' goto :plus
+if op == '-' goto :minus
+if op == '*' goto :times
+if op == '/' goto :divide
+
+println 'Invalid operation.'
+goto :ope
+
+:plus
+res = na + nb
+goto :res
+
+:minus
+res = na - nb
+goto :res
+
+:times
+res = na * nb
+goto :res
+
+:divide
+res = na / nb
+goto :res
+
+:res
+print 'The result is ' + res
 ```

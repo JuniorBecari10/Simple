@@ -6,6 +6,7 @@ import (
   "strconv"
   "bufio"
   "reflect"
+  "math"
   
   "simple/token"
   "simple/ast"
@@ -26,8 +27,11 @@ var Error bool = false
 var PC int = 0
 var Labels []Label
 var Lines []string
+var Stack []int
 
 func Panic(msg, hint string) {
+  fmt.Println("\n-------------\n")
+  
   fmt.Println("ERROR: On statement " + strconv.Itoa(PC + 1) + ".")
   fmt.Println("\n" + msg)
   
@@ -110,6 +114,11 @@ func RunStat(stat ast.Statement, repl bool, s string) Any {
     return nil
   }
   
+  if _, ok := stat.(ast.RetStatement); ok && repl {
+    Panic("You cannot declare ret statements in REPL mode.", "You can only use them when you read an actual script.")
+    return nil
+  }
+  
   if fn == nil {
     Panic("Unknown statement.", "Verify if you typed correctly.")
     return nil
@@ -162,6 +171,12 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
             
             return vl
           
+          case "%":
+            vl := Mod(Variables[s.Name.Value], vl)
+            Variables[s.Name.Value] = vl
+            
+            return vl
+          
           case "&":
             vl := And(Variables[s.Name.Value], vl)
             Variables[s.Name.Value] = vl
@@ -208,6 +223,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         
         for _, l := range Labels {
           if l.Name == label {
+            Stack = append(Stack, PC)
             PC = l.Line
             return ""
           }
@@ -230,11 +246,16 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
           if l.Name == label {
             pc = l.Line
             
-            if vl, ok := res.(bool); ok {
+            vl, ok := res.(bool)
+            if ok {
               if vl {
+                Stack = append(Stack, PC)
                 PC = pc
                 return ""
               }
+              
+              // in case returning false, also return and don't print the error
+              return ""
             }
             
             Panic("Cannot use non-boolean expressions inside an if statement.", "You should use only boolean expressions.")
@@ -244,6 +265,38 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         
         Panic("Couldn't find label '" + label + "'.", "Verify if you typed the name correctly.")
         return nil
+      }
+    
+    case ast.ExitStatement:
+      return func(st ast.Statement) Any {
+        s := st.(ast.ExitStatement)
+        
+        code, ok := SolveExpression(s.Code).(float64)
+        i := int(code)
+        
+        if !ok {
+          Panic("The exit code provided must be an integer.", "Examples: exit 0, exit 1 + 1, exit a + b.")
+          return nil
+        }
+        
+        os.Exit(i)
+        
+        return nil
+      }
+    
+    case ast.RetStatement:
+      return func(st ast.Statement) Any {
+        if len(Stack) == 0 {
+          Panic("Cannot return in call stack because it's empty.", "The call stack is empty.")
+          return nil
+        }
+        
+        pc := Stack[len(Stack) - 1]
+        Stack = Stack[:len(Stack) - 1]
+        
+        PC = pc
+        
+        return pc
       }
     
     default:
@@ -257,6 +310,11 @@ func SolveExpression(ex ast.ExpressionNode) Any {
   fn := GetExprFunc(ex)
   
   if fn == nil {
+    if ex == nil {
+      Panic("The infix expression is incomplete.", "Certify that you completed it correctly.")
+      return nil
+    }
+    
     Panic("Couldn't get function to solve this expression: " + fmt.Sprintf("%q", ex), "This happens when you use an operator the wrong way or the operator isn't supported.")
     return nil
   }
@@ -289,7 +347,9 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
     
     case ast.PlusNode:
       return func(ex ast.ExpressionNode) Any {
-        return ex.(ast.PlusNode).Value
+        nb, _ := SolveExpression(ex.(ast.PlusNode).Value).(float64)
+        
+        return nb
       }
     
     case ast.MinusNode:
@@ -297,7 +357,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         nb, ok := SolveExpression(ex.(ast.MinusNode).Value).(float64)
         
         if !ok {
-          Panic("You can only use numbers with the operator '-'.", "Examples: -10, -a, -25.5.")
+          Panic("You can only use numbers with the operator '-'.", "Examples: -10, -25.5, -a.")
         }
         
         return -nb
@@ -321,6 +381,9 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           
           case "/":
             return Div(v1, v2)
+          
+          case "%":
+            return Mod(v1, v2)
           
           case "&":
             return And(v1, v2)
@@ -369,6 +432,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           
           if inp.Type == token.TypeNum {
             if err != nil {
+              fmt.Println("Please enter a valid num!")
               continue
             }
             
@@ -377,11 +441,35 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           
           if inp.Type == token.TypeStr {
             if err != nil {
+              
+              if vl == "true" || vl == "false" {
+                fmt.Println("Please enter a valid str!")
+                continue
+              }
+              
               return vl
             }
             
+            fmt.Println("Please enter a valid str!")
             continue
           }
+          
+          if inp.Type == token.TypeBool {
+            if vl == "true" {
+              return true
+            }
+            
+            if vl == "false" {
+              return false
+            }
+            
+            fmt.Println("Please enter a valid bool!")
+            continue
+          }
+          
+          // fun fact: this error will never happen
+          Panic("Unknown type used on input expressions.", "Verify if you typed correctly.")
+          return nil
         }
         
         return vl
@@ -477,10 +565,25 @@ func Div(v1 Any, v2 Any) Any {
   }
   
   if n2 == 0 {
-    Panic("Cannot divide by zero.", "Self explanatory.")
+    Panic("Cannot divide by zero.", "The divisor is equal to zero.")
   }
   
   return n1 / n2
+}
+
+func Mod(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  if !ok1 || !ok2 {
+    Panic("You can only perform modulo on numbers.", "Examples: 10 % 5, 20 % a, a % b.")
+  }
+  
+  if n2 == 0 {
+    Panic("Cannot divide by zero.", "The divisor is equal to zero.")
+  }
+  
+  return math.Mod(n1, n2)
 }
 
 func And(v1 Any, v2 Any) Any {
@@ -562,7 +665,7 @@ func Factorial(n float64) float64 {
     return 1
   }
   
-  if n == 1 {
+  if n <= 1 && n > 0 {
     return n
   }
   

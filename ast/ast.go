@@ -59,6 +59,12 @@ type LabelStatement struct {
   Name string
 }
 
+type ExitStatement struct {
+  Code ExpressionNode
+}
+
+type RetStatement struct {}
+
 type EndStatement struct {}
 
 type ErrorStatement struct {
@@ -70,6 +76,8 @@ func (os OperationStatement)  stat() {}
 func (ps PrintStatement)      stat() {}
 func (es EndStatement)        stat() {}
 func (ls LabelStatement)      stat() {}
+func (es ExitStatement)       stat() {}
+func (rs RetStatement)        stat() {}
 func (gs GotoStatement)       stat() {}
 func (is IfStatement)         stat() {}
 func (es ExpressionStatement) stat() {}
@@ -80,6 +88,8 @@ func (os OperationStatement)  node() {}
 func (ps PrintStatement)      node() {}
 func (es EndStatement)        node() {}
 func (ls LabelStatement)      node() {}
+func (es ExitStatement)       node() {}
+func (rs RetStatement)        node() {}
 func (gs GotoStatement)       node() {}
 func (is IfStatement)         node() {}
 func (es ExpressionStatement) node() {}

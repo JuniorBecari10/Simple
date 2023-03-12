@@ -12,12 +12,15 @@ const (
   InputKw      = "InputKw"
   IfKw         = "IfKw"
   GotoKw       = "GotoKw"
+  ExitKw       = "ExitKw"
+  RetKw        = "RetKw"
   
   Assign       = "Assign"
   PlusAssign   = "PlusAssign"
   MinusAssign  = "MinusAssign"
   TimesAssign  = "TimesAssign"
   DivideAssign = "DivideAssign"
+  ModAssign    = "ModAssign"
   AndAssign    = "AndAssign"
   OrAssign     = "OrAssign"
   
@@ -28,6 +31,7 @@ const (
   
   Power        = "Power"
   Bang         = "Bang"
+  Mod          = "Mod"
   
   Equals       = "Equals"
   Different    = "Different"
@@ -74,6 +78,8 @@ var Keywords   = []string {
   "false",
   "if",
   "goto",
+  "exit",
+  "ret",
 }
 
 var Types   = []string {
@@ -90,6 +96,8 @@ var KeyTokens = map[string]TokenType {
   "false":   FalseKw,
   "if":      IfKw,
   "goto":    GotoKw,
+  "exit":    ExitKw,
+  "ret":     RetKw,
 }
 
 var TypeTokens = map[string]TokenType {

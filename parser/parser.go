@@ -50,7 +50,7 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parseVarDeclStatement()
   }
   
-  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.AndAssign, token.OrAssign }) != -1 {
+  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) != -1 {
     return this.parseOperationStatement()
   }
   
@@ -72,6 +72,14 @@ func (this *Parser) nextStatement() ast.Statement {
     if len(this.tokens) > 1 {
       return ast.ErrorStatement { "A label statement can only contain the label!" }
     }
+  }
+  
+  if len(this.tokens) >= 1 && this.token().Type == token.RetKw {
+    return ast.RetStatement {}
+  }
+  
+  if len(this.tokens) >= 1 && this.token().Type == token.ExitKw {
+    return this.parseExitStatement()
   }
   
   return ast.ExpressionStatement { this.parseExpression() }
@@ -101,7 +109,7 @@ func (this *Parser) parseOperationStatement() ast.Statement {
   stat.Name = id
   this.advance()
   
-  if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.AndAssign, token.OrAssign }) == -1 {
+  if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) == -1 {
     return ast.ErrorStatement { "Syntax error when setting a value. Examples: a -= 10; message += 'Hello'." }
   }
   
@@ -188,6 +196,18 @@ func (this *Parser) parseLabelStatement() ast.Statement {
   return ast.LabelStatement { tk.Content[1:] }
 }
 
+func (this *Parser) parseExitStatement() ast.Statement {
+  this.advance()
+  
+  if this.token().Type == token.Number {
+    exp := this.parseExpression()
+    
+    return ast.ExitStatement { exp }
+  }
+  
+  return ast.ExitStatement { ast.NumberNode { -1 } }
+}
+
 func (this *Parser) parseExpression() ast.ExpressionNode {
   return this.exp()
 }
@@ -197,7 +217,7 @@ func (this *Parser) exp() ast.ExpressionNode {
     return nil
   }
   
-  res := this.term()
+  res := this.boolean()
   
   for this.token().Type != token.Error && (this.token().Type == token.Plus || this.token().Type == token.Minus) {
     if this.token().Type == token.Plus {
@@ -214,34 +234,12 @@ func (this *Parser) exp() ast.ExpressionNode {
   return res
 }
 
-func (this *Parser) term() ast.ExpressionNode {
-  if this.token().Type == token.Error {
-    return nil
-  }
-  
-  res := this.boolean()
-  
-  for this.token().Type != token.Error && (this.token().Type == token.Times || this.token().Type == token.Divide) {
-    if this.token().Type == token.Times {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), "*" }
-    } else if this.token().Type == token.Divide {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), "/" }
-    }
-  }
-  
-  return res
-}
-
 func (this *Parser) boolean() ast.ExpressionNode {
   if this.token().Type == token.Error {
     return nil
   }
   
-  res := this.postfix()
+  res := this.term()
   
   for this.token().Type != token.Error && (this.token().Type == token.And || this.token().Type == token.Or || this.token().Type == token.Equals || this.token().Type == token.Different || this.token().Type == token.Greater|| this.token().Type == token.GreaterEq || this.token().Type == token.Less || this.token().Type == token.LessEq) {
     if this.token().Type == token.And {
@@ -276,6 +274,32 @@ func (this *Parser) boolean() ast.ExpressionNode {
       this.advance()
       
       res = ast.BinNode { res, this.term(), "<=" }
+    }
+  }
+  
+  return res
+}
+
+func (this *Parser) term() ast.ExpressionNode {
+  if this.token().Type == token.Error {
+    return nil
+  }
+  
+  res := this.postfix()
+  
+  for this.token().Type != token.Error && (this.token().Type == token.Times || this.token().Type == token.Divide || this.token().Type == token.Mod) {
+    if this.token().Type == token.Times {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "*" }
+    } else if this.token().Type == token.Divide {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "/" }
+    } else if this.token().Type == token.Mod {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "%" }
     }
   }
   
