@@ -387,6 +387,12 @@ func (this *Parser) factor() ast.ExpressionNode {
     return ast.BoolNode { ast.FalseType }
   }
   
+  if tk.Type == token.ExecKw {
+    this.advance()
+    
+    return ast.ExecNode { this.exp() }
+  }
+  
   // panic
   return nil
 }
