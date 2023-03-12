@@ -6,6 +6,7 @@ import (
   "strconv"
   "bufio"
   "reflect"
+  "math"
   
   "simple/token"
   "simple/ast"
@@ -352,6 +353,9 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           case "/":
             return Div(v1, v2)
           
+          case "%":
+            return Mod(v1, v2)
+          
           case "&":
             return And(v1, v2)
           
@@ -536,6 +540,21 @@ func Div(v1 Any, v2 Any) Any {
   }
   
   return n1 / n2
+}
+
+func Mod(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  if !ok1 || !ok2 {
+    Panic("You can only perform modulo on numbers.", "Examples: 10 % 5, 20 % a, a % b.")
+  }
+  
+  if n2 == 0 {
+    Panic("Cannot divide by zero.", "The divisor is equal to zero.")
+  }
+  
+  return math.Mod(n1, n2)
 }
 
 func And(v1 Any, v2 Any) Any {
