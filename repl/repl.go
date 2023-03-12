@@ -48,11 +48,11 @@ func Run(code string, printRet bool) {
   
   
   stats := parser.Parse(tks)
-  errs = parser.CheckErrors(stats)
+  errs, lines := parser.CheckErrors(stats)
   
   if len(errs) > 0 {
     for i, e := range errs {
-      Panic(e, code, i)
+      Panic(e, code, lines[i])
     }
     
     return

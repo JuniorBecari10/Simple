@@ -43,7 +43,7 @@ func (this *Parser) nextStatement() ast.Statement {
   }
   
   if this.token().Type == token.Error {
-    return ast.ErrorStatement { this.token().Content }
+    return ast.ErrorStatement { Msg: this.token().Content }
   }
   
   if len(this.tokens) >= 2 && this.token().Type == token.Identifier && this.tokens[this.cursor + 1].Type == token.Assign {
@@ -70,7 +70,7 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parseLabelStatement()
     
     if len(this.tokens) > 1 {
-      return ast.ErrorStatement { "A label statement can only contain the label!" }
+      return ast.ErrorStatement { Msg: "A label statement can only contain the label!" }
     }
   }
   
@@ -93,7 +93,7 @@ func (this *Parser) parseVarDeclStatement() ast.Statement {
   this.advance()
   
   if this.token().Type != token.Assign {
-    return ast.ErrorStatement { "Syntax error when declaring a variable. Examples: a = 10; message = 'Hello'." }
+    return ast.ErrorStatement { Msg: "Syntax error when declaring a variable. Examples: a = 10; message = 'Hello'." }
   }
   
   this.advance()
@@ -110,7 +110,7 @@ func (this *Parser) parseOperationStatement() ast.Statement {
   this.advance()
   
   if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) == -1 {
-    return ast.ErrorStatement { "Syntax error when setting a value. Examples: a -= 10; message += 'Hello'." }
+    return ast.ErrorStatement { Msg: "Syntax error when setting a value. Examples: a -= 10; message += 'Hello'." }
   }
   
   stat.Op = string(this.token().Content[0])
@@ -129,7 +129,7 @@ func (this *Parser) parsePrintStatement() ast.Statement {
   expr := this.parseExpression()
   
   if tk.Type == token.Error || expr == nil {
-    return ast.ErrorStatement { "Syntax error in a print statement. Examples: print 'Hello World'; print 1 + 1." }
+    return ast.ErrorStatement { Msg: "Syntax error in a print statement. Examples: print 'Hello World'; print 1 + 1." }
   }
   
   stat.Token = tk
@@ -149,7 +149,7 @@ func (this *Parser) parseGotoStatement() ast.Statement {
   label := this.token().Content
   
   if tk.Type == token.Error || this.token().Type != token.Label {
-    return ast.ErrorStatement { "Syntax error in a goto statement. Examples: goto :jump, goto :label." }
+    return ast.ErrorStatement { Msg: "Syntax error in a goto statement. Examples: goto :jump, goto :label." }
   }
   
   stat.Token = tk
@@ -169,7 +169,7 @@ func (this *Parser) parseIfStatement() ast.Statement {
   exp := this.parseExpression()
   
   if this.token().Type != token.GotoKw {
-    return ast.ErrorStatement { "Syntax error in a if statement: expected 'goto', got '" + this.token().Content + "'.\nExamples: if a < 1 goto :jump, if false | b goto :label." }
+    return ast.ErrorStatement { Msg: "Syntax error in a if statement: expected 'goto', got '" + this.token().Content + "'.\nExamples: if a < 1 goto :jump, if false | b goto :label." }
   }
   
   this.advance()
@@ -177,7 +177,7 @@ func (this *Parser) parseIfStatement() ast.Statement {
   label := this.token().Content
   
   if tk.Type == token.Error || this.token().Type != token.Label {
-    return ast.ErrorStatement { "Syntax error in a if statement. Examples: if a < 1 goto :jump, if false | b goto :label." }
+    return ast.ErrorStatement { Msg: "Syntax error in a if statement. Examples: if a < 1 goto :jump, if false | b goto :label." }
   }
   
   stat.Token = tk
@@ -387,6 +387,12 @@ func (this *Parser) factor() ast.ExpressionNode {
     return ast.BoolNode { ast.FalseType }
   }
   
+  if tk.Type == token.ExecKw {
+    this.advance()
+    
+    return ast.ExecNode { this.exp() }
+  }
+  
   // panic
   return nil
 }
@@ -395,7 +401,7 @@ func Parse(tokens []token.Token) []ast.Statement {
   lines := lexer.SplitTokens(tokens)
   stats := []ast.Statement {}
   
-  for _, l := range lines {
+  for i, l := range lines {
     if len(l) == 0 {
       continue
     }
@@ -409,6 +415,13 @@ func Parse(tokens []token.Token) []ast.Statement {
       break
     }
     
+    es, ok := st.(ast.ErrorStatement)
+    
+    if ok {
+      es.Line = i
+      stats = append(stats, es)
+    }
+    
     stats = append(stats, st)
   }
   
@@ -416,18 +429,20 @@ func Parse(tokens []token.Token) []ast.Statement {
 }
 
 
-func CheckErrors(stats []ast.Statement) []string {
+func CheckErrors(stats []ast.Statement) ([]string, []int) {
   errs := []string {}
+  lines := []int {}
   
   for _, s := range stats {
     es, ok := s.(ast.ErrorStatement)
     
     if ok {
       errs = append(errs, es.Msg)
+      lines = append(lines, es.Line)
     }
   }
   
-  return errs
+  return errs, lines
 }
 
 func ParseExpr(s string) ast.ExpressionNode {
@@ -439,7 +454,8 @@ func ParseExpr(s string) ast.ExpressionNode {
   
   stats := Parse(tks)
   
-  if len(CheckErrors(stats)) != 0 || len(stats) > 1 {
+  ls, _ := CheckErrors(stats)
+  if len(ls) != 0 || len(stats) > 1 {
     return nil
   }
   

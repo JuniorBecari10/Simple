@@ -68,7 +68,8 @@ type RetStatement struct {}
 type EndStatement struct {}
 
 type ErrorStatement struct {
-  Msg string
+  Msg  string
+  Line int
 }
 
 func (vs VarDeclStatement)    stat() {}
@@ -140,6 +141,10 @@ type FactorialNode struct {
   Node ExpressionNode
 }
 
+type ExecNode struct {
+  Command ExpressionNode
+}
+
 func (i Identifier)    exNode() {}
 func (n NumberNode)    exNode() {}
 func (s StringNode)    exNode() {}
@@ -149,3 +154,4 @@ func (m MinusNode)     exNode() {}
 func (i InputNode)     exNode() {}
 func (b BoolNode)      exNode() {}
 func (f FactorialNode) exNode() {}
+func (e ExecNode)      exNode() {}
