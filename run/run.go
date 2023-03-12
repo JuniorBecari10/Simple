@@ -294,7 +294,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         pc := Stack[len(Stack) - 1]
         Stack = Stack[:len(Stack) - 1]
         
-        PC = pc + 1
+        PC = pc
         
         return pc
       }

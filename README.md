@@ -10,10 +10,10 @@ It's very easy to use.
 `println` - Prints text to the screen; <br>
 `print` - Prints text to the screen, but doesn't break the line; <br>
 `input` - For use when declaring a variable | _See Variables_; <br>
-`goto` - Go to a specified line or label | _See labels_; <br>
-`ret` - Return to the previous goto statement; <br>
+`goto` - Go to a specified label | _See labels_; <br>
+`ret` - Return to the previous goto statement | _See labels_; <br>
 `exit` - Exit the program; <br>
-`if` - Checks a condition and go to a line if it's true | _See Conditions_; <br>
+`if` - Checks a condition and go to a label if it's true | _See Conditions_; <br>
 
 ## Print
 
