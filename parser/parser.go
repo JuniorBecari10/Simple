@@ -74,6 +74,10 @@ func (this *Parser) nextStatement() ast.Statement {
     }
   }
   
+  if len(this.tokens) >= 1 && this.token().Type == token.RetKw {
+    return ast.RetStatement {}
+  }
+  
   if len(this.tokens) >= 1 && this.token().Type == token.ExitKw {
     return this.parseExitStatement()
   }

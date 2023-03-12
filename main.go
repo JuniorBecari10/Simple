@@ -134,5 +134,4 @@ func Run(code string) {
   }
   
   run.Run(stats, lexer.SplitLines(code))
-  fmt.Println(run.Stack)
 }

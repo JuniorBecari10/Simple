@@ -114,6 +114,11 @@ func RunStat(stat ast.Statement, repl bool, s string) Any {
     return nil
   }
   
+  if _, ok := stat.(ast.RetStatement); ok && repl {
+    Panic("You cannot declare ret statements in REPL mode.", "You can only use them when you read an actual script.")
+    return nil
+  }
+  
   if fn == nil {
     Panic("Unknown statement.", "Verify if you typed correctly.")
     return nil
@@ -277,6 +282,20 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         os.Exit(i)
         
         return nil
+      }
+    
+    case ast.RetStatement:
+      return func(st ast.Statement) Any {
+        if len(Stack) == 0 {
+          Panic("Cannot return in call stack because it's empty.", "The call stack is empty.")
+        }
+        
+        pc := Stack[len(Stack) - 1]
+        Stack = Stack[:len(Stack) - 1]
+        
+        PC = pc + 1
+        
+        return pc
       }
     
     default:
