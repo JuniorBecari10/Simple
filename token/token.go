@@ -14,6 +14,7 @@ const (
   GotoKw       = "GotoKw"
   ExitKw       = "ExitKw"
   RetKw        = "RetKw"
+  ExecKw       = "ExecKw"
   
   Assign       = "Assign"
   PlusAssign   = "PlusAssign"
@@ -70,7 +71,7 @@ type Token struct {
   Pos     int
 }
 
-var Keywords   = []string {
+var Keywords = []string {
   "println",
   "print",
   "input",
@@ -80,9 +81,10 @@ var Keywords   = []string {
   "goto",
   "exit",
   "ret",
+  "exec",
 }
 
-var Types   = []string {
+var Types = []string {
   "num",
   "str",
   "bool",
@@ -98,6 +100,7 @@ var KeyTokens = map[string]TokenType {
   "goto":    GotoKw,
   "exit":    ExitKw,
   "ret":     RetKw,
+  "exec":    ExecKw,
 }
 
 var TypeTokens = map[string]TokenType {
