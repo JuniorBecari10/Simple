@@ -10,8 +10,9 @@ It's very easy to use.
 `println` - Prints text to the screen; <br>
 `print` - Prints text to the screen, but doesn't break the line; <br>
 `input` - For use when declaring a variable | _See Variables_; <br>
-`goto` - Go to a specified label | _See labels_; <br>
-`ret` - Return to the previous goto statement | _See labels_; <br>
+`goto` - Go to a specified label | _See Labels_; <br>
+`ret` - Return to the previous goto statement | _See Labels_; <br>
+`exec` - Run a system command | _See Executing Commands_; <br>
 `exit` - Exit the program; <br>
 `if` - Checks a condition and go to a label if it's true | _See Conditions_; <br>
 
@@ -151,6 +152,28 @@ name = input str
 
 # Print user's name
 print 'Your name is ' + name
+```
+
+## Executing Commands
+
+In Simple, you can also execute system commands, with the keyword `exec`. <br>
+It runs the command provided, and returns the value as an expression, so you can store the standard output in a variable! <br>
+It doesn't print the command on the screen, to do so you need to assign it to a variable and then print the variable. <br>
+
+```
+exec 'command'
+```
+
+It automatically detects the current OS, so you don't need to specify OS specific leading commands, such as `cmd /c` or `bash -c`. <br>
+
+Example:
+```
+print 'Enter a file name: '
+file = input str
+
+cont = exec 'cat ' + file
+
+println cont
 ```
 
 ## Examples
