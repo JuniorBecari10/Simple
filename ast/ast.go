@@ -68,7 +68,8 @@ type RetStatement struct {}
 type EndStatement struct {}
 
 type ErrorStatement struct {
-  Msg string
+  Msg  string
+  Line int
 }
 
 func (vs VarDeclStatement)    stat() {}

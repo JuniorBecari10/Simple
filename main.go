@@ -124,11 +124,11 @@ func Run(code string) {
   }
   
   stats := parser.Parse(tks)
-  errs = parser.CheckErrors(stats)
+  errs, ls := parser.CheckErrors(stats)
   
   if len(errs) > 0 {
     for i, e := range errs {
-      repl.Panic(e, lines[i], i) // o 'i' não reflete a linha, mas o indice dos erros, adicionar numero da linha nos statements
+      repl.Panic(e, lines[i], ls[i] + 1)
     }
     
     return
