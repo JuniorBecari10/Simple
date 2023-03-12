@@ -288,6 +288,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
       return func(st ast.Statement) Any {
         if len(Stack) == 0 {
           Panic("Cannot return in call stack because it's empty.", "The call stack is empty.")
+          return nil
         }
         
         pc := Stack[len(Stack) - 1]

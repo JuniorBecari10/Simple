@@ -67,7 +67,17 @@ func main() {
   if len(os.Args) >= 3 {
     if os.Args[1] == "run" {
       Run(os.Args[2])
+      return
     }
+    
+    content, err := os.ReadFile(os.Args[1])
+    
+    if err != nil {
+      fmt.Println("File '" + os.Args[1] + "' doesn't exist.")
+      fmt.Println("Verify if you typed the name correctly.")
+    }
+    
+    Run(string(content))
     
     return
   }

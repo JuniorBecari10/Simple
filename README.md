@@ -11,7 +11,7 @@ It's very easy to use.
 `print` - Prints text to the screen, but doesn't break the line; <br>
 `input` - For use when declaring a variable | _See Variables_; <br>
 `goto` - Go to a specified line or label | _See labels_; <br>
-~~`exec` - Run a system command~~ | _not added yet_; <br>
+`ret` - Return to the previous goto statement; <br>
 `exit` - Exit the program; <br>
 `if` - Checks a condition and go to a line if it's true | _See Conditions_; <br>
 
@@ -67,7 +67,7 @@ age = input num
 The language will keep prompting until you type a value that satisfies the condiftion; <br>
 The same is for `str`; in thic case numbers will not be accepted, and vice versa.
 
-## Labels
+## Labels and Jumps
 
 Labels are used to identify a part of the code. <br>
 They are used exclusively with the `goto` keyword.
@@ -80,6 +80,21 @@ exit 0
 
 :menu
 # menu...
+```
+
+### Returning
+
+You can return to the last goto statement that has been executed.
+
+```
+goto :first
+println 'After'
+exit 0
+
+:first
+println 'Before'
+ret
+
 ```
 
 As you can see, the `exit 0` command won't be executed.
