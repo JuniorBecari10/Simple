@@ -279,6 +279,10 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
           return nil
         }
         
+        if i < 0 {
+          i = 0
+        }
+        
         os.Exit(i)
         
         return nil
