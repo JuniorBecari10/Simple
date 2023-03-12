@@ -16,7 +16,7 @@ It's very easy to use.
 `exit` - Exit the program; <br>
 `if` - Checks a condition and go to a label if it's true | _See Conditions_; <br>
 
-## Print
+## Printing
 
 For printing things on the screen, you can use the keywords `print` and `println`. <br>
 
@@ -83,6 +83,8 @@ exit 0
 # menu...
 ```
 
+As you can see, the `exit 0` command won't be executed.
+
 ### Returning
 
 You can return to the last goto statement that has been executed.
@@ -95,10 +97,9 @@ exit 0
 :first
 println 'Before'
 ret
-
 ```
 
-As you can see, the `exit 0` command won't be executed.
+The `ret` keyword will return to the `goto :first` line, and continue executing, without the need to jump there using `goto` again.
 
 ## User Input
 

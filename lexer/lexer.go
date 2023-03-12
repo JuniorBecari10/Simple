@@ -45,6 +45,10 @@ func (this *Lexer) NextToken() token.Token {
     this.advance()
   }
   
+  if this.char() == '#' {
+    return token.Token { token.End, "", this.cursor }
+  }
+  
   if this.char() == ';' {
     ch := this.char()
     this.advance()
@@ -94,7 +98,7 @@ func (this *Lexer) NextToken() token.Token {
   if IsLetter(this.char()) {
     pos := this.cursor
     
-    for IsLetter(this.char()) {
+    for IsLetter(this.char()) || IsDigit(this.char()) {
       this.advance()
     }
     
@@ -116,7 +120,7 @@ func (this *Lexer) NextToken() token.Token {
     
     this.advance()
     
-    for IsLetter(this.char()) {
+    for IsLetter(this.char()) || IsDigit(this.char()) {
       this.advance()
     }
     
