@@ -12,7 +12,7 @@ import (
 )
 
 const (
-  Version = "v1.2 Beta"
+  Version = "Release v1.2"
   
   ModeTokens     = "Tokens"
   ModeStatements = "Statements"
@@ -42,7 +42,7 @@ func main() {
   
   if len(os.Args) == 2 {
     if os.Args[1] == "-v" || os.Args[1] == "--version" {
-      fmt.Println("Simple " + Version)
+      fmt.Println("Simple - " + Version)
       fmt.Println("Made by JuniorBecari10")
       return
     }
@@ -86,17 +86,17 @@ func main() {
 }
 
 func help() {
-  fmt.Println("Simple")
-  fmt.Println("Version " + Version)
+  fmt.Println("Simple - " + Version)
   
   fmt.Println("\nA simple, interpreted programming language. It's very easy to use.\n")
   
-  fmt.Println("Usage: simple [file] | [-v | --version] | run [code] [-t | --tokens | -s | --statements]\n")
+  fmt.Println("Usage: simple [file] | [-v | --version] | [-h | --help] | run [code] [-t | --tokens | -s | --statements]\n")
   
   fmt.Println("Run 'simple' to open the REPL;")
   fmt.Println("Run 'simple run [code]' to automatically run the code you typed;")
   fmt.Println("Run 'simple [file] to run code from file;'")
-  fmt.Println("Run 'simple -v' or 'simple --version' to show up the version number.")
+  fmt.Println("Run 'simple -v' or 'simple --version' to show the version number;")
+  fmt.Println("Run 'simple -h' or 'simple --help' to show this help message.")
   
   fmt.Println("\nhttps://github.com/JuniorBecari10/Simple")
 }
