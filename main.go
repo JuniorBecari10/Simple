@@ -10,7 +10,7 @@ import (
 )
 
 const (
-  Version = "Release v1.2"
+  Version = "Beta v1.3"
   
   ModeTokens     = "Tokens"
   ModeStatements = "Statements"

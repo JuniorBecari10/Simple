@@ -87,14 +87,19 @@ var Variables = map[string]Any {}
 var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
 
 func Run(code string, line int, repl bool) Any {
-   Line = line
-   LineCode = code
+  if code == "" {
+    return nil
+  }
   
-   tokens := lexer.Lex(code)
-   errs := lexer.CheckErrors(tokens)
-   
-   if len(errs) > 0 {
+  Line = line
+  LineCode = code
+  
+  tokens := lexer.Lex(code)
+  errs := lexer.CheckErrors(tokens)
+  
+  if len(errs) > 0 {
     for _, e := range errs {
+      // todo: add arrow ^ in hint, getting the position
       ShowError("Error in lexer: " + e, "")
     }
     
@@ -104,12 +109,18 @@ func Run(code string, line int, repl bool) Any {
   p := parser.New(tokens)
   stat := p.NextStatement()
   
+  //fmt.Println(reflect.TypeOf(stat))
+  
   if p.Cursor < len(tokens) - 1 {
     ShowWarning("You have more tokens than needed!", "Consider removing them.")
   }
   
   if err, ok := stat.(ast.ErrorStatement); ok {
     ShowError("Error in parser: " + err.Msg, "Fix it.")
+  }
+  
+  if _, ok := stat.(ast.LabelStatement); ok {
+    return nil
   }
   
   return RunStat(stat, repl)
