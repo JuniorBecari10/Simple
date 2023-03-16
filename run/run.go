@@ -117,14 +117,11 @@ func Run(code string, line int, repl bool) []Any {
     if p.Cursor < len(tokens) - 1 {
       ShowWarning("You have more tokens than needed!", "Consider removing them.")
     }
-    fmt.Printf("%T\n", stat)
+    
     if err, ok := stat.(ast.ErrorStatement); ok {
       ShowError("Error in parser: " + err.Msg, "Fix it.")
       
-      stat = p.NextStatement()
-      _, oke = stat.(ast.EndStatement)
-      
-      continue
+      return nil
     }
     
     if _, ok := stat.(ast.LabelStatement); ok {

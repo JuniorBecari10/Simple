@@ -43,7 +43,7 @@ func (this *Parser) NextStatement() ast.Statement {
   }
   
   if this.token().Type == token.Error {
-    return ast.ErrorStatement { Msg: this.token().Content }
+    return ast.ErrorStatement { Msg: "token error: '" + this.token().Content + "'" }
   }
   
   if len(this.tokens) >= 2 && this.token().Type == token.Identifier && this.tokens[this.Cursor + 1].Type == token.Assign {

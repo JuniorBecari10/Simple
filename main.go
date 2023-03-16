@@ -87,7 +87,7 @@ func main() {
     lines := strings.Split(string(content), "\n")
     
     for i, line := range lines {
-      run.Run(line, i, false)
+      run.Run(strings.TrimSpace(line), i, false)
     }
     
     return
