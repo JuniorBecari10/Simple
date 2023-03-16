@@ -10,7 +10,7 @@ import (
 
 type Parser struct {
   tokens []token.Token
-  cursor int
+  Cursor int
 }
 
 func New(tokens []token.Token) *Parser {
@@ -18,26 +18,26 @@ func New(tokens []token.Token) *Parser {
 }
 
 func (this *Parser) advance() {
-  this.cursor++
+  this.Cursor++
 }
 
 func (this *Parser) token() token.Token {
-  if this.cursor >= len(this.tokens) {
-    return token.Token { token.Error, "", this.cursor }
+  if this.Cursor >= len(this.tokens) {
+    return token.Token { token.Error, "", this.Cursor }
   }
   
-  return this.tokens[this.cursor]
+  return this.tokens[this.Cursor]
 }
 
 func (this *Parser) peekToken() token.Token {
-  if this.cursor + 1 >= len(this.tokens) {
-    return token.Token { token.Error, "", this.cursor + 1 }
+  if this.Cursor + 1 >= len(this.tokens) {
+    return token.Token { token.Error, "", this.Cursor + 1 }
   }
   
-  return this.tokens[this.cursor + 1]
+  return this.tokens[this.Cursor + 1]
 }
 
-func (this *Parser) nextStatement() ast.Statement {
+func (this *Parser) NextStatement() ast.Statement {
   if this.token().Type == token.End {
     return ast.EndStatement {}
   }
@@ -46,11 +46,11 @@ func (this *Parser) nextStatement() ast.Statement {
     return ast.ErrorStatement { Msg: this.token().Content }
   }
   
-  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && this.tokens[this.cursor + 1].Type == token.Assign {
+  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && this.tokens[this.Cursor + 1].Type == token.Assign {
     return this.parseVarDeclStatement()
   }
   
-  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) != -1 {
+  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.Cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) != -1 {
     return this.parseOperationStatement()
   }
   
@@ -395,77 +395,6 @@ func (this *Parser) factor() ast.ExpressionNode {
   
   // panic
   return nil
-}
-
-func Parse(tokens []token.Token) []ast.Statement {
-  lines := lexer.SplitTokens(tokens)
-  stats := []ast.Statement {}
-  
-  for i, l := range lines {
-    if len(l) == 0 {
-      continue
-    }
-    
-    p := New(l)
-    
-    st := p.nextStatement()
-    _, ok := st.(ast.EndStatement)
-    
-    if ok {
-      break
-    }
-    
-    es, ok := st.(ast.ErrorStatement)
-    
-    if ok {
-      es.Line = i
-      stats = append(stats, es)
-    }
-    
-    stats = append(stats, st)
-  }
-  
-  return stats
-}
-
-
-func CheckErrors(stats []ast.Statement) ([]string, []int) {
-  errs := []string {}
-  lines := []int {}
-  
-  for _, s := range stats {
-    es, ok := s.(ast.ErrorStatement)
-    
-    if ok {
-      errs = append(errs, es.Msg)
-      lines = append(lines, es.Line)
-    }
-  }
-  
-  return errs, lines
-}
-
-func ParseExpr(s string) ast.ExpressionNode {
-  tks := lexer.Lex(s)
-  
-  if len(lexer.CheckErrors(tks)) != 0 {
-    return nil
-  }
-  
-  stats := Parse(tks)
-  
-  ls, _ := CheckErrors(stats)
-  if len(ls) != 0 || len(stats) > 1 {
-    return nil
-  }
-  
-  exp, ok := stats[0].(ast.ExpressionStatement)
-  
-  if !ok {
-    return nil
-  }
-  
-  return exp.Expression
 }
 
 func Find(what string, where []string) int {

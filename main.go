@@ -3,11 +3,9 @@ package main
 import (
   "fmt"
   "os"
-  "reflect"
+  "strings"
   
   "simple/repl"
-  "simple/lexer"
-  "simple/parser"
   "simple/run"
 )
 
@@ -57,16 +55,22 @@ func main() {
     if err != nil {
       fmt.Println("File '" + os.Args[1] + "' doesn't exist.")
       fmt.Println("Verify if you typed the name correctly.")
+      
+      return
     }
     
-    Run(string(content))
+    lines := strings.Split(string(content), "\n")
+    
+    for i, line := range lines {
+      run.Run(line, i, false)
+    }
     
     return
   }
   
   if len(os.Args) >= 3 {
     if os.Args[1] == "run" {
-      Run(os.Args[2])
+      run.Run(os.Args[2], 1, false)
       return
     }
     
@@ -75,9 +79,16 @@ func main() {
     if err != nil {
       fmt.Println("File '" + os.Args[1] + "' doesn't exist.")
       fmt.Println("Verify if you typed the name correctly.")
+      
+      return
     }
     
-    Run(string(content))
+    // not ; because you can use it inside a string
+    lines := strings.Split(string(content), "\n")
+    
+    for i, line := range lines {
+      run.Run(line, i, false)
+    }
     
     return
   }
@@ -99,49 +110,4 @@ func help() {
   fmt.Println("Run 'simple -h' or 'simple --help' to show this help message.")
   
   fmt.Println("\nhttps://github.com/JuniorBecari10/Simple")
-}
-
-func Run(code string) {
-  tks := lexer.Lex(code)
-  errs := lexer.CheckErrors(tks)
-  lines := lexer.SplitLines(code)
-  
-  if len(errs) > 0 {
-    for i, e := range errs {
-      repl.Panic(e, lines[i], i)
-    }
-    
-    return
-  }
-  
-  if Mode == ModeTokens {
-    fmt.Println("Tokens:\n")
-    
-    for _, t := range tks {
-      fmt.Println(t)
-    }
-    return
-  }
-  
-  stats := parser.Parse(tks)
-  errs, ls := parser.CheckErrors(stats)
-  
-  if len(errs) > 0 {
-    for i, e := range errs {
-      repl.Panic(e, lines[i], ls[i] + 1)
-    }
-    
-    return
-  }
-  
-  if Mode == ModeStatements {
-    fmt.Println("Statements:\n")
-    
-    for _, s := range stats {
-      fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
-    }
-    return
-  }
-  
-  run.Run(stats, lexer.SplitLines(code))
 }

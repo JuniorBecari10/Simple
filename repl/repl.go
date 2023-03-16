@@ -6,8 +6,6 @@ import (
   "os"
   "strconv"
   
-  "simple/lexer"
-  "simple/parser"
   "simple/run"
 )
 
@@ -30,62 +28,36 @@ func Repl() {
       os.Exit(0)
     }
     
-    Run(text, true)
+    Run(text)
   }
 }
 
-func Run(code string, printRet bool) {
-  tks := lexer.Lex(code)
-  errs := lexer.CheckErrors(tks)
+func Run(code string) {
+  vl := run.Run(code, 0, true)
   
-  if len(errs) > 0 {
-    for i, e := range errs {
-      Panic(e, code, i)
-    }
-    
+  if vl == nil {
     return
   }
   
+  ret := ""
   
-  stats := parser.Parse(tks)
-  errs, lines := parser.CheckErrors(stats)
+  num, ok1 := vl.(float64)
+  str, ok2 := vl.(string)
+  boo, ok3 := vl.(bool)
   
-  if len(errs) > 0 {
-    for i, e := range errs {
-      Panic(e, code, lines[i])
-    }
-    
-    return
+  if ok1 {
+    ret = strconv.FormatFloat(num, 'f', -1, 64)
+  } else if ok2 {
+    ret = str
+  } else if ok3 {
+    ret = fmt.Sprintf("%t", boo)
   }
   
-  
-  for _, stat := range stats {
-    vl := run.RunStat(stat, true, code)
-    
-    if vl == nil {
-      continue
-    }
-    
-    ret := ""
-    
-    num, ok1 := vl.(float64)
-    str, ok2 := vl.(string)
-    boo, ok3 := vl.(bool)
-    
-    if ok1 {
-      ret = strconv.FormatFloat(num, 'f', -1, 64)
-    } else if ok2 {
-      ret = str
-    } else if ok3 {
-      ret = fmt.Sprintf("%t", boo)
-    }
-    
-    if printRet && !run.Error {
-      fmt.Println("< " + ret)
-    }
-    
-    run.Error = false
+  if !run.Error {
+    fmt.Println("< " + ret)
   }
+  
+  run.Error = false
 }
 
 func Panic(msg, lineStr string, line int) {
