@@ -86,10 +86,12 @@ var Variables = map[string]Any {}
 
 var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
 
-func Run(code string, line int, repl bool) Any {
+func Run(code string, line int, repl bool) []Any {
   if code == "" {
     return nil
   }
+  
+  ret := []Any {}
   
   Line = line
   LineCode = code
@@ -107,23 +109,35 @@ func Run(code string, line int, repl bool) Any {
   }
   
   p := parser.New(tokens)
+  
   stat := p.NextStatement()
+  _, oke := stat.(ast.EndStatement)
   
-  //fmt.Println(reflect.TypeOf(stat))
-  
-  if p.Cursor < len(tokens) - 1 {
-    ShowWarning("You have more tokens than needed!", "Consider removing them.")
+  for !oke {
+    if p.Cursor < len(tokens) - 1 {
+      ShowWarning("You have more tokens than needed!", "Consider removing them.")
+    }
+    fmt.Printf("%T\n", stat)
+    if err, ok := stat.(ast.ErrorStatement); ok {
+      ShowError("Error in parser: " + err.Msg, "Fix it.")
+      
+      stat = p.NextStatement()
+      _, oke = stat.(ast.EndStatement)
+      
+      continue
+    }
+    
+    if _, ok := stat.(ast.LabelStatement); ok {
+      return nil
+    }
+    
+    ret = append(ret, RunStat(stat, repl))
+    
+    stat = p.NextStatement()
+    _, oke = stat.(ast.EndStatement)
   }
   
-  if err, ok := stat.(ast.ErrorStatement); ok {
-    ShowError("Error in parser: " + err.Msg, "Fix it.")
-  }
-  
-  if _, ok := stat.(ast.LabelStatement); ok {
-    return nil
-  }
-  
-  return RunStat(stat, repl)
+  return ret
 }
 
 func DetectLabels(stats []ast.Statement) {
@@ -160,7 +174,7 @@ func RunStat(stat ast.Statement, repl bool) Any {
   }
   
   if fn == nil {
-    ShowError("Unknown statement.", "Verify if you typed correctly.")
+    ShowError("Unknown statement: " + fmt.Sprintf("%T", stat), "Verify if you typed correctly.")
     return nil
   }
   

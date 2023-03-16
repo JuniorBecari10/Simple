@@ -33,28 +33,30 @@ func Repl() {
 }
 
 func Run(code string) {
-  vl := run.Run(code, 0, true)
+  vls := run.Run(code, 0, true)
   
-  if vl == nil {
-    return
-  }
-  
-  ret := ""
-  
-  num, ok1 := vl.(float64)
-  str, ok2 := vl.(string)
-  boo, ok3 := vl.(bool)
-  
-  if ok1 {
-    ret = strconv.FormatFloat(num, 'f', -1, 64)
-  } else if ok2 {
-    ret = str
-  } else if ok3 {
-    ret = fmt.Sprintf("%t", boo)
-  }
-  
-  if !run.Error {
-    fmt.Println("< " + ret)
+  for _, vl := range vls {
+    if vl == nil {
+      return
+    }
+    
+    ret := ""
+    
+    num, ok1 := vl.(float64)
+    str, ok2 := vl.(string)
+    boo, ok3 := vl.(bool)
+    
+    if ok1 {
+      ret = strconv.FormatFloat(num, 'f', -1, 64)
+    } else if ok2 {
+      ret = str
+    } else if ok3 {
+      ret = fmt.Sprintf("%t", boo)
+    }
+    
+    if !run.Error {
+      fmt.Println("< " + ret)
+    }
   }
   
   run.Error = false
