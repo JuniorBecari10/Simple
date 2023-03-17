@@ -84,7 +84,7 @@ func main() {
     
     run.GetLabels(string(content))
     for i, line := range lines {
-      run.Run(line, i, false)
+      run.Run(run.GetStatements(line), i, line, false)
     }
     
     return
@@ -113,7 +113,7 @@ func main() {
       }
       
       run.GetLabels(os.Args[2])
-      run.Run(os.Args[2], 1, false)
+      run.Run(run.GetStatements(os.Args[2]), 1, os.Args[2], false)
       return
     }
     
@@ -150,9 +150,8 @@ func main() {
     lines := strings.Split(string(content), "\n")
     
     run.GetLabels(string(content))
-    
     for i, line := range lines {
-      run.Run(strings.TrimSpace(line), i, false)
+      run.Run(run.GetStatements(strings.TrimSpace(line)), i, strings.TrimSpace(line), false)
     }
     
     return

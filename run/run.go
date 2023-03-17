@@ -86,30 +86,15 @@ var Variables = map[string]Any {}
 
 var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
 
-func Run(code string, line int, repl bool) []Any {
-  if code == "" {
+func Run(stats []ast.Statement, line int, lineCode string, repl bool) []Any {
+  if len(stats) == 0 {
     return nil
   }
   
   ret := []Any {}
   
   Line = line
-  LineCode = code
-  
-  tokens := lexer.Lex(code)
-  errs := lexer.CheckErrors(tokens)
-  
-  if len(errs) > 0 {
-    for _, e := range errs {
-      // todo: add arrow ^ in hint, getting the position
-      ShowError("Error in lexer: " + e, "")
-    }
-    
-    return nil
-  }
-  
-  stats := parser.Parse(tokens)
-  errs = parser.CheckErrors(stats)
+  LineCode = lineCode
   
   PC = 0
   for PC < len(stats) {
@@ -179,11 +164,6 @@ func GetLabels(code string) {
   errs := lexer.CheckErrors(tokens)
   
   if len(errs) > 0 {
-    for _, e := range errs {
-      // todo: add arrow ^ in hint, getting the position
-      ShowError("Error in lexer: " + e, "")
-    }
-    
     return
   }
   
@@ -191,10 +171,6 @@ func GetLabels(code string) {
   errs = parser.CheckErrors(stats)
   
   if len(errs) > 0 {
-    for _, e := range errs {
-      ShowError("Error in parser: " + e, "")
-    }
-    
     return
   }
   
@@ -202,7 +178,7 @@ func GetLabels(code string) {
 }
 
 func DetectLabels(stats []ast.Statement) {
-  Labels = make([]Label, 0)
+  Labels = []Label {}
   
   for i, v := range stats {
     if ls, ok := v.(ast.LabelStatement); ok {

@@ -33,7 +33,7 @@ func Repl() {
 }
 
 func Run(code string) {
-  vls := run.Run(code, 0, true)
+  vls := run.Run(run.GetStatements(code), 0, code, true)
   
   for _, vl := range vls {
     if vl == nil {
