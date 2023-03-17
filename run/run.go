@@ -44,7 +44,7 @@ func ShowError(msg, hint string) {
   
   fmt.Println()
   
-  if PC > 0 {
+  if Line > 0 {
     fmt.Printf("%d |\n", Line)
   }
   
@@ -108,30 +108,24 @@ func Run(code string, line int, repl bool) []Any {
     return nil
   }
   
-  p := parser.New(tokens)
+  stats := parser.Parse(tokens)
+  errs = parser.CheckErrors(stats)
   
-  stat := p.NextStatement()
-  _, oke := stat.(ast.EndStatement)
-  
-  for !oke {
-    if p.Cursor < len(tokens) - 1 {
-      ShowWarning("You have more tokens than needed!", "Consider removing them.")
-    }
-    
-    if err, ok := stat.(ast.ErrorStatement); ok {
+  PC = 0
+  for PC < len(stats) {
+    if err, ok := stats[PC].(ast.ErrorStatement); ok {
       ShowError("Error in parser: " + err.Msg, "Fix it.")
       
       return nil
     }
     
-    if _, ok := stat.(ast.LabelStatement); ok {
+    if _, ok := stats[PC].(ast.LabelStatement); ok {
       return nil
     }
     
-    ret = append(ret, RunStat(stat, repl))
+    ret = append(ret, RunStat(stats[PC], repl))
     
-    stat = p.NextStatement()
-    _, oke = stat.(ast.EndStatement)
+    PC++
   }
   
   return ret

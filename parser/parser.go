@@ -397,6 +397,52 @@ func (this *Parser) factor() ast.ExpressionNode {
   return nil
 }
 
+func Parse(tokens []token.Token) []ast.Statement {
+  lines := lexer.SplitTokens(tokens)
+  stats := []ast.Statement {}
+  
+  for i, l := range lines {
+    if len(l) == 0 {
+      continue
+    }
+    
+    p := New(l)
+    
+    st := p.NextStatement()
+    _, ok := st.(ast.EndStatement)
+    
+    if ok {
+      break
+    }
+    
+    es, ok := st.(ast.ErrorStatement)
+    
+    if ok {
+      es.Line = i
+      stats = append(stats, es)
+    }
+    
+    stats = append(stats, st)
+  }
+  
+  return stats
+}
+
+
+func CheckErrors(stats []ast.Statement) []string {
+  errs := []string {}
+  
+  for _, s := range stats {
+    es, ok := s.(ast.ErrorStatement)
+    
+    if ok {
+      errs = append(errs, es.Msg)
+    }
+  }
+  
+  return errs
+}
+
 func Find(what string, where []string) int {
   for i, v := range where {
     if v == what {
