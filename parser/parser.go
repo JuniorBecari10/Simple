@@ -423,6 +423,8 @@ func Parse(tokens []token.Token) []ast.Statement {
     }
     
     stats = append(stats, st)
+    
+    // add showwarning here
   }
   
   return stats

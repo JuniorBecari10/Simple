@@ -4,6 +4,7 @@ import (
   "fmt"
   "os"
   "strings"
+  "reflect"
   
   "simple/repl"
   "simple/run"
@@ -59,8 +60,29 @@ func main() {
       return
     }
     
+    if Mode == ModeTokens {
+      fmt.Println("Tokens:\n")
+      tks := run.GetTokens(string(content))
+      
+      for _, t := range tks {
+        fmt.Printf("%+v\n", t)
+      }
+      
+      return
+    } else if Mode == ModeStatements {
+      fmt.Println("Statements:\n")
+      stats := run.GetStatements(string(content))
+      
+      for _, s := range stats {
+        fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
+      }
+      
+      return
+    }
+    
     lines := strings.Split(string(content), "\n")
     
+    run.GetLabels(string(content))
     for i, line := range lines {
       run.Run(line, i, false)
     }
@@ -70,6 +92,27 @@ func main() {
   
   if len(os.Args) >= 3 {
     if os.Args[1] == "run" {
+      if Mode == ModeTokens {
+        fmt.Println("Tokens:\n")
+        tks := run.GetTokens(os.Args[2])
+        
+        for _, t := range tks {
+          fmt.Printf("%+v\n", t)
+        }
+        
+        return
+      } else if Mode == ModeStatements {
+        fmt.Println("Statements:\n")
+        stats := run.GetStatements(os.Args[2])
+        
+        for _, s := range stats {
+          fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
+        }
+        
+        return
+      }
+      
+      run.GetLabels(os.Args[2])
       run.Run(os.Args[2], 1, false)
       return
     }
@@ -83,8 +126,30 @@ func main() {
       return
     }
     
+    if Mode == ModeTokens {
+      fmt.Println("Tokens:\n")
+      tks := run.GetTokens(string(content))
+      
+      for _, t := range tks {
+        fmt.Printf("%+v\n", t)
+      }
+      
+      return
+    } else if Mode == ModeStatements {
+      fmt.Println("Statements:\n")
+      stats := run.GetStatements(string(content))
+      
+      for _, s := range stats {
+        fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
+      }
+      
+      return
+    }
+    
     // not ; because you can use it inside a string
     lines := strings.Split(string(content), "\n")
+    
+    run.GetLabels(string(content))
     
     for i, line := range lines {
       run.Run(strings.TrimSpace(line), i, false)

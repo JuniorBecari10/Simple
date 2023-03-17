@@ -120,7 +120,8 @@ func Run(code string, line int, repl bool) []Any {
     }
     
     if _, ok := stats[PC].(ast.LabelStatement); ok {
-      return nil
+      PC++
+      continue
     }
     
     ret = append(ret, RunStat(stats[PC], repl))
@@ -129,6 +130,75 @@ func Run(code string, line int, repl bool) []Any {
   }
   
   return ret
+}
+
+func GetTokens(code string) []token.Token {
+  tokens := lexer.Lex(code)
+  errs := lexer.CheckErrors(tokens)
+  
+  if len(errs) > 0 {
+    for _, e := range errs {
+      // todo: add arrow ^ in hint, getting the position
+      ShowError("Error in lexer: " + e, "")
+    }
+    
+    return nil
+  }
+  
+  return tokens
+}
+
+func GetStatements(code string) []ast.Statement {
+  tokens := lexer.Lex(code)
+  errs := lexer.CheckErrors(tokens)
+  
+  if len(errs) > 0 {
+    for _, e := range errs {
+      ShowError("Error in lexer: " + e, "")
+    }
+    
+    return nil
+  }
+  
+  stats := parser.Parse(tokens)
+  errs = parser.CheckErrors(stats)
+  
+  if len(errs) > 0 {
+    for _, e := range errs {
+      ShowError("Error in parser: " + e, "")
+    }
+    
+    return nil
+  }
+  
+  return stats
+}
+
+func GetLabels(code string) {
+  tokens := lexer.Lex(code)
+  errs := lexer.CheckErrors(tokens)
+  
+  if len(errs) > 0 {
+    for _, e := range errs {
+      // todo: add arrow ^ in hint, getting the position
+      ShowError("Error in lexer: " + e, "")
+    }
+    
+    return
+  }
+  
+  stats := parser.Parse(tokens)
+  errs = parser.CheckErrors(stats)
+  
+  if len(errs) > 0 {
+    for _, e := range errs {
+      ShowError("Error in parser: " + e, "")
+    }
+    
+    return
+  }
+  
+  DetectLabels(stats)
 }
 
 func DetectLabels(stats []ast.Statement) {
