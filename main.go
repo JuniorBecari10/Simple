@@ -3,7 +3,6 @@ package main
 import (
   "fmt"
   "os"
-  "strings"
   "reflect"
   
   "simple/repl"
@@ -60,32 +59,7 @@ func main() {
       return
     }
     
-    if Mode == ModeTokens {
-      fmt.Println("Tokens:\n")
-      tks := run.GetTokens(string(content))
-      
-      for _, t := range tks {
-        fmt.Printf("%+v\n", t)
-      }
-      
-      return
-    } else if Mode == ModeStatements {
-      fmt.Println("Statements:\n")
-      stats := run.GetStatements(string(content))
-      
-      for _, s := range stats {
-        fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
-      }
-      
-      return
-    }
-    
-    lines := strings.Split(string(content), "\n")
-    
-    run.GetLabels(string(content))
-    for i, line := range lines {
-      run.Run(run.GetStatements(line), i, line, false)
-    }
+    Run(string(content))
     
     return
   }
@@ -112,8 +86,10 @@ func main() {
         return
       }
       
-      run.GetLabels(os.Args[2])
-      run.Run(run.GetStatements(os.Args[2]), 1, os.Args[2], false)
+      stats := run.GetStatements(os.Args[2])
+      
+      run.DetectLabels(stats)
+      run.Run(stats, 1, os.Args[2], false)
       return
     }
     
@@ -126,33 +102,7 @@ func main() {
       return
     }
     
-    if Mode == ModeTokens {
-      fmt.Println("Tokens:\n")
-      tks := run.GetTokens(string(content))
-      
-      for _, t := range tks {
-        fmt.Printf("%+v\n", t)
-      }
-      
-      return
-    } else if Mode == ModeStatements {
-      fmt.Println("Statements:\n")
-      stats := run.GetStatements(string(content))
-      
-      for _, s := range stats {
-        fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
-      }
-      
-      return
-    }
-    
-    // not ; because you can use it inside a string
-    lines := strings.Split(string(content), "\n")
-    
-    run.GetLabels(string(content))
-    for i, line := range lines {
-      run.Run(run.GetStatements(strings.TrimSpace(line)), i, strings.TrimSpace(line), false)
-    }
+    Run(string(content))
     
     return
   }
@@ -174,4 +124,28 @@ func help() {
   fmt.Println("Run 'simple -h' or 'simple --help' to show this help message.")
   
   fmt.Println("\nhttps://github.com/JuniorBecari10/Simple")
+}
+
+func Run(content string) {
+  if Mode == ModeTokens {
+    fmt.Println("Tokens:\n")
+    tks := run.GetTokens(content)
+    
+    for _, t := range tks {
+      fmt.Printf("%+v\n", t)
+    }
+    
+    return
+  } else if Mode == ModeStatements {
+    fmt.Println("Statements:\n")
+    stats := run.GetStatements(string(content))
+    
+    for _, s := range stats {
+      fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
+    }
+    
+    return
+  }
+  
+  run.RunCode(content)
 }

@@ -29,6 +29,11 @@ type Value struct {
   Value Any
 }
 
+type CodeLine struct {
+  Line int
+  Statement ast.Statement
+}
+
 var Error bool = false
 var PC int = 0
 var Line int
@@ -85,6 +90,39 @@ func ShowWarning(msg, hint string) {
 var Variables = map[string]Any {}
 
 var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
+
+func RunCode(code string) {
+  lines := strings.Split(strings.TrimSpace(code), "\n")
+  codeLines := make([]CodeLine, 0)
+
+  for i, l := range lines {
+    stats := GetStatements(l)
+
+    if len(stats) == 0 {
+      continue
+    }
+
+    codeLines = append(codeLines, CodeLine { i, stats[0] })
+  }
+
+  DetectLabels(GetStatements(code))
+  PC = 0
+
+  for PC < len(codeLines) {
+    l := codeLines[PC]
+
+    Line = l.Line
+    LineCode = lines[l.Line]
+
+    if _, ok := l.Statement.(ast.LabelStatement); ok {
+      PC++
+      continue
+    }
+
+    RunStat(l.Statement, false)
+    PC++
+  }
+}
 
 func Run(stats []ast.Statement, line int, lineCode string, repl bool) []Any {
   if len(stats) == 0 {
@@ -159,24 +197,6 @@ func GetStatements(code string) []ast.Statement {
   return stats
 }
 
-func GetLabels(code string) {
-  tokens := lexer.Lex(code)
-  errs := lexer.CheckErrors(tokens)
-  
-  if len(errs) > 0 {
-    return
-  }
-  
-  stats := parser.Parse(tokens)
-  errs = parser.CheckErrors(stats)
-  
-  if len(errs) > 0 {
-    return
-  }
-  
-  DetectLabels(stats)
-}
-
 func DetectLabels(stats []ast.Statement) {
   Labels = []Label {}
   
@@ -189,7 +209,7 @@ func DetectLabels(stats []ast.Statement) {
 
 func RunStat(stat ast.Statement, repl bool) Any {
   fn := GetStatFunc(stat)
-  
+
   if _, ok := stat.(ast.LabelStatement); ok && repl {
     ShowError("You cannot declare labels in REPL mode.", "You can only use them when you read an actual script.")
     return nil
@@ -316,6 +336,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
           if l.Name == label {
             Stack = append(Stack, PC)
             PC = l.Line
+            fmt.Printf("%+v\n", l)
             return ""
           }
         }
