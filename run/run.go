@@ -108,7 +108,11 @@ func RunCode(code string) {
   DetectLabels(GetStatements(code))
   PC = 0
 
-  for PC < len(codeLines) {
+  for PC < len(codeLines) || !Error {
+    if PC >= len(codeLines) {
+      break
+    }
+
     l := codeLines[PC]
 
     Line = l.Line
@@ -255,8 +259,13 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         s := st.(ast.OperationStatement)
         
         vl := SolveExpression(s.Value)
-        
-        
+        _, ok := Variables[s.Name.Value]
+
+        if !ok {
+          ShowError("The variable " + s.Name.Value + " doesn't exist.", "Create one declaring it, like: a = 10, b = 'Hello', c = true.")
+          return nil
+        }
+
         switch s.Op {
           case "+":
             vl := Sum(Variables[s.Name.Value], vl)
@@ -432,7 +441,7 @@ func SolveExpression(ex ast.ExpressionNode) Any {
   
   if fn == nil {
     if ex == nil {
-      ShowError("The infix expression is incomplete.", "Certify that you completed it correctly.")
+      ShowError("The expression is incomplete.", "Certify that you completed it correctly.")
       return nil
     }
     
@@ -451,6 +460,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         
         if !ok {
           ShowError("Variable '" + ex.(ast.Identifier).Value + "' doesn't exist.", "Verify if you typed the name correctly.")
+          return nil
         }
         
         return value
@@ -479,6 +489,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         
         if !ok {
           ShowError("You can only use numbers with the operator '-'.", "Examples: -10, -25.5, -a.")
+          return nil
         }
         
         return -nb
@@ -535,7 +546,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           
           default:
             ShowError("Unknown operation: " + bin.Op, "")
-            return ""
+            return nil
         }
       }
     
@@ -614,10 +625,12 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         
         if !ok {
           ShowError("Can only perform factorial on a number.", "Examples: 5!, 10.5!, a!")
+          return nil
         }
         
         if n < 0 {
           ShowError("Cannot calculate factorial of a negative number.", "You cannot calculate it.")
+          return nil
         }
         
         return Factorial(n)
@@ -643,6 +656,7 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         
         if err != nil {
           ShowError("An error occurred while executing the command '" + c + "':\n" + err.Error(), "Fix the error and try again.")
+          return nil
         }
         
         return strings.TrimSpace(out.String())
@@ -661,23 +675,24 @@ func Sum(v1 Any, v2 Any) Any {
     s1 := ""
     s2 := ""
     
-     if ok1 {
-       s1 = strconv.FormatFloat(n1, 'f', -1, 64)
-     } else {
-       s1, ok1 = v1.(string)
-     }
+    if ok1 {
+      s1 = strconv.FormatFloat(n1, 'f', -1, 64)
+    } else {
+      s1, ok1 = v1.(string)
+    }
+    
+    if ok2 {
+      s2 = strconv.FormatFloat(n2, 'f', -1, 64)
+    } else {
+      s2, ok2 = v2.(string)
+    }
+    
+    if !ok1 || !ok2 {
+      ShowError("You can only sum numbers or strings, or the variables don't exist.", "Examples: 1 + 1, 'hello ' + 'world', a + 1, 3 + 'hi'.")
+      return nil
+    }
      
-     if ok2 {
-       s2 = strconv.FormatFloat(n2, 'f', -1, 64)
-     } else {
-       s2, ok2 = v2.(string)
-     }
-     
-     if !ok1 || !ok2 {
-       ShowError("Cannot perform sum on a bool.", "You can only add numbers and strings.")
-     }
-     
-     return s1 + s2
+    return s1 + s2
   }
   
   return n1 + n2
@@ -688,7 +703,8 @@ func Sub(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    ShowError("Cannot perform subtraction on a string or a bool", "Examples: 10 - 4, a - 4, c - f.")
+    ShowError("You can only subtract numbers, or the variables don't exist.", "Examples: 10 - 4, a - 4, c - f.")
+    return nil
   }
   
   return n1 - n2
@@ -699,7 +715,8 @@ func Mul(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    ShowError("You can only multiply numbers.", "Examples: 5 * 5, 3 * b, a * c.")
+    ShowError("You can only multiply numbers, or the variables don't exist.", "Examples: 5 * 5, 3 * b, a * c.")
+    return nil
   }
   
   return n1 * n2
@@ -710,11 +727,13 @@ func Div(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    ShowError("You can only divide numbers.", "Examples: 10 / 5, 20 / a, a / b.")
+    ShowError("You can only divide numbers, or the variables don't exist.", "Examples: 10 / 5, 20 / a, a / b.")
+    return nil
   }
   
   if n2 == 0 {
     ShowError("Cannot divide by zero.", "The divisor is equal to zero.")
+    return nil
   }
   
   return n1 / n2
@@ -725,7 +744,8 @@ func Pow(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    ShowError("You can only apply power on numbers.", "Examples: 10 ^ 5, 20 ^ a, a ^ b.")
+    ShowError("You can only apply power on numbers, or the variables don't exist.", "Examples: 10 ^ 5, 20 ^ a, a ^ b.")
+    return nil
   }
   
   return math.Pow(n1, n2)
@@ -736,11 +756,13 @@ func Mod(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    ShowError("You can only perform modulo on numbers.", "Examples: 10 % 5, 20 % a, a % b.")
+    ShowError("You can only perform modulo on numbers, or the variables don't exist.", "Examples: 10 % 5, 20 % a, a % b.")
+    return nil
   }
   
   if n2 == 0 {
     ShowError("Cannot divide by zero.", "The divisor is equal to zero.")
+    return nil
   }
   
   return math.Mod(n1, n2)
@@ -751,7 +773,8 @@ func And(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(bool)
   
   if !ok1 || !ok2 {
-    ShowError("You can only perform AND on bools.", "Examples: a & b, true & false, false & d.")
+    ShowError("You can only perform And on bools, or the variables don't exist.", "Examples: a & b, true & false, false & d.")
+    return nil
   }
   
   return n1 && n2
@@ -762,7 +785,8 @@ func Or(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(bool)
   
   if !ok1 || !ok2 {
-    ShowError("You can only perform OR on bools.", "Examples: a | b, true | false, false | d.")
+    ShowError("You can only perform Or on bools, or the variables don't exist.", "Examples: a | b, true | false, false | d.")
+    return nil
   }
   
   return n1 || n2
@@ -781,7 +805,8 @@ func Greater(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    ShowError("You can only perform Greater on numbers.", "Examples: a > b, 1 > 2, 2 > c.")
+    ShowError("You can only perform Greater on numbers, or the variables don't exist.", "Examples: a > b, 1 > 2, 2 > c.")
+    return nil
   }
   
   return n1 > n2
@@ -792,7 +817,8 @@ func GreaterEq(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    ShowError("You can only perform Greater or Equal on numbers.", "Examples: a >= b, 1 >= 2, 2 >= c.")
+    ShowError("You can only perform Greater or Equal on numbers, or the variables don't exist.", "Examples: a >= b, 1 >= 2, 2 >= c.")
+    return nil
   }
   
   return n1 >= n2
@@ -803,7 +829,8 @@ func Less(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    ShowError("You can only perform Less on numbers.", "Examples: a < b, 1 < 2, 2 < c.")
+    ShowError("You can only perform Less on numbers, or the variables don't exist.", "Examples: a < b, 1 < 2, 2 < c.")
+    return nil
   }
   
   return n1 < n2
@@ -814,7 +841,8 @@ func LessEq(v1 Any, v2 Any) Any {
   n2, ok2 := v2.(float64)
   
   if !ok1 || !ok2 {
-    ShowError("You can only perform Less or Equal on numbers.", "Examples: a <= b, 1 <= 2, 2 <= c.")
+    ShowError("You can only perform Less or Equal on numbers, or the variables don't exist.", "Examples: a <= b, 1 <= 2, 2 <= c.")
+    return nil
   }
   
   return n1 <= n2

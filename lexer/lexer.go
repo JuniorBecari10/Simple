@@ -3,6 +3,7 @@ package lexer
 import (
   "strings"
   "fmt"
+  "unicode"
   
   "simple/token"
 )
@@ -41,7 +42,11 @@ func (this *Lexer) NextToken() token.Token {
     return token.Token { token.End, "", this.cursor }
   }
   
-  for this.char() == ' ' {
+  for (unicode.IsSpace(rune(this.char())) && this.char() != '\n') || this.char() == 0 {
+    if this.cursor >= len(this.chars) {
+      return token.Token { token.End, "", this.cursor }
+    }
+
     this.advance()
   }
   
@@ -353,7 +358,7 @@ func (this *Lexer) NextToken() token.Token {
   ch := this.char()
   this.advance()
   
-  return token.Token { token.Error, "Unknown token: '" + string(ch) + "', pos " + fmt.Sprintf("%d", pos) + ".", pos }
+  return token.Token { token.Error, "Unknown token: '" + string(ch) + "', char " + fmt.Sprintf("%d", ch) + ", pos " + fmt.Sprintf("%d", pos) + ".", pos }
 }
 
 // -- Helper -- //

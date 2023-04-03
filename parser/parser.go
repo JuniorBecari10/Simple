@@ -2,6 +2,7 @@ package parser
 
 import (
   "strconv"
+  "fmt"
   
   "simple/token"
   "simple/lexer"
@@ -82,7 +83,9 @@ func (this *Parser) NextStatement() ast.Statement {
     return this.parseExitStatement()
   }
   
-  return ast.ExpressionStatement { this.parseExpression() }
+  exp := this.parseExpression()
+  fmt.Printf("%v\n", exp)
+  return ast.ExpressionStatement { exp }
 }
 
 func (this *Parser) parseVarDeclStatement() ast.Statement {
@@ -209,29 +212,7 @@ func (this *Parser) parseExitStatement() ast.Statement {
 }
 
 func (this *Parser) parseExpression() ast.ExpressionNode {
-  return this.exp()
-}
-
-func (this *Parser) exp() ast.ExpressionNode {
-  if this.token().Type == token.Error {
-    return nil
-  }
-  
-  res := this.boolean()
-  
-  for this.token().Type != token.Error && (this.token().Type == token.Plus || this.token().Type == token.Minus) {
-    if this.token().Type == token.Plus {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), "+" }
-    } else if this.token().Type == token.Minus {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), "-" }
-    }
-  }
-  
-  return res
+  return this.boolean()
 }
 
 func (this *Parser) boolean() ast.ExpressionNode {
@@ -239,7 +220,7 @@ func (this *Parser) boolean() ast.ExpressionNode {
     return nil
   }
   
-  res := this.term()
+  res := this.exp()
   
   for this.token().Type != token.Error && (this.token().Type == token.And || this.token().Type == token.Or || this.token().Type == token.Equals || this.token().Type == token.Different || this.token().Type == token.Greater|| this.token().Type == token.GreaterEq || this.token().Type == token.Less || this.token().Type == token.LessEq) {
     if this.token().Type == token.And {
@@ -274,6 +255,28 @@ func (this *Parser) boolean() ast.ExpressionNode {
       this.advance()
       
       res = ast.BinNode { res, this.term(), "<=" }
+    }
+  }
+  
+  return res
+}
+
+func (this *Parser) exp() ast.ExpressionNode {
+  if this.token().Type == token.Error {
+    return nil
+  }
+  
+  res := this.term()
+  
+  for this.token().Type != token.Error && (this.token().Type == token.Plus || this.token().Type == token.Minus) {
+    if this.token().Type == token.Plus {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "+" }
+    } else if this.token().Type == token.Minus {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "-" }
     }
   }
   
