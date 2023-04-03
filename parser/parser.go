@@ -84,7 +84,6 @@ func (this *Parser) NextStatement() ast.Statement {
   }
   
   exp := this.parseExpression()
-  fmt.Printf("%v\n", exp)
   return ast.ExpressionStatement { exp }
 }
 
