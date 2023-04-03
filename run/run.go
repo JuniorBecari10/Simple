@@ -281,6 +281,12 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
             Variables[s.Name.Value] = vl
             
             return vl
+
+          case "^":
+            vl := Pow(Variables[s.Name.Value], vl)
+            Variables[s.Name.Value] = vl
+            
+            return vl
           
           case "%":
             vl := Mod(Variables[s.Name.Value], vl)
@@ -336,7 +342,6 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
           if l.Name == label {
             Stack = append(Stack, PC)
             PC = l.Line
-            fmt.Printf("%+v\n", l)
             return ""
           }
         }
@@ -498,6 +503,9 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           case "/":
             return Div(v1, v2)
           
+          case "^":
+            return Pow(v1, v2)
+
           case "%":
             return Mod(v1, v2)
           
@@ -710,6 +718,17 @@ func Div(v1 Any, v2 Any) Any {
   }
   
   return n1 / n2
+}
+
+func Pow(v1 Any, v2 Any) Any {
+  n1, ok1 := v1.(float64)
+  n2, ok2 := v2.(float64)
+  
+  if !ok1 || !ok2 {
+    ShowError("You can only apply power on numbers.", "Examples: 10 ^ 5, 20 ^ a, a ^ b.")
+  }
+  
+  return math.Pow(n1, n2)
 }
 
 func Mod(v1 Any, v2 Any) Any {

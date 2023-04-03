@@ -7,11 +7,12 @@ import (
 )
 
 func TestLexer(t *testing.T) {
-  inp := "exec"
+  inp := "^ ^="
   tks := Lex(inp)
   
   res := []token.Token {
-    {token.ExecKw, "exec", 0},
+    {token.Power, "^", 0},
+    {token.PowerAssign, "^=", 0},
     {token.End, "", 0},
   }
   

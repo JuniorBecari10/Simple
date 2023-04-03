@@ -50,7 +50,7 @@ func (this *Parser) NextStatement() ast.Statement {
     return this.parseVarDeclStatement()
   }
   
-  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.Cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) != -1 {
+  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.Cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.PowerAssign, token.ModAssign, token.AndAssign, token.OrAssign }) != -1 {
     return this.parseOperationStatement()
   }
   
@@ -109,7 +109,7 @@ func (this *Parser) parseOperationStatement() ast.Statement {
   stat.Name = id
   this.advance()
   
-  if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) == -1 {
+  if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.PowerAssign, token.ModAssign, token.AndAssign, token.OrAssign }) == -1 {
     return ast.ErrorStatement { Msg: "Syntax error when setting a value. Examples: a -= 10; message += 'Hello'." }
   }
   
@@ -287,7 +287,7 @@ func (this *Parser) term() ast.ExpressionNode {
   
   res := this.postfix()
   
-  for this.token().Type != token.Error && (this.token().Type == token.Times || this.token().Type == token.Divide || this.token().Type == token.Mod) {
+  for this.token().Type != token.Error && (this.token().Type == token.Times || this.token().Type == token.Divide || this.token().Type == token.Power || this.token().Type == token.Mod) {
     if this.token().Type == token.Times {
       this.advance()
       
@@ -296,6 +296,10 @@ func (this *Parser) term() ast.ExpressionNode {
       this.advance()
       
       res = ast.BinNode { res, this.term(), "/" }
+    } else if this.token().Type == token.Power {
+      this.advance()
+      
+      res = ast.BinNode { res, this.term(), "^" }
     } else if this.token().Type == token.Mod {
       this.advance()
       
