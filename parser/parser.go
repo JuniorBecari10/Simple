@@ -2,7 +2,6 @@ package parser
 
 import (
   "strconv"
-  "fmt"
   
   "simple/token"
   "simple/lexer"
