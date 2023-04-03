@@ -249,6 +249,11 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         s := st.(ast.VarDeclStatement)
         
         vl := SolveExpression(s.Value)
+
+        if vl == nil {
+          return nil
+        }
+
         Variables[s.Name.Value] = vl
         
         return vl
@@ -257,9 +262,13 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
     case ast.OperationStatement:
       return func(st ast.Statement) Any {
         s := st.(ast.OperationStatement)
-        
+
         vl := SolveExpression(s.Value)
         _, ok := Variables[s.Name.Value]
+
+        if vl == nil {
+          return nil
+        }
 
         if !ok {
           ShowError("The variable " + s.Name.Value + " doesn't exist.", "Create one declaring it, like: a = 10, b = 'Hello', c = true.")
@@ -314,9 +323,8 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
             Variables[s.Name.Value] = vl
             
             return vl
-          
         }
-        
+
         return vl
       }
     
@@ -325,6 +333,11 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         s := st.(ast.PrintStatement)
         
         exp := SolveExpression(s.Expression)
+
+        if exp == nil {
+          return nil
+        }
+
         fmt.Print(exp)
         
         if s.BreakLine {

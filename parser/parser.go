@@ -224,35 +224,35 @@ func (this *Parser) boolean() ast.ExpressionNode {
     if this.token().Type == token.And {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "&" }
+      res = ast.BinNode { res, this.exp(), "&" }
     } else if this.token().Type == token.Or {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "|" }
+      res = ast.BinNode { res, this.exp(), "|" }
     } else if this.token().Type == token.Equals {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "==" }
+      res = ast.BinNode { res, this.exp(), "==" }
     } else if this.token().Type == token.Different {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "!=" }
+      res = ast.BinNode { res, this.exp(), "!=" }
     } else if this.token().Type == token.Greater {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), ">" }
+      res = ast.BinNode { res, this.exp(), ">" }
     } else if this.token().Type == token.GreaterEq {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), ">=" }
+      res = ast.BinNode { res, this.exp(), ">=" }
     } else if this.token().Type == token.Less {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "<" }
+      res = ast.BinNode { res, this.exp(), "<" }
     } else if this.token().Type == token.LessEq {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "<=" }
+      res = ast.BinNode { res, this.exp(), "<=" }
     }
   }
   
@@ -292,19 +292,19 @@ func (this *Parser) term() ast.ExpressionNode {
     if this.token().Type == token.Times {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "*" }
+      res = ast.BinNode { res, this.postfix(), "*" }
     } else if this.token().Type == token.Divide {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "/" }
+      res = ast.BinNode { res, this.postfix(), "/" }
     } else if this.token().Type == token.Power {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "^" }
+      res = ast.BinNode { res, this.postfix(), "^" }
     } else if this.token().Type == token.Mod {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "%" }
+      res = ast.BinNode { res, this.postfix(), "%" }
     }
   }
   
