@@ -94,15 +94,14 @@ func RunCode(code string) {
   codeLines := make([]CodeLine, 0)
 
   for i, _ := range lines {
-    tokens := lexer.Lex(code)
+    tokens := lexer.Lex(lines[i])
     errs := lexer.CheckErrors(tokens)
     
     if len(errs) > 0 {
       for _, e := range errs {
         // todo: add arrow ^ in hint, getting the position
         LineCode = lines[i]
-        fmt.Println(LineCode, lines[i])
-        ShowError("Error in lexer: " + e, "")
+        ShowError("Error in lexer: " + e, "Consider removing them.")
       }
       
       return
@@ -128,6 +127,7 @@ func RunCode(code string) {
   }
 
   DetectLabels(GetStatements(code))
+  fmt.Println(Labels)
   PC = 0
 
   for PC < len(codeLines) || !Error {
