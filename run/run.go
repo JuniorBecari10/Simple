@@ -58,9 +58,8 @@ func ShowError(msg, hint string) {
   
   if hint != "" {
     fmt.Println(hint)
+    fmt.Println()
   }
-  
-  fmt.Println()
   
   Error = true
 }
@@ -82,9 +81,8 @@ func ShowWarning(msg, hint string) {
   
   if hint != "" {
     fmt.Println(hint)
+    fmt.Println()
   }
-  
-  fmt.Println()
 }
 
 var Variables = map[string]Any {}
@@ -95,8 +93,32 @@ func RunCode(code string) {
   lines := strings.Split(strings.TrimSpace(code), "\n")
   codeLines := make([]CodeLine, 0)
 
-  for i, l := range lines {
-    stats := GetStatements(l)
+  for i, _ := range lines {
+    tokens := lexer.Lex(code)
+    errs := lexer.CheckErrors(tokens)
+    
+    if len(errs) > 0 {
+      for _, e := range errs {
+        // todo: add arrow ^ in hint, getting the position
+        LineCode = lines[i]
+        fmt.Println(LineCode, lines[i])
+        ShowError("Error in lexer: " + e, "")
+      }
+      
+      return
+    }
+
+    stats := parser.Parse(tokens)
+    errs = parser.CheckErrors(stats)
+    
+    if len(errs) > 0 {
+      for _, e := range errs {
+        LineCode = lines[i]
+        ShowError("Error in parser: " + e, "")
+      }
+      
+      return
+    }
 
     if len(stats) == 0 {
       continue
@@ -397,7 +419,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
               return ""
             }
             
-            ShowError("Cannot use non-boolean expressions inside an if statement.", "You should use only boolean expressions.")
+            ShowError("Cannot use non-boolean expressions inside an if statement.", "You must use only boolean expressions.")
             return nil
           }
         }
@@ -414,7 +436,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         i := int(code)
         
         if !ok {
-          ShowError("The exit code provided must be an integer.", "Examples: exit 0, exit 1 + 1, exit a + b.")
+          ShowError("The exit code provided must be a positive integer.", "Examples: exit 0, exit 1 + 1, exit a + b.")
           return nil
         }
         
