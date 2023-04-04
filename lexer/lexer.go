@@ -3,6 +3,7 @@ package lexer
 import (
   "strings"
   "fmt"
+  "unicode"
   
   "simple/token"
 )
@@ -41,18 +42,16 @@ func (this *Lexer) NextToken() token.Token {
     return token.Token { token.End, "", this.cursor }
   }
   
-  for this.char() == ' ' {
+  for (unicode.IsSpace(rune(this.char())) && this.char() != '\n') || this.char() == 0 {
+    if this.cursor >= len(this.chars) {
+      return token.Token { token.End, "", this.cursor }
+    }
+
     this.advance()
   }
   
   if this.char() == '#' {
     return token.Token { token.End, "", this.cursor }
-  }
-  
-  if this.char() == ';' {
-    ch := this.char()
-    this.advance()
-    return token.Token { token.NewLine, string(ch), this.cursor }
   }
   
   if this.char() == '\'' {
@@ -228,6 +227,15 @@ func (this *Lexer) NextToken() token.Token {
     
     return token.Token { token.DivideAssign, this.chars[pos:pos + 2], pos }
   }
+
+  if this.char() == '^' && this.peekChar() == '=' {
+    pos := this.cursor
+    
+    this.advance()
+    this.advance()
+    
+    return token.Token { token.PowerAssign, this.chars[pos:pos + 2], pos }
+  }
   
   if this.char() == '%' && this.peekChar() == '=' {
     pos := this.cursor
@@ -321,6 +329,14 @@ func (this *Lexer) NextToken() token.Token {
     
     return token.Token { token.Divide, string(ch), pos }
   }
+
+  if this.char() == '^' {
+    pos := this.cursor
+    ch := this.char()
+    this.advance()
+    
+    return token.Token { token.Power, string(ch), pos }
+  }
   
   if this.char() == '(' {
     pos := this.cursor
@@ -342,7 +358,7 @@ func (this *Lexer) NextToken() token.Token {
   ch := this.char()
   this.advance()
   
-  return token.Token { token.Error, "Unknown token: '" + string(ch) + "', pos " + fmt.Sprintf("%d", pos) + ".", pos }
+  return token.Token { token.Error, "Unknown token: '" + string(ch) + "', char " + fmt.Sprintf("%d", ch) + ", pos " + fmt.Sprintf("%d", pos) + ".", pos }
 }
 
 // -- Helper -- //

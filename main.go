@@ -6,13 +6,11 @@ import (
   "reflect"
   
   "simple/repl"
-  "simple/lexer"
-  "simple/parser"
   "simple/run"
 )
 
 const (
-  Version = "Release v1.2"
+  Version = "Release v1.3"
   
   ModeTokens     = "Tokens"
   ModeStatements = "Statements"
@@ -57,6 +55,8 @@ func main() {
     if err != nil {
       fmt.Println("File '" + os.Args[1] + "' doesn't exist.")
       fmt.Println("Verify if you typed the name correctly.")
+      
+      return
     }
     
     Run(string(content))
@@ -66,7 +66,30 @@ func main() {
   
   if len(os.Args) >= 3 {
     if os.Args[1] == "run" {
-      Run(os.Args[2])
+      if Mode == ModeTokens {
+        fmt.Println("Tokens:\n")
+        tks := run.GetTokens(os.Args[2])
+        
+        for _, t := range tks {
+          fmt.Printf("%+v\n", t)
+        }
+        
+        return
+      } else if Mode == ModeStatements {
+        fmt.Println("Statements:\n")
+        stats := run.GetStatements(os.Args[2])
+        
+        for _, s := range stats {
+          fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
+        }
+        
+        return
+      }
+      
+      stats := run.GetStatements(os.Args[2])
+      
+      run.DetectLabels(stats)
+      run.Run(stats, 1, os.Args[2], false)
       return
     }
     
@@ -75,6 +98,8 @@ func main() {
     if err != nil {
       fmt.Println("File '" + os.Args[1] + "' doesn't exist.")
       fmt.Println("Verify if you typed the name correctly.")
+      
+      return
     }
     
     Run(string(content))
@@ -101,47 +126,26 @@ func help() {
   fmt.Println("\nhttps://github.com/JuniorBecari10/Simple")
 }
 
-func Run(code string) {
-  tks := lexer.Lex(code)
-  errs := lexer.CheckErrors(tks)
-  lines := lexer.SplitLines(code)
-  
-  if len(errs) > 0 {
-    for i, e := range errs {
-      repl.Panic(e, lines[i], i)
-    }
-    
-    return
-  }
-  
+func Run(content string) {
   if Mode == ModeTokens {
     fmt.Println("Tokens:\n")
+    tks := run.GetTokens(content)
     
     for _, t := range tks {
-      fmt.Println(t)
-    }
-    return
-  }
-  
-  stats := parser.Parse(tks)
-  errs, ls := parser.CheckErrors(stats)
-  
-  if len(errs) > 0 {
-    for i, e := range errs {
-      repl.Panic(e, lines[i], ls[i] + 1)
+      fmt.Printf("%+v\n", t)
     }
     
     return
-  }
-  
-  if Mode == ModeStatements {
+  } else if Mode == ModeStatements {
     fmt.Println("Statements:\n")
+    stats := run.GetStatements(string(content))
     
     for _, s := range stats {
       fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
     }
+    
     return
   }
   
-  run.Run(stats, lexer.SplitLines(code))
+  run.RunCode(content)
 }

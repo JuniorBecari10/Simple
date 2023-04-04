@@ -30,40 +30,41 @@ func Repl() {
       os.Exit(0)
     }
     
-    Run(text, true)
+    Run(text)
   }
 }
 
-func Run(code string, printRet bool) {
-  tks := lexer.Lex(code)
-  errs := lexer.CheckErrors(tks)
+func Run(code string) {
+  tokens := lexer.Lex(code)
+  errs := lexer.CheckErrors(tokens)
   
   if len(errs) > 0 {
-    for i, e := range errs {
-      Panic(e, code, i)
+    for _, e := range errs {
+      // todo: add arrow ^ in hint, getting the position
+      run.LineCode = code
+      run.ShowError("Error in lexer: " + e, "")
     }
     
     return
   }
   
-  
-  stats := parser.Parse(tks)
-  errs, lines := parser.CheckErrors(stats)
+  stats := parser.Parse(tokens)
+  errs = parser.CheckErrors(stats)
   
   if len(errs) > 0 {
-    for i, e := range errs {
-      Panic(e, code, lines[i])
+    for _, e := range errs {
+      run.LineCode = code
+      run.ShowError("Error in parser: " + e, "")
     }
     
     return
   }
   
+  vls := run.Run(stats, 0, code, true)
   
-  for _, stat := range stats {
-    vl := run.RunStat(stat, true, code)
-    
+  for _, vl := range vls {
     if vl == nil {
-      continue
+      return
     }
     
     ret := ""
@@ -74,32 +75,32 @@ func Run(code string, printRet bool) {
     
     if ok1 {
       ret = strconv.FormatFloat(num, 'f', -1, 64)
-    } else if ok2 {
-      ret = str
-    } else if ok3 {
-      ret = fmt.Sprintf("%t", boo)
+      } else if ok2 {
+        ret = str
+        } else if ok3 {
+          ret = fmt.Sprintf("%t", boo)
+        }
+        
+        if !run.Error {
+          fmt.Println("< " + ret)
+        }
+      }
+      
+      run.Error = false
     }
     
-    if printRet && !run.Error {
-      fmt.Println("< " + ret)
+    func Panic(msg, lineStr string, line int) {
+      fmt.Println("ERROR: On line " + strconv.Itoa(line + 1) + ".")
+      fmt.Println("\n" + msg)
+      
+      fmt.Println()
+      
+      if line > 0 {
+        fmt.Printf("%d |\n", line)
+      }
+      
+      fmt.Printf("%d | %s\n", line + 1, lineStr)
+      fmt.Printf("%d |\n", line + 2)
+      
+      fmt.Println()
     }
-    
-    run.Error = false
-  }
-}
-
-func Panic(msg, lineStr string, line int) {
-  fmt.Println("ERROR: On line " + strconv.Itoa(line + 1) + ".")
-  fmt.Println("\n" + msg)
-  
-  fmt.Println()
-  
-  if line > 0 {
-    fmt.Printf("%d |\n", line)
-  }
-  
-  fmt.Printf("%d | %s\n", line + 1, lineStr)
-  fmt.Printf("%d |\n", line + 2)
-  
-  fmt.Println()
-}

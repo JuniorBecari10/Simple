@@ -10,7 +10,7 @@ import (
 
 type Parser struct {
   tokens []token.Token
-  cursor int
+  Cursor int
 }
 
 func New(tokens []token.Token) *Parser {
@@ -18,39 +18,39 @@ func New(tokens []token.Token) *Parser {
 }
 
 func (this *Parser) advance() {
-  this.cursor++
+  this.Cursor++
 }
 
 func (this *Parser) token() token.Token {
-  if this.cursor >= len(this.tokens) {
-    return token.Token { token.Error, "", this.cursor }
+  if this.Cursor >= len(this.tokens) {
+    return token.Token { token.Error, "", this.Cursor }
   }
   
-  return this.tokens[this.cursor]
+  return this.tokens[this.Cursor]
 }
 
 func (this *Parser) peekToken() token.Token {
-  if this.cursor + 1 >= len(this.tokens) {
-    return token.Token { token.Error, "", this.cursor + 1 }
+  if this.Cursor + 1 >= len(this.tokens) {
+    return token.Token { token.Error, "", this.Cursor + 1 }
   }
   
-  return this.tokens[this.cursor + 1]
+  return this.tokens[this.Cursor + 1]
 }
 
-func (this *Parser) nextStatement() ast.Statement {
+func (this *Parser) NextStatement() ast.Statement {
   if this.token().Type == token.End {
     return ast.EndStatement {}
   }
   
   if this.token().Type == token.Error {
-    return ast.ErrorStatement { Msg: this.token().Content }
+    return ast.ErrorStatement { Msg: "token error: '" + this.token().Content + "'" }
   }
   
-  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && this.tokens[this.cursor + 1].Type == token.Assign {
+  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && this.tokens[this.Cursor + 1].Type == token.Assign {
     return this.parseVarDeclStatement()
   }
   
-  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) != -1 {
+  if len(this.tokens) >= 2 && this.token().Type == token.Identifier && Find(string(this.tokens[this.Cursor + 1].Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.PowerAssign, token.ModAssign, token.AndAssign, token.OrAssign }) != -1 {
     return this.parseOperationStatement()
   }
   
@@ -82,7 +82,8 @@ func (this *Parser) nextStatement() ast.Statement {
     return this.parseExitStatement()
   }
   
-  return ast.ExpressionStatement { this.parseExpression() }
+  exp := this.parseExpression()
+  return ast.ExpressionStatement { exp }
 }
 
 func (this *Parser) parseVarDeclStatement() ast.Statement {
@@ -109,7 +110,7 @@ func (this *Parser) parseOperationStatement() ast.Statement {
   stat.Name = id
   this.advance()
   
-  if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.ModAssign, token.AndAssign, token.OrAssign }) == -1 {
+  if Find(string(this.token().Type), []string { token.PlusAssign, token.MinusAssign, token.TimesAssign, token.DivideAssign, token.PowerAssign, token.ModAssign, token.AndAssign, token.OrAssign }) == -1 {
     return ast.ErrorStatement { Msg: "Syntax error when setting a value. Examples: a -= 10; message += 'Hello'." }
   }
   
@@ -209,7 +210,53 @@ func (this *Parser) parseExitStatement() ast.Statement {
 }
 
 func (this *Parser) parseExpression() ast.ExpressionNode {
-  return this.exp()
+  return this.boolean()
+}
+
+func (this *Parser) boolean() ast.ExpressionNode {
+  if this.token().Type == token.Error {
+    return nil
+  }
+  
+  res := this.exp()
+  
+  for this.token().Type != token.Error && (this.token().Type == token.And || this.token().Type == token.Or || this.token().Type == token.Equals || this.token().Type == token.Different || this.token().Type == token.Greater|| this.token().Type == token.GreaterEq || this.token().Type == token.Less || this.token().Type == token.LessEq) {
+    if this.token().Type == token.And {
+      this.advance()
+      
+      res = ast.BinNode { res, this.exp(), "&" }
+    } else if this.token().Type == token.Or {
+      this.advance()
+      
+      res = ast.BinNode { res, this.exp(), "|" }
+    } else if this.token().Type == token.Equals {
+      this.advance()
+      
+      res = ast.BinNode { res, this.exp(), "==" }
+    } else if this.token().Type == token.Different {
+      this.advance()
+      
+      res = ast.BinNode { res, this.exp(), "!=" }
+    } else if this.token().Type == token.Greater {
+      this.advance()
+      
+      res = ast.BinNode { res, this.exp(), ">" }
+    } else if this.token().Type == token.GreaterEq {
+      this.advance()
+      
+      res = ast.BinNode { res, this.exp(), ">=" }
+    } else if this.token().Type == token.Less {
+      this.advance()
+      
+      res = ast.BinNode { res, this.exp(), "<" }
+    } else if this.token().Type == token.LessEq {
+      this.advance()
+      
+      res = ast.BinNode { res, this.exp(), "<=" }
+    }
+  }
+  
+  return res
 }
 
 func (this *Parser) exp() ast.ExpressionNode {
@@ -217,7 +264,7 @@ func (this *Parser) exp() ast.ExpressionNode {
     return nil
   }
   
-  res := this.boolean()
+  res := this.term()
   
   for this.token().Type != token.Error && (this.token().Type == token.Plus || this.token().Type == token.Minus) {
     if this.token().Type == token.Plus {
@@ -234,52 +281,6 @@ func (this *Parser) exp() ast.ExpressionNode {
   return res
 }
 
-func (this *Parser) boolean() ast.ExpressionNode {
-  if this.token().Type == token.Error {
-    return nil
-  }
-  
-  res := this.term()
-  
-  for this.token().Type != token.Error && (this.token().Type == token.And || this.token().Type == token.Or || this.token().Type == token.Equals || this.token().Type == token.Different || this.token().Type == token.Greater|| this.token().Type == token.GreaterEq || this.token().Type == token.Less || this.token().Type == token.LessEq) {
-    if this.token().Type == token.And {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), "&" }
-    } else if this.token().Type == token.Or {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), "|" }
-    } else if this.token().Type == token.Equals {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), "==" }
-    } else if this.token().Type == token.Different {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), "!=" }
-    } else if this.token().Type == token.Greater {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), ">" }
-    } else if this.token().Type == token.GreaterEq {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), ">=" }
-    } else if this.token().Type == token.Less {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), "<" }
-    } else if this.token().Type == token.LessEq {
-      this.advance()
-      
-      res = ast.BinNode { res, this.term(), "<=" }
-    }
-  }
-  
-  return res
-}
-
 func (this *Parser) term() ast.ExpressionNode {
   if this.token().Type == token.Error {
     return nil
@@ -287,19 +288,23 @@ func (this *Parser) term() ast.ExpressionNode {
   
   res := this.postfix()
   
-  for this.token().Type != token.Error && (this.token().Type == token.Times || this.token().Type == token.Divide || this.token().Type == token.Mod) {
+  for this.token().Type != token.Error && (this.token().Type == token.Times || this.token().Type == token.Divide || this.token().Type == token.Power || this.token().Type == token.Mod) {
     if this.token().Type == token.Times {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "*" }
+      res = ast.BinNode { res, this.postfix(), "*" }
     } else if this.token().Type == token.Divide {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "/" }
+      res = ast.BinNode { res, this.postfix(), "/" }
+    } else if this.token().Type == token.Power {
+      this.advance()
+      
+      res = ast.BinNode { res, this.postfix(), "^" }
     } else if this.token().Type == token.Mod {
       this.advance()
       
-      res = ast.BinNode { res, this.term(), "%" }
+      res = ast.BinNode { res, this.postfix(), "%" }
     }
   }
   
@@ -408,7 +413,7 @@ func Parse(tokens []token.Token) []ast.Statement {
     
     p := New(l)
     
-    st := p.nextStatement()
+    st := p.NextStatement()
     _, ok := st.(ast.EndStatement)
     
     if ok {
@@ -423,49 +428,26 @@ func Parse(tokens []token.Token) []ast.Statement {
     }
     
     stats = append(stats, st)
+    
+    // add showwarning here
   }
   
   return stats
 }
 
 
-func CheckErrors(stats []ast.Statement) ([]string, []int) {
+func CheckErrors(stats []ast.Statement) []string {
   errs := []string {}
-  lines := []int {}
   
   for _, s := range stats {
     es, ok := s.(ast.ErrorStatement)
     
     if ok {
       errs = append(errs, es.Msg)
-      lines = append(lines, es.Line)
     }
   }
   
-  return errs, lines
-}
-
-func ParseExpr(s string) ast.ExpressionNode {
-  tks := lexer.Lex(s)
-  
-  if len(lexer.CheckErrors(tks)) != 0 {
-    return nil
-  }
-  
-  stats := Parse(tks)
-  
-  ls, _ := CheckErrors(stats)
-  if len(ls) != 0 || len(stats) > 1 {
-    return nil
-  }
-  
-  exp, ok := stats[0].(ast.ExpressionStatement)
-  
-  if !ok {
-    return nil
-  }
-  
-  return exp.Expression
+  return errs
 }
 
 func Find(what string, where []string) int {
