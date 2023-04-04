@@ -123,18 +123,20 @@ func RunCode(code string) {
       continue
     }
 
+    if ls, ok := stats[0].(ast.LabelStatement); ok {
+      Labels = append(Labels, Label { ":" + ls.Name, i })
+    }
+
     codeLines = append(codeLines, CodeLine { i, stats[0] })
   }
-
-  DetectLabels(GetStatements(code))
-  fmt.Println(Labels)
+  
   PC = 0
 
   for PC < len(codeLines) || !Error {
     if PC >= len(codeLines) {
       break
     }
-
+    
     l := codeLines[PC]
 
     Line = l.Line
@@ -221,16 +223,6 @@ func GetStatements(code string) []ast.Statement {
   }
   
   return stats
-}
-
-func DetectLabels(stats []ast.Statement) {
-  Labels = []Label {}
-  
-  for i, v := range stats {
-    if ls, ok := v.(ast.LabelStatement); ok {
-      Labels = append(Labels, Label { ":" + ls.Name, i })
-    }
-  }
 }
 
 func RunStat(stat ast.Statement, repl bool) Any {
@@ -385,7 +377,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         for _, l := range Labels {
           if l.Name == label {
             Stack = append(Stack, PC)
-            PC = l.Line
+            PC = l.Line - 1
             return ""
           }
         }
@@ -411,7 +403,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
             if ok {
               if vl {
                 Stack = append(Stack, PC)
-                PC = pc
+                PC = pc - 1
                 return ""
               }
               
