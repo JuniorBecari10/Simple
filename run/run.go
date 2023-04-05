@@ -36,10 +36,15 @@ type CodeLine struct {
 
 var Error bool = false
 var PC int = 0
+
 var Line int
 var LineCode string
+
 var Labels []Label
 var Stack []int
+
+var Variables = map[string]Any {}
+var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
 
 func ShowError(msg, hint string) {
   fmt.Println("\n-------------\n")
@@ -85,10 +90,6 @@ func ShowWarning(msg, hint string) {
   }
 }
 
-var Variables = map[string]Any {}
-
-var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
-
 func RunCode(code string) {
   lines := strings.Split(strings.TrimSpace(code), "\n")
   codeLines := make([]CodeLine, 0)
@@ -123,17 +124,22 @@ func RunCode(code string) {
       continue
     }
 
-    if ls, ok := stats[0].(ast.LabelStatement); ok {
-      Labels = append(Labels, Label { ":" + ls.Name, i })
-    }
-
     codeLines = append(codeLines, CodeLine { i, stats[0] })
   }
   
+  for i, c := range codeLines {
+    if ls, ok := c.Statement.(ast.LabelStatement); ok {
+      Labels = append(Labels, Label { ":" + ls.Name, i })
+    }
+  }
+
   PC = 0
-  fmt.Println(len(codeLines))
 
   for PC < len(codeLines) || !Error {
+    if PC >= len(codeLines) {
+      break
+    }
+
     l := codeLines[PC]
 
     Line = l.Line
@@ -173,7 +179,6 @@ func Run(stats []ast.Statement, line int, lineCode string, repl bool) []Any {
     }
     
     ret = append(ret, RunStat(stats[PC], repl))
-    
     PC++
   }
   
