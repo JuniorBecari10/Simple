@@ -87,7 +87,7 @@ func help() {
   
   fmt.Println("\nA simple, interpreted programming language. It's very easy to use.\n")
   
-  fmt.Println("Usage: simple [file] | [-v | --version] | [-h | --help] | run [code] [-t | --tokens | -s | --statements]\n")
+  fmt.Println("Usage: simple [file] | [-v | --version] | [-h | --help] [-t | --tokens | -s | --statements]\n")
   
   fmt.Println("Run 'simple' to open the REPL;")
   fmt.Println("Run 'simple run [code]' to automatically run the code you typed;")

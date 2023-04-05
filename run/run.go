@@ -131,12 +131,9 @@ func RunCode(code string) {
   }
   
   PC = 0
+  fmt.Println(len(codeLines))
 
   for PC < len(codeLines) || !Error {
-    if PC >= len(codeLines) {
-      break
-    }
-    
     l := codeLines[PC]
 
     Line = l.Line
