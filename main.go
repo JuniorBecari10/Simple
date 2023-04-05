@@ -65,34 +65,6 @@ func main() {
   }
   
   if len(os.Args) >= 3 {
-    if os.Args[1] == "run" {
-      if Mode == ModeTokens {
-        fmt.Println("Tokens:\n")
-        tks := run.GetTokens(os.Args[2])
-        
-        for _, t := range tks {
-          fmt.Printf("%+v\n", t)
-        }
-        
-        return
-      } else if Mode == ModeStatements {
-        fmt.Println("Statements:\n")
-        stats := run.GetStatements(os.Args[2])
-        
-        for _, s := range stats {
-          fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
-        }
-        
-        return
-      }
-      
-      stats := run.GetStatements(os.Args[2])
-      
-      run.DetectLabels(stats)
-      run.Run(stats, 1, os.Args[2], false)
-      return
-    }
-    
     content, err := os.ReadFile(os.Args[1])
     
     if err != nil {
@@ -115,7 +87,7 @@ func help() {
   
   fmt.Println("\nA simple, interpreted programming language. It's very easy to use.\n")
   
-  fmt.Println("Usage: simple [file] | [-v | --version] | [-h | --help] | run [code] [-t | --tokens | -s | --statements]\n")
+  fmt.Println("Usage: simple [file] | [-v | --version] | [-h | --help] [-t | --tokens | -s | --statements]\n")
   
   fmt.Println("Run 'simple' to open the REPL;")
   fmt.Println("Run 'simple run [code]' to automatically run the code you typed;")

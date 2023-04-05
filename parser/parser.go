@@ -403,34 +403,28 @@ func (this *Parser) factor() ast.ExpressionNode {
 }
 
 func Parse(tokens []token.Token) []ast.Statement {
-  lines := lexer.SplitTokens(tokens)
   stats := []ast.Statement {}
   
-  for i, l := range lines {
-    if len(l) == 0 {
-      continue
-    }
-    
-    p := New(l)
-    
-    st := p.NextStatement()
-    _, ok := st.(ast.EndStatement)
-    
-    if ok {
-      break
-    }
-    
-    es, ok := st.(ast.ErrorStatement)
-    
-    if ok {
-      es.Line = i
-      stats = append(stats, es)
-    }
-    
-    stats = append(stats, st)
-    
-    // add showwarning here
+  if len(tokens) == 0 {
+    return stats
   }
+  
+  p := New(tokens)
+  
+  st := p.NextStatement()
+  _, ok := st.(ast.EndStatement)
+  
+  if ok {
+    return stats
+  }
+  
+  es, ok := st.(ast.ErrorStatement)
+  
+  if ok {
+    stats = append(stats, es)
+  }
+  
+  stats = append(stats, st)
   
   return stats
 }

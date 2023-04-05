@@ -36,10 +36,15 @@ type CodeLine struct {
 
 var Error bool = false
 var PC int = 0
+
 var Line int
 var LineCode string
+
 var Labels []Label
 var Stack []int
+
+var Variables = map[string]Any {}
+var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
 
 func ShowError(msg, hint string) {
   fmt.Println("\n-------------\n")
@@ -85,24 +90,19 @@ func ShowWarning(msg, hint string) {
   }
 }
 
-var Variables = map[string]Any {}
-
-var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
-
 func RunCode(code string) {
   lines := strings.Split(strings.TrimSpace(code), "\n")
   codeLines := make([]CodeLine, 0)
 
   for i, _ := range lines {
-    tokens := lexer.Lex(code)
+    tokens := lexer.Lex(lines[i])
     errs := lexer.CheckErrors(tokens)
     
     if len(errs) > 0 {
       for _, e := range errs {
         // todo: add arrow ^ in hint, getting the position
         LineCode = lines[i]
-        fmt.Println(LineCode, lines[i])
-        ShowError("Error in lexer: " + e, "")
+        ShowError("Error in lexer: " + e, "Consider removing them.")
       }
       
       return
@@ -126,8 +126,13 @@ func RunCode(code string) {
 
     codeLines = append(codeLines, CodeLine { i, stats[0] })
   }
+  
+  for i, c := range codeLines {
+    if ls, ok := c.Statement.(ast.LabelStatement); ok {
+      Labels = append(Labels, Label { ":" + ls.Name, i })
+    }
+  }
 
-  DetectLabels(GetStatements(code))
   PC = 0
 
   for PC < len(codeLines) || !Error {
@@ -174,7 +179,6 @@ func Run(stats []ast.Statement, line int, lineCode string, repl bool) []Any {
     }
     
     ret = append(ret, RunStat(stats[PC], repl))
-    
     PC++
   }
   
@@ -221,16 +225,6 @@ func GetStatements(code string) []ast.Statement {
   }
   
   return stats
-}
-
-func DetectLabels(stats []ast.Statement) {
-  Labels = []Label {}
-  
-  for i, v := range stats {
-    if ls, ok := v.(ast.LabelStatement); ok {
-      Labels = append(Labels, Label { ":" + ls.Name, i })
-    }
-  }
 }
 
 func RunStat(stat ast.Statement, repl bool) Any {
@@ -385,7 +379,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
         for _, l := range Labels {
           if l.Name == label {
             Stack = append(Stack, PC)
-            PC = l.Line
+            PC = l.Line - 1
             return ""
           }
         }
@@ -411,7 +405,7 @@ func GetStatFunc(st ast.Statement) func(ast.Statement) Any {
             if ok {
               if vl {
                 Stack = append(Stack, PC)
-                PC = pc
+                PC = pc - 1
                 return ""
               }
               
