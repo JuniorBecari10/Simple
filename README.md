@@ -8,13 +8,12 @@ It's very easy to use.
 ## How to Execute
 
 ```
-simple [file] | [-v | --version] | [-h | --help] | run [code] [-t | --tokens | -s | --statements]
+simple [file] | [-v | --version] | [-h | --help] [-t | --tokens | -s | --statements]
 ```
 
 `file` - The script file you want to execute; <br>
 `-v` or `--version` - Show the version number; <br>
 `-h` or `--help` - Show the help message; <br>
-run `code` - Run Simple code without needing files; <br>
 `-t` or `--tokens` - Show the tokens read and don't execute the code; <br>
 `-s` or `--statements` - Show the statements read and don't execute the code. <br>
 
