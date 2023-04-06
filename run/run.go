@@ -605,12 +605,6 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
           
           if inp.Type == token.TypeStr {
             if err != nil {
-              
-              if vl == "true" || vl == "false" {
-                fmt.Println("Please enter a valid str!")
-                continue
-              }
-              
               return vl
             }
             

@@ -8,7 +8,7 @@ It's very easy to use.
 ## How to Execute
 
 ```
-simple [file] | [-v | --version] | [-h | --help] [-t | --tokens | -s | --statements]
+$ simple [file] | [-v | --version] | [-h | --help] [-t | --tokens | -s | --statements]
 ```
 
 `file` - The script file you want to execute; <br>
@@ -27,6 +27,19 @@ simple [file] | [-v | --version] | [-h | --help] [-t | --tokens | -s | --stateme
 `exec` - Run a system command | _See Executing Commands_; <br>
 `exit` - Exit the program; <br>
 `if` - Checks a condition and go to a label if it's true | _See Conditions_; <br>
+
+## REPL
+
+If you execute the interpreter without any arguments (`$ simple`) the REPL will start. <br>
+It's the same thing as running the code from a file, but here you have the response immediately.
+
+You can also request only the tokens or the statements using `!t` or `!s` before your code.
+
+Examples:
+```
+> !t a = 10
+> !s println "a is " + a
+```
 
 ## Printing
 
@@ -56,29 +69,38 @@ println 'a is ' + a
 
 ## Variables
 
-A variable can hold any value, its type can be `str` or `num`.
+A variable can hold any value, its type can be `str`, `num` or `bool`.
 
 ```
 var = <value | [input [str | num | bool]]>
 ```
 
-In this case, the variable `var` will have the value `value`. <br>
+Examples:
+```
+counter = 1
+name = 'John'
+exp = true
+```
+
+### User Input
+
 You can use the `input` keyword to get user's input.
 
 ```py
 var = input
 ```
 
-The user will be prompted for a value, and the value that'll be typed in will be the value of the variable.
-
+The user will be prompted for a value, and the value that'll be typed in will be the value of the variable. <br>
 You can force a type with `input` too. Just type the type in front of the `input` keyword.
 
 ```
 age = input num
+name = input str
+exp = input bool
 ```
 
-The language will keep prompting until you type a value that satisfies the condiftion; <br>
-The same is for `str`; in thic case numbers will not be accepted, and vice versa.
+The language will keep prompting until you type a value that satisfies the condition; <br>
+The same is for `str` and `bool`; in this case numbers (or anything else but `true` and `false` if the type is `bool`) will not be accepted, and vice versa.
 
 ## Labels and Jumps
 
@@ -99,7 +121,7 @@ As you can see, the `exit 0` command won't be executed.
 
 ### Returning
 
-You can return to the last goto statement that has been executed.
+You can return to the last goto statement that has been executed, because its line gets push onto the Call Stack.
 
 ```
 goto :first
@@ -111,31 +133,8 @@ println 'Before'
 ret
 ```
 
-The `ret` keyword will return to the `goto :first` line, and continue executing, without the need to jump there using `goto` again.
-
-## User Input
-
-You can request user's input with the `input` keyword.
-
-```py
-var = input
-```
-
-Within this example, the user can type anything, and the variable will store what the user has typed. <br>
-Also, you can force a type with:
-
-```py
-var = input num
-```
-
-The language will keep prompting the user until type a number. <br>
-You can do the same with `str`.
-
-```py
-var = input str
-```
-
-In this case, the language won't accept numbers, but strings.
+The `ret` keyword will return to the `goto :first` line, and continue executing, without the need to jump there using `goto` again. <br>
+But if you return and the call stack is empty, you'll get an error.
 
 ## Conditions
 
@@ -169,7 +168,7 @@ print 'Your name is ' + name
 
 ## Executing Commands
 
-In Simple, you can also execute system commands, with the keyword `exec`. <br>
+In Simple, you can also execute system commands, with the `exec` keyword. <br>
 It runs the command provided, and returns the value as an expression, so you can store the standard output in a variable! <br>
 It doesn't print the command on the screen, to do so you need to assign it to a variable and then print the variable. <br>
 
@@ -189,6 +188,36 @@ cont = exec 'cat ' + file
 println cont
 ```
 
+## Errors
+
+In Simple, error messages are well explained and detailed.
+
+Consider the following program:
+```py
+1 | a = 1
+2 | b = 0
+3 | c = a / b
+4 |
+5 | println c
+```
+
+The following error message will be printed:
+```
+-------------
+
+ERROR: On line 3.
+
+Cannot divide by zero.
+
+2 |
+3 | c = a / b
+4 |
+
+The divisor is equal to zero.
+```
+
+When the program runs into an error, it gets terminated.
+
 ## Examples
 
 Print Hello World:
@@ -207,14 +236,9 @@ Get user input and store it in a variable:
 
 ```py
 var = input
-```
-
-```py
 var = input num
-```
-
-```py
 var = input str
+var = input bool
 ```
 
 Print a variable:
@@ -280,3 +304,23 @@ goto :res
 :res
 print 'The result is ' + res
 ```
+
+Basic Terminal:
+```
+:start
+print "$ "
+
+com = input str
+res = exec com
+
+println res
+if com == "exit" goto :end
+goto :start
+
+:end
+```
+
+### Snippets
+
+More snippets on this [Gist](https://gist.github.com/JuniorBecari10/c756b122ebfd35b0e9114d759d84142f). <br>
+They were used to test the language, so feel free to submit more!
