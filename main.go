@@ -110,7 +110,7 @@ func Run(content string) {
     return
   } else if Mode == ModeStatements {
     fmt.Println("Statements:\n")
-    stats := run.GetStatements(string(content))
+    stats := run.GetStatements(content)
     
     for _, s := range stats {
       fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)

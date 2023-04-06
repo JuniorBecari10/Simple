@@ -136,7 +136,7 @@ func RunCode(code string) {
   PC = 0
 
   for PC < len(codeLines) || !Error {
-    if PC >= len(codeLines) {
+    if PC >= len(codeLines) || Error {
       break
     }
 
@@ -680,11 +680,14 @@ func GetExprFunc(ex ast.ExpressionNode) func(ast.ExpressionNode) Any {
         
         var out bytes.Buffer
         cmd.Stdout = &out
+
+        var stderr bytes.Buffer
+        cmd.Stderr = &stderr
         
         err := cmd.Run()
         
         if err != nil {
-          ShowError("An error occurred while executing the command '" + c + "':\n" + err.Error(), "Fix the error and try again.")
+          ShowError("An error occurred while executing the command '" + c + "':\n" + stderr.String(), "Fix the error and try again.")
           return nil
         }
         
