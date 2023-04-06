@@ -5,6 +5,8 @@ import (
   "bufio"
   "os"
   "strconv"
+  "strings"
+  "reflect"
   
   "simple/lexer"
   "simple/parser"
@@ -35,6 +37,28 @@ func Repl() {
 }
 
 func Run(code string) {
+  split := strings.Split(code, " ")
+
+  if split[0] == "!t" {
+    fmt.Println("Tokens:\n")
+    tks := run.GetTokens(code[2:])
+    
+    for _, t := range tks {
+      fmt.Printf("%+v\n", t)
+    }
+    
+    return
+  } else if split[0] == "!s" {
+    fmt.Println("Statements:\n")
+    stats := run.GetStatements(code[2:])
+    
+    for _, s := range stats {
+      fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
+    }
+    
+    return
+  }
+
   tokens := lexer.Lex(code)
   errs := lexer.CheckErrors(tokens)
   
@@ -81,9 +105,7 @@ func Run(code string) {
           ret = fmt.Sprintf("%t", boo)
         }
         
-        if !run.Error {
-          fmt.Println("< " + ret)
-        }
+        fmt.Println("< " + ret)
       }
       
       run.Error = false
