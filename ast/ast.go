@@ -1,7 +1,7 @@
 package ast
 
 import (
-  "simple/token"
+	"csimple/token"
 )
 
 const (

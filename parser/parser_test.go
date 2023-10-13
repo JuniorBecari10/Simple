@@ -1,12 +1,12 @@
 package parser
 
 import (
-  "testing"
-  "reflect"
-  
-  "simple/token"
-  "simple/lexer"
-  "simple/ast"
+	"reflect"
+	"testing"
+
+	"csimple/ast"
+	"csimple/lexer"
+	"csimple/token"
 )
 
 func TestParser(t *testing.T) {

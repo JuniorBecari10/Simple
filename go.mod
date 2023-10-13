@@ -1,3 +1,3 @@
-module simple
+module csimple
 
 go 1.19

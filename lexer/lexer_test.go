@@ -1,9 +1,9 @@
 package lexer
 
 import (
-  "testing"
-  
-  "simple/token"
+	"testing"
+
+	"csimple/token"
 )
 
 func TestLexer(t *testing.T) {

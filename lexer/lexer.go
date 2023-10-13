@@ -1,11 +1,11 @@
 package lexer
 
 import (
-  "strings"
-  "fmt"
-  "unicode"
-  
-  "simple/token"
+	"fmt"
+	"strings"
+	"unicode"
+
+	"csimple/token"
 )
 
 type Lexer struct {

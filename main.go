@@ -1,123 +1,96 @@
 package main
 
 import (
-  "fmt"
-  "os"
-  "reflect"
-  
-  "simple/repl"
-  "simple/run"
+	"fmt"
+	"os"
 )
 
 const (
-  Version = "Release v1.3"
-  
-  ModeTokens     = "Tokens"
-  ModeStatements = "Statements"
-)
-
-var (
-  Mode = ""
+  Version = "Release v1.0"
 )
 
 func main() {
-  if len(os.Args) == 1 {
-    repl.Repl()
-    return
-  }
-  
-  for _, a := range os.Args {
-    if a == "-t" || a == "--tokens" {
-      Mode = ModeTokens
-      break
-    }
+  switch len(os.Args) {
+    // -v | --version | -h | --help | <file>
+    case 2:
+      args1 := os.Args[1]
+
+      switch args1 {
+        case "-v":
+        case "--version":
+          fmt.Println("CSimple - " + Version)
+          fmt.Println("Made by JuniorBecari10")
+          return
+
+        case "-h":
+        case "--help":
+          help()
+          return
+      }
+      
+      content, err := os.ReadFile(args1)
+      
+      if err != nil {
+        fmt.Println("File '" + args1 + "' doesn't exist.")
+        fmt.Println("Verify if you typed the name correctly.")
+        
+        return
+      }
+      
+      Compile(string(content))
     
-    if a == "-s" || a == "--statements" {
-      Mode = ModeStatements
-      break
-    }
-  }
-  
-  if len(os.Args) == 2 {
-    if os.Args[1] == "-v" || os.Args[1] == "--version" {
-      fmt.Println("Simple - " + Version)
-      fmt.Println("Made by JuniorBecari10")
-      return
-    }
+    // run | assemble <file>
+    case 3:
+      command := os.Args[1]
+      file := os.Args[2]
+      
+      content, err := os.ReadFile(file)
     
-    if os.Args[1] == "help" || os.Args[1] == "-h" || os.Args[1] == "--help" {
+      if err != nil {
+        fmt.Println("File '" + file + "' doesn't exist.")
+        fmt.Println("Verify if you typed the name correctly.")
+        
+        return
+      }
+
+      switch command {
+        case "run":
+          Run(string(content))
+        
+        case "assemble":
+          Assemble(string(content))
+      }
+    
+    default:
       help()
-      return
-    }
-    
-    content, err := os.ReadFile(os.Args[1])
-    
-    if err != nil {
-      fmt.Println("File '" + os.Args[1] + "' doesn't exist.")
-      fmt.Println("Verify if you typed the name correctly.")
-      
-      return
-    }
-    
-    Run(string(content))
-    
-    return
   }
-  
-  if len(os.Args) >= 3 {
-    content, err := os.ReadFile(os.Args[1])
-    
-    if err != nil {
-      fmt.Println("File '" + os.Args[1] + "' doesn't exist.")
-      fmt.Println("Verify if you typed the name correctly.")
-      
-      return
-    }
-    
-    Run(string(content))
-    
-    return
-  }
-  
-  help()
 }
 
 func help() {
-  fmt.Println("Simple - " + Version)
+  fmt.Println("CSimple - " + Version)
   
-  fmt.Println("\nA simple, interpreted programming language. It's very easy to use.\n")
+  fmt.Println("\nA simple, interpreted programming language.\nIt's very easy to use.\n")
   
-  fmt.Println("Usage: simple [file] | [-v | --version] | [-h | --help] [-t | --tokens | -s | --statements]\n")
+  fmt.Println("Usage: csimple <file> | <-v | --version> | <-h | --help>\n")
   
-  fmt.Println("Run 'simple' to open the REPL;")
-  fmt.Println("Run 'simple run [code]' to automatically run the code you typed;")
-  fmt.Println("Run 'simple [file] to run code from file;'")
-  fmt.Println("Run 'simple -v' or 'simple --version' to show the version number;")
-  fmt.Println("Run 'simple -h' or 'simple --help' to show this help message.")
+  fmt.Println("csimple <file>                 | compile source code in 'file' to bytecode")
+  fmt.Println("csimple run <file>             | run bytecode in 'file'")
+  fmt.Println("csimple assemble <file>        | assemble the bytecode in 'file'")
+  fmt.Println("csimple -v | csimple --version | show the version number")
+  fmt.Println("csimple -h | csimple --help    | show this help message")
   
-  fmt.Println("\nhttps://github.com/JuniorBecari10/Simple")
+  fmt.Println("\nMade by JuniorBecari10.")
+  fmt.Println("https://github.com/JuniorBecari10/CSimple")
+}
+
+func Compile(content string) {
+
 }
 
 func Run(content string) {
-  if Mode == ModeTokens {
-    fmt.Println("Tokens:\n")
-    tks := run.GetTokens(content)
-    
-    for _, t := range tks {
-      fmt.Printf("%+v\n", t)
-    }
-    
-    return
-  } else if Mode == ModeStatements {
-    fmt.Println("Statements:\n")
-    stats := run.GetStatements(content)
-    
-    for _, s := range stats {
-      fmt.Printf("%s | %+v\n", reflect.TypeOf(s), s)
-    }
-    
-    return
-  }
-  
-  run.RunCode(content)
+
+}
+
+func Assemble(content string) {
+
 }

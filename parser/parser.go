@@ -1,11 +1,11 @@
 package parser
 
 import (
-  "strconv"
-  
-  "simple/token"
-  "simple/lexer"
-  "simple/ast"
+	"strconv"
+
+	"csimple/ast"
+	"csimple/lexer"
+	"csimple/token"
 )
 
 type Parser struct {
