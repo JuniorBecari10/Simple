@@ -1,6 +1,6 @@
 <img src='logo.png'>
 
-# Simple
+# CSimple
 
 A simple, interpreted programming language. <br>
 It's very easy to use.
